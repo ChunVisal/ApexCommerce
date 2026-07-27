@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Categories;
 use App\Models\Product;
 use App\Models\ProductCatalog;
+use App\Models\ProductUom;
 use App\Models\StockMovement;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -15,31 +17,108 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::query()
-            ->when($request->search, function ($query) use ($request) {
-                $search = $request->search;
+        $categories = Categories::withCount([
+            'products as total_stock' => function ($q) {
+                $q->select(DB::raw('sum(stock_quantity)'));
+            },
+        ])->get();
 
-                return $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('code', 'like', '%' . $search . '%')
-                        ->orWhere('barcode', 'like', '%' . $search . '%')
-                        ->orWhereHas('category', function ($cat) use ($search) {
-                            $cat->where('name', 'like', '%' . $search . '%');
-                        });
-                });
+        $products = Product::with('category')
+            ->where(function ($q) {
+                $q->where('has_uom', false)->orWhereNull('has_uom');
             })
-            ->with('category')
+            ->when($request->search, function ($q) use ($request) {
+                $search = $request->search;
+                $q->where('name', 'like', "%$search%")
+                    ->orWhere('code', 'like', "%$search%")
+                    ->orWhere('barcode', 'like', "%$search%")
+                    ->orWhereHas('category', fn($cat) => $cat->where('name', 'like', "%$search%"));
+            })
             ->get();
 
         if ($request->ajax) {
-            return response()->json([
-                'products' => $products,
-            ]);
+            return response()->json(['products' => $products]);
         }
 
-        $categories = Categories::all();
-
         return view('admin.products', compact('products', 'categories'));
+    }
+
+    public function uoms()
+    {
+        $categories = Categories::all();
+        $products = Product::with('uoms', 'category')->get();
+        $uoms = ProductUom::all();
+        return view('admin.products-uom', compact('products', 'categories', 'uoms'));
+    }
+
+    public function storeUom(Request $request)
+    {
+        try {
+            $product = Product::create([
+                'name' => $request->name,
+                'category_id' => Categories::where('code', $request->category_code)->first()->id,
+                'selling_price' => $request->price,
+                'stock_quantity' => $request->stock ?? 0,
+                'status' => $request->status ?? 'active',
+                'has_uom' => true,
+                'base_unit_name' => $request->base_unit_name,
+                'base_unit_code' => $request->base_unit_code,
+                'code' => 'PROD-' . strtoupper(substr($request->name, 0, 3)) . '-' . rand(1000, 9999),
+                'barcode' => str_pad(rand(0, 999999999999), 12, '0', STR_PAD_LEFT),
+            ]);
+
+            // Handle image
+            if ($request->hasFile('image')) {
+                $product->image = $request->file('image')->store('products', 'public');
+            } elseif ($request->image_url) {
+                $product->image = $request->image_url;
+            }
+            $product->save();
+
+            // Save UOMs
+            if ($request->uoms) {
+                $uoms = json_decode($request->uoms, true);
+                foreach ($uoms as $uom) {
+                    $product->uoms()->create($uom);
+                }
+            }
+
+            return response()->json(['success' => true, 'message' => 'UOM product created']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateUom(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+
+        $product->update([
+            'name' => $request->name,
+            'selling_price' => $request->price,
+            'base_unit_name' => $request->base_unit_name,
+            'base_unit_code' => $request->base_unit_code,
+            'status' => $request->status,
+        ]);
+
+        // Handle image
+        if ($request->hasFile('image')) {
+            $product->image = $request->file('image')->store('products', 'public');
+        } elseif ($request->image_url) {
+            $product->image = $request->image_url;
+        }
+        $product->save();
+
+        // Update UOMs - delete old, create new
+        if ($request->uoms) {
+            $product->uoms()->delete();
+            $uoms = json_decode($request->uoms, true);
+            foreach ($uoms as $uom) {
+                $product->uoms()->create($uom);
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'UOM product updated']);
     }
 
     public function update(Request $request, $id)

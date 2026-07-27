@@ -54,12 +54,39 @@
             <span x-show="open" class="text-sm font-medium whitespace-nowrap">Dashboard</span>
         </a>
 
-        <a href="{{ route('admin.products') }}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('admin.products') ? 'bg-blue-50 dark:bg-zinc-900 text-p dark:text-zinc-100' : 'text-gray-700 dark:text-zinc-400 hover:bg-gray-200/30 dark:hover:bg-zinc-900/50' }}"
-            :class="open ? '' : 'justify-center'">
-            <x-heroicon-o-cube class="w-5 h-5 shrink-0" />
-            <span x-show="open" class="text-sm font-medium whitespace-nowrap">Products</span>
-        </a>
+        {{-- Products with Submenu --}}
+        <div x-data="{
+            productsOpen: localStorage.getItem('submenu-products') === 'open',
+            toggleProductsSubmenu() {
+                this.productsOpen = !this.productsOpen;
+                localStorage.setItem('submenu-products', this.productsOpen ? 'open' : 'closed');
+            }
+        }">
+            <button @click="open ? toggleProductsSubmenu() : window.location.href = '{{ route('admin.products') }}'"
+                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('admin.products') || request()->routeIs('admin.products.uoms') ? 'bg-blue-50 dark:bg-zinc-900 text-p dark:text-zinc-100' : 'text-gray-700 dark:text-zinc-400 hover:bg-gray-200/30 dark:hover:bg-zinc-900/50' }}"
+                :class="open ? '' : 'justify-center'">
+                <x-heroicon-o-cube class="w-5 h-5 shrink-0" />
+                <span x-show="open" class="text-sm font-medium whitespace-nowrap flex-1 text-left">Products</span>
+                <x-heroicon-o-chevron-down x-show="open" :class="productsOpen ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" />
+            </button>
+
+            {{-- Submenu --}}
+            <div x-show="open && productsOpen" x-transition:enter="transition-all ease-out duration-300"
+                x-transition:enter-start="opacity-0 max-h-0 overflow-hidden"
+                x-transition:enter-end="opacity-100 max-h-40 overflow-hidden"
+                x-transition:leave="transition-all ease-in duration-200"
+                x-transition:leave-start="opacity-100 max-h-40 overflow-hidden"
+                x-transition:leave-end="opacity-0 max-h-0 overflow-hidden" class="ml-4 space-y-2 mt-2">
+                <a href="{{ route('admin.products') }}"
+                    class="block px-3 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-colors {{ request()->routeIs('admin.products') && !request()->routeIs('admin.products.uoms') ? 'bg-blue-50 dark:bg-zinc-800/70 text-p dark:text-zinc-100' : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50' }}">
+                    Products List
+                </a>
+                <a href="{{ route('admin.products.uoms') }}"
+                    class="block px-3 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-colors {{ request()->routeIs('admin.products.uoms') ? 'bg-blue-50 dark:bg-zinc-800/70 text-p dark:text-zinc-100' : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50' }}">
+                    Product UOMs
+                </a>
+            </div>
+        </div>
 
         {{-- Inventory with Submenu --}}
         <div x-data="{
@@ -94,6 +121,7 @@
                 </a>
             </div>
         </div>
+
 
         <a href="{{ route('admin.users') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('admin.users') ? 'bg-blue-50 dark:bg-zinc-900 text-p dark:text-zinc-100' : 'text-gray-700 dark:text-zinc-400 hover:bg-gray-200/30 dark:hover:bg-zinc-900/50' }}"

@@ -37,12 +37,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
     Route::post('/admin/notifications/{id}/approve', [NotificationController::class, 'approve'])->name('admin.notifications.approve');
-    Route::post('/admin/notifications/{id}/reject', [NotificationController::class, 'reject'])->name('admin.notifications.reject');
+    Route::post('/admin/notifications/{id}/rejecot', [NotificationController::class, 'reject'])->name('admin.notifications.reject');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markSingle']);
     Route::get('/admin/stock-requests', [StockRequestController::class, 'index'])->name('admin.stock-requests');
 
-    Route::get('/products', [AdminController::class, 'products'])->name('admin.products');
+    Route::get('/products', [ProductController::class, 'index'])->name('admin.products');
+    Route::get('/products/uoms', [ProductController::class, 'uoms'])->name('admin.products.uoms');
+    Route::post('/products/uoms', [ProductController::class, 'storeUom'])->name('admin.products.uoms.store');
+    Route::put('/admin/products/{id}/uoms', [ProductController::class, 'updateUom'])->name('admin.products.uoms.update');
     Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
     Route::get('/products/by-category', [ProductController::class, 'byCategory'])
         ->name('admin.products.byCategory');

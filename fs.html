@@ -1,445 +1,491 @@
 <!DOCTYPE html>
-
-<html lang="en">
-
-
-
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laravel + MySQL Daily Cheat Sheet</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+    <title>OUM Product & Stock Management UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0F6E8C',
+                            600: '#0c5870',
+                            700: '#0a4659',
+                        }
+                    }
+                }
+            }
         }
-
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f5f7fa;
-            color: #222;
-        }
-
-        .header {
-            background: #fff;
-            border-bottom: 1px solid #ddd;
-            padding: 20px 30px;
-            position: sticky;
-            top: 0;
-        }
-
-        .header h1 {
-            margin-bottom: 10px;
-        }
-
-        .search {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-
-        .category {
-            margin-bottom: 40px;
-        }
-
-        .category-title {
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #333;
-        }
-
-        .command-card {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-
-        .command-header {
-            background: #fafafa;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-        }
-
-        .command {
-            font-family: Consolas, monospace;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .copy-btn {
-            border: none;
-            background: #2563eb;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .copy-btn.copied {
-            background: #16a34a;
-        }
-
-        .content {
-            padding: 15px;
-        }
-
-        .label {
-            font-weight: bold;
-            margin-top: 10px;
-            margin-bottom: 4px;
-        }
-
-        pre {
-            background: #111827;
-            color: #fff;
-            padding: 10px;
-            border-radius: 4px;
-            overflow: auto;
-            margin-top: 5px;
-        }
-    </style>
-
+    </script>
 </head>
+<body class="bg-zinc-950 text-zinc-100 font-sans antialiased min-h-screen p-4 md:p-8" x-data="productApp()">
 
-<body>
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-brand-500/10 text-brand-500 border border-brand-500/20">Inventory Core</span>
+                    <h1 class="text-xl font-bold tracking-tight text-white uppercase">OUM Product Setup</h1>
+                </div>
+                <p class="text-xs text-zinc-400 mt-1">Create items, define measurement units (OUM), and manage warehouse allocation.</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button @click="showModal = true" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-lg shadow-brand-500/10 transition">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Create New Product</span>
+                </button>
+            </div>
+        </div>
 
-    <div class="header">
-        <h1>Laravel + MySQL Daily Cheat Sheet</h1>
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Total Products</p>
+                    <p class="text-xl font-extrabold text-white mt-1" x-text="products.length"></p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-brand-500">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+            </div>
 
-        ```
-        <input type="text" id="search" class="search" placeholder="Search command, purpose, example...">
-        ```
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Total Inventory Value</p>
+                    <p class="text-xl font-extrabold text-emerald-400 mt-1" x-text="'$' + calculateTotalValue().toFixed(2)"></p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-emerald-400">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+            </div>
+
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Low Stock Items</p>
+                    <p class="text-xl font-extrabold text-amber-400 mt-1" x-text="products.filter(p => p.stock <= p.minStock).length"></p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-amber-400">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+            </div>
+
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                    <p class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">OUM Categories</p>
+                    <p class="text-xl font-extrabold text-cyan-400 mt-1">3 <span class="text-xs text-zinc-500 font-normal">(Gram, Meter, Box)</span></p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-cyan-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area: Table Section -->
+        <div class="bg-zinc-900/70 border border-zinc-800 rounded-xl shadow-xl overflow-hidden">
+            
+            <!-- Table Header Toolbar -->
+            <div class="p-4 border-b border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-900/40">
+                <div class="relative w-full sm:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500"></i>
+                    <input type="text" x-model="searchQuery" placeholder="Search product or SKU..." 
+                        class="w-full pl-9 pr-3 py-1.5 text-xs bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-brand-500">
+                </div>
+
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <select x-model="categoryFilter" class="text-xs bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-zinc-300 focus:outline-none focus:border-brand-500">
+                        <option value="All">All OUM Types</option>
+                        <option value="Weight (g)">Weight (g)</option>
+                        <option value="Length (m)">Length (m)</option>
+                        <option value="Count (pcs)">Count (pcs)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-zinc-300">
+                    <thead class="bg-zinc-950/80 uppercase text-[10px] font-bold text-zinc-400 border-b border-zinc-800 tracking-wider">
+                        <tr>
+                            <th class="py-3.5 px-4">Product Details</th>
+                            <th class="py-3.5 px-4">SKU</th>
+                            <th class="py-3.5 px-4">OUM Unit</th>
+                            <th class="py-3.5 px-4">Unit Cost</th>
+                            <th class="py-3.5 px-4">Selling Price</th>
+                            <th class="py-3.5 px-4">Stock Level</th>
+                            <th class="py-3.5 px-4">Status</th>
+                            <th class="py-3.5 px-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-800/60">
+                        <template x-for="(product, index) in filteredProducts()" :key="product.id">
+                            <tr class="hover:bg-zinc-800/30 transition-colors">
+                                <!-- Details -->
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700/60 flex items-center justify-center shrink-0 text-brand-500 font-bold text-sm">
+                                            <i :class="product.icon"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-white text-xs" x-text="product.name"></p>
+                                            <p class="text-[10px] text-zinc-500" x-text="product.category"></p>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- SKU -->
+                                <td class="py-3 px-4 font-mono text-zinc-400" x-text="product.sku"></td>
+
+                                <!-- OUM Unit -->
+                                <td class="py-3 px-4">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 border border-zinc-700/60 text-zinc-300" x-text="product.oum"></span>
+                                </td>
+
+                                <!-- Cost -->
+                                <td class="py-3 px-4 font-medium text-zinc-400" x-text="'$' + product.cost.toFixed(2)"></td>
+
+                                <!-- Price -->
+                                <td class="py-3 px-4 font-bold text-emerald-400" x-text="'$' + product.price.toFixed(2)"></td>
+
+                                <!-- Stock Level -->
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-extrabold text-white" x-text="product.stock"></span>
+                                        <span class="text-[10px] text-zinc-500" x-text="product.oumUnit"></span>
+                                    </div>
+                                    <!-- Progress Bar -->
+                                    <div class="w-24 h-1 bg-zinc-800 rounded-full mt-1 overflow-hidden">
+                                        <div class="h-full rounded-full" 
+                                             :class="product.stock <= product.minStock ? 'bg-rose-500' : 'bg-brand-500'" 
+                                             :style="'width: ' + Math.min((product.stock / (product.minStock * 3)) * 100, 100) + '%'"></div>
+                                    </div>
+                                </td>
+
+                                <!-- Status -->
+                                <td class="py-3 px-4">
+                                    <template x-if="product.stock <= 0">
+                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-rose-950/60 text-rose-400 border border-rose-900/50">Out of Stock</span>
+                                    </template>
+                                    <template x-if="product.stock > 0 && product.stock <= product.minStock">
+                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-950/60 text-amber-400 border border-amber-900/50">Low Stock</span>
+                                    </template>
+                                    <template x-if="product.stock > product.minStock">
+                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-950/60 text-emerald-400 border border-emerald-900/50">In Stock</span>
+                                    </template>
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="py-3 px-4 text-right">
+                                    <button @click="deleteProduct(product.id)" class="p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-950/30 rounded transition">
+                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+
+                        <template x-if="filteredProducts().length === 0">
+                            <tr>
+                                <td colspan="8" class="text-center py-12 text-zinc-500">
+                                    <i class="fa-solid fa-box-open text-3xl mb-2 text-zinc-700"></i>
+                                    <p class="text-xs">No products match your criteria.</p>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal: Create OUM Product -->
+        <div x-show="showModal" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
+            
+            <div @click.away="showModal = false" class="bg-zinc-900 border border-zinc-800 rounded-xl max-w-xl w-full p-6 shadow-2xl relative space-y-5">
+                
+                <!-- Modal Title -->
+                <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
+                    <div>
+                        <h2 class="text-base font-bold uppercase text-white">Create OUM Product</h2>
+                        <p class="text-xs text-zinc-400 mt-0.5">Define specs, pricing, and unit measurements</p>
+                    </div>
+                    <button @click="showModal = false" class="text-zinc-500 hover:text-white text-sm">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <form @submit.prevent="saveProduct()" class="space-y-4">
+                    
+                    <!-- Presets Selection for Fast Testing -->
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-zinc-400 mb-1">Quick Presets</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" @click="applyPreset('thermal')" 
+                                class="p-2 border rounded-lg text-left text-xs transition bg-zinc-950 border-zinc-800 hover:border-brand-500">
+                                <p class="font-bold text-white">Thermal Paste</p>
+                                <p class="text-[10px] text-zinc-500">OUM: Gram (g)</p>
+                            </button>
+                            <button type="button" @click="applyPreset('cable')" 
+                                class="p-2 border rounded-lg text-left text-xs transition bg-zinc-950 border-zinc-800 hover:border-brand-500">
+                                <p class="font-bold text-white">Ethernet Cable</p>
+                                <p class="text-[10px] text-zinc-500">OUM: Meter (m)</p>
+                            </button>
+                            <button type="button" @click="applyPreset('screws')" 
+                                class="p-2 border rounded-lg text-left text-xs transition bg-zinc-950 border-zinc-800 hover:border-brand-500">
+                                <p class="font-bold text-white">M3 Screws Box</p>
+                                <p class="text-[10px] text-zinc-500">OUM: Box (pcs)</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Product Name -->
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Product Name</label>
+                            <input type="text" x-model="form.name" required placeholder="e.g. Arctic MX-4 Thermal Compound"
+                                class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                        </div>
+
+                        <!-- SKU -->
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">SKU / Code</label>
+                            <input type="text" x-model="form.sku" required placeholder="TP-MX4-01"
+                                class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500 font-mono">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <!-- OUM Type -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">OUM Metric</label>
+                            <select x-model="form.oum" @change="updateOumUnit()" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                                <option value="Weight">Weight</option>
+                                <option value="Length">Length</option>
+                                <option value="Quantity">Quantity / Pack</option>
+                            </select>
+                        </div>
+
+                        <!-- OUM Base Unit -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Base Unit</label>
+                            <input type="text" x-model="form.oumUnit" readonly
+                                class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-400 focus:outline-none font-bold">
+                        </div>
+
+                        <!-- Initial Stock -->
+                        <div>
+                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Stock Qty</label>
+                            <input type="number" x-model.number="form.stock" required min="0"
+                                class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+
+                    <!-- Pricing & Calculations -->
+                    <div class="p-3 bg-zinc-950/60 border border-zinc-800/80 rounded-lg space-y-3">
+                        <p class="text-[10px] font-bold uppercase text-brand-500 tracking-wider">Pricing Logic</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Unit Cost ($)</label>
+                                <input type="number" step="0.01" x-model.number="form.cost" required
+                                    class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Selling Price ($)</label>
+                                <input type="number" step="0.01" x-model.number="form.price" required
+                                    class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                            </div>
+                        </div>
+
+                        <!-- Computed Margin Preview -->
+                        <div class="flex items-center justify-between text-[11px] pt-1 border-t border-zinc-800/60">
+                            <span class="text-zinc-500">Estimated Profit per Unit:</span>
+                            <span class="font-bold text-emerald-400" x-text="'$' + (form.price - form.cost).toFixed(2) + ' (' + calculateMargin() + '%)'"></span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-zinc-400 hover:text-white transition">Cancel</button>
+                        <button type="submit" class="px-5 py-2 text-xs font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-lg shadow-brand-500/20 transition">
+                            Save & Add Item
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
 
     </div>
 
-    <div class="container" id="commands"></div>
-
     <script>
+        function productApp() {
+            return {
+                showModal: false,
+                searchQuery: '',
+                categoryFilter: 'All',
+                
+                form: {
+                    name: 'Thermal Paste MX-4',
+                    sku: 'TP-MX4-01',
+                    category: 'Thermal Compound',
+                    oum: 'Weight',
+                    oumUnit: 'g (grams)',
+                    cost: 3.50,
+                    price: 8.00,
+                    stock: 120,
+                    minStock: 25,
+                    icon: 'fa-solid fa-flask-vial'
+                },
 
-        const data = [
-
-            {
-                category: 'Laravel Artisan',
-                items: [
+                products: [
                     {
-                        command: 'php artisan serve',
-                        purpose: 'Start local development server',
-                        when: 'Beginning development',
-                        example: 'http://127.0.0.1:8000',
-                        related: 'php artisan route:list'
+                        id: 1,
+                        name: 'Thermal Paste Arctic MX-4 (4g)',
+                        sku: 'TP-MX4-04G',
+                        category: 'Thermal Compound',
+                        oum: 'Weight (g)',
+                        oumUnit: 'grams',
+                        cost: 3.20,
+                        price: 7.99,
+                        stock: 85,
+                        minStock: 20,
+                        icon: 'fa-solid fa-flask-vial'
                     },
                     {
-                        command: 'php artisan route:list',
-                        purpose: 'Show all registered routes',
-                        when: 'Debug routing issues',
-                        example: 'GET /products ProductController@index',
-                        related: 'routes/web.php'
+                        id: 2,
+                        name: 'CAT6 Ethernet Cable (Bulk Roll)',
+                        sku: 'CB-CAT6-100M',
+                        category: 'Cables & Wiring',
+                        oum: 'Length (m)',
+                        oumUnit: 'meters',
+                        cost: 0.45,
+                        price: 1.20,
+                        stock: 450,
+                        minStock: 100,
+                        icon: 'fa-solid fa-network-wired'
                     },
                     {
-                        command: 'php artisan tinker',
-                        purpose: 'Open Laravel shell',
-                        when: 'Test Eloquent quickly',
-                        example: 'User::count();',
-                        related: 'User::all();'
-                    },
-                    {
-                        command: 'php artisan optimize:clear',
-                        purpose: 'Clear all caches',
-                        when: 'Laravel acting weird',
-                        example: 'Clears config, route, view cache',
-                        related: 'cache:clear'
-                    },
-                    {
-                        command: 'php artisan cache:clear',
-                        purpose: 'Clear application cache',
-                        when: 'Cache issue',
-                        example: 'php artisan cache:clear',
-                        related: 'optimize:clear'
+                        id: 3,
+                        name: 'M3 Hex Screws Pack (100pcs)',
+                        sku: 'SCR-M3-100P',
+                        category: 'Hardware & Screws',
+                        oum: 'Count (pcs)',
+                        oumUnit: 'boxes',
+                        cost: 1.50,
+                        price: 4.50,
+                        stock: 8,
+                        minStock: 15,
+                        icon: 'fa-solid fa-screwdriver'
                     }
-                ]
-            },
+                ],
 
-            {
-                category: 'Migration',
-                items: [
-                    {
-                        command: 'php artisan migrate',
-                        purpose: 'Run pending migrations',
-                        when: 'After creating migration',
-                        example: 'Create database tables',
-                        related: 'migrate:fresh'
-                    },
-                    {
-                        command: 'php artisan migrate:rollback',
-                        purpose: 'Undo last migration batch',
-                        when: 'Migration mistake',
-                        example: 'Rollback latest changes',
-                        related: 'migrate'
-                    },
-                    {
-                        command: 'php artisan migrate:fresh',
-                        purpose: 'Drop all tables and recreate',
-                        when: 'Reset development database',
-                        example: 'Deletes all data',
-                        related: 'migrate:fresh --seed'
-                    },
-                    {
-                        command: 'php artisan db:seed',
-                        purpose: 'Run database seeders',
-                        when: 'Populate fake data',
-                        example: 'Create demo users',
-                        related: 'migrate:fresh --seed'
+                applyPreset(type) {
+                    if (type === 'thermal') {
+                        this.form = {
+                            name: 'Thermal Grizzly Kryonaut (1g)',
+                            sku: 'TG-KRYO-01',
+                            category: 'Thermal Compound',
+                            oum: 'Weight',
+                            oumUnit: 'grams',
+                            cost: 5.50,
+                            price: 12.00,
+                            stock: 50,
+                            minStock: 10,
+                            icon: 'fa-solid fa-flask-vial'
+                        };
+                    } else if (type === 'cable') {
+                        this.form = {
+                            name: 'Fiber Optic Cable Single-Mode',
+                            sku: 'CB-FO-SM01',
+                            category: 'Cables & Wiring',
+                            oum: 'Length',
+                            oumUnit: 'meters',
+                            cost: 1.10,
+                            price: 2.80,
+                            stock: 200,
+                            minStock: 50,
+                            icon: 'fa-solid fa-network-wired'
+                        };
+                    } else if (type === 'screws') {
+                        this.form = {
+                            name: 'Standoff Brass Screws Set',
+                            sku: 'SCR-BRS-SET',
+                            category: 'Hardware & Screws',
+                            oum: 'Quantity',
+                            oumUnit: 'boxes',
+                            cost: 2.20,
+                            price: 5.99,
+                            stock: 5,
+                            minStock: 10,
+                            icon: 'fa-solid fa-screwdriver'
+                        };
                     }
-                ]
-            },
+                },
 
-            {
-                category: 'MySQL Tables',
-                items: [
-                    {
-                        command: 'SHOW TABLES;',
-                        purpose: 'Display all tables',
-                        when: 'Forget table names',
-                        example: 'users, products, orders',
-                        related: 'DESCRIBE users;'
-                    },
-                    {
-                        command: 'DESCRIBE users;',
-                        purpose: 'Show table structure',
-                        when: 'Need datatypes',
-                        example: 'id bigint, name varchar(255)',
-                        related: 'SHOW CREATE TABLE users;'
-                    },
-                    {
-                        command: 'SHOW CREATE TABLE users;',
-                        purpose: 'View complete SQL',
-                        when: 'Debug indexes/constraints',
-                        example: 'CREATE TABLE users (...)',
-                        related: 'DESCRIBE users;'
-                    }
-                ]
-            },
+                updateOumUnit() {
+                    if (this.form.oum === 'Weight') this.form.oumUnit = 'grams';
+                    else if (this.form.oum === 'Length') this.form.oumUnit = 'meters';
+                    else this.form.oumUnit = 'boxes';
+                },
 
-            {
-                category: 'MySQL Data',
-                items: [
-                    {
-                        command: 'SELECT * FROM users LIMIT 10;',
-                        purpose: 'Preview records',
-                        when: 'Inspect data',
-                        example: 'First 10 users',
-                        related: 'SELECT COUNT(*)'
-                    },
-                    {
-                        command: 'SELECT COUNT(*) FROM users;',
-                        purpose: 'Count rows',
-                        when: 'Check totals',
-                        example: '125',
-                        related: 'SELECT * FROM users'
-                    },
-                    {
-                        command: 'INSERT INTO users(name,email) VALUES("John","john@mail.com");',
-                        purpose: 'Insert row',
-                        when: 'Create record manually',
-                        example: 'New user',
-                        related: 'UPDATE users'
-                    },
-                    {
-                        command: 'UPDATE users SET name="John" WHERE id=1;',
-                        purpose: 'Update row',
-                        when: 'Modify existing data',
-                        example: 'Update user name',
-                        related: 'DELETE FROM users'
-                    },
-                    {
-                        command: 'DELETE FROM users WHERE id=1;',
-                        purpose: 'Delete one row',
-                        when: 'Remove specific record',
-                        example: 'Delete user',
-                        related: 'TRUNCATE TABLE users'
-                    },
-                    {
-                        command: 'TRUNCATE TABLE users;',
-                        purpose: 'Delete all rows',
-                        when: 'Reset table data',
-                        example: 'Table remains',
-                        related: 'DROP TABLE users'
-                    },
-                    {
-                        command: 'DROP TABLE users;',
-                        purpose: 'Delete entire table',
-                        when: 'Table no longer needed',
-                        example: 'Table removed permanently',
-                        related: 'TRUNCATE TABLE users'
-                    }
-                ]
-            },
+                calculateMargin() {
+                    if (!this.form.price || this.form.price === 0) return 0;
+                    const profit = this.form.price - this.form.cost;
+                    return ((profit / this.form.price) * 100).toFixed(1);
+                },
 
-            {
-                category: 'Eloquent',
-                items: [
-                    {
-                        command: 'User::all();',
-                        purpose: 'Get all users',
-                        when: 'Retrieve records',
-                        example: 'Collection<User>',
-                        related: 'User::find()'
-                    },
-                    {
-                        command: 'User::find(1);',
-                        purpose: 'Find by primary key',
-                        when: 'Need one row',
-                        example: 'User object',
-                        related: 'User::where()'
-                    },
-                    {
-                        command: 'User::where("status",1)->get();',
-                        purpose: 'Filter records',
-                        when: 'Search data',
-                        example: 'Active users',
-                        related: 'User::first()'
-                    },
-                    {
-                        command: 'User::create([...]);',
-                        purpose: 'Insert record',
-                        when: 'Create model',
-                        example: 'New user',
-                        related: 'save()'
-                    }
-                ]
-            },
+                calculateTotalValue() {
+                    return this.products.reduce((acc, item) => acc + (item.cost * item.stock), 0);
+                },
 
-            {
-                category: 'Composer',
-                items: [
-                    {
-                        command: 'composer install',
-                        purpose: 'Install dependencies',
-                        when: 'Clone project',
-                        example: 'vendor folder created',
-                        related: 'composer update'
-                    },
-                    {
-                        command: 'composer update',
-                        purpose: 'Update packages',
-                        when: 'Upgrade dependencies',
-                        example: 'Latest versions',
-                        related: 'composer install'
-                    },
-                    {
-                        command: 'composer require laravel/sanctum',
-                        purpose: 'Install package',
-                        when: 'Need new package',
-                        example: 'Adds dependency',
-                        related: 'composer remove'
-                    }
-                ]
-            }
+                filteredProducts() {
+                    return this.products.filter(product => {
+                        const matchesSearch = product.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                                              product.sku.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        const matchesCategory = this.categoryFilter === 'All' || product.oum.includes(this.categoryFilter.split(' ')[0]);
+                        return matchesSearch && matchesCategory;
+                    });
+                },
 
-        ];
+                saveProduct() {
+                    this.products.unshift({
+                        id: Date.now(),
+                        name: this.form.name,
+                        sku: this.form.sku,
+                        category: this.form.category || 'General Hardware',
+                        oum: `${this.form.oum} (${this.form.oumUnit.charAt(0)})`,
+                        oumUnit: this.form.oumUnit,
+                        cost: this.form.cost,
+                        price: this.form.price,
+                        stock: this.form.stock,
+                        minStock: this.form.minStock || 10,
+                        icon: this.form.icon || 'fa-solid fa-box'
+                    });
 
-        const container = document.getElementById('commands');
+                    this.showModal = false;
+                },
 
-        function render(search = '') {
-
-            container.innerHTML = '';
-
-            data.forEach(group => {
-
-                let html = '';
-
-                group.items.forEach(item => {
-
-                    const text = JSON.stringify(item).toLowerCase();
-
-                    if (!text.includes(search.toLowerCase()))
-                        return;
-
-                    html += `
-<div class="command-card">
-
-<div class="command-header">
-<div class="command">${item.command}</div>
-
-<button
-class="copy-btn"
-onclick="copyCommand(this,\`${item.command.replace(/`/g, '')}\`)">
-📋 Copy
-</button>
-</div>
-
-<div class="content">
-
-<div class="label">Purpose</div>
-<div>${item.purpose}</div>
-
-<div class="label">When to Use</div>
-<div>${item.when}</div>
-
-<div class="label">Example</div>
-<pre>${item.example}</pre>
-
-<div class="label">Related</div>
-<div>${item.related}</div>
-
-</div>
-
-</div>
-`;
-                });
-
-                if (html) {
-                    container.innerHTML += `
-
-<div class="category">
-<h2 class="category-title">${group.category}</h2>
-${html}
-</div>
-`;
+                deleteProduct(id) {
+                    this.products = this.products.filter(p => p.id !== id);
                 }
-
-            });
-
+            }
         }
-
-        function copyCommand(btn, text) {
-
-            navigator.clipboard.writeText(text);
-
-            btn.innerHTML = '✓ Copied';
-            btn.classList.add('copied');
-
-            setTimeout(() => {
-                btn.innerHTML = '📋 Copy';
-                btn.classList.remove('copied');
-            }, 1000);
-        }
-
-        document
-            .getElementById('search')
-            .addEventListener('input', e => {
-                render(e.target.value);
-            });
-
-        render();
-
     </script>
-
 </body>
-
 </html>

@@ -175,9 +175,10 @@
             submitting: false,
             selectedCategoryId: null,
             pendingName: '',
+            selectedProductName: '',
 
             // search query
-            products: @json($products),
+            products: @json($products ?? []),
             searchQuery: '',
             categoryFilter: '',
             statusFilter: 'all',
@@ -225,10 +226,10 @@
                 price: null,
                 stock: null,
                 status: 'active',
-                uoms: [],
                 image_url: '',
                 image_file: null,
                 image_preview: '',
+
             },
 
             emptyForm() {
@@ -236,12 +237,12 @@
                     id: null,
                     code: '',
                     name: '',
+                    selectedProductName: '',
                     category_code: '',
                     barcode: '',
                     price: null,
                     stock: null,
                     status: 'active',
-                    uoms: [],
                     image_url: '',
                     image_file: null,
                     image_preview: '',
@@ -289,7 +290,6 @@
                     price: product.selling_price ?? null,
                     stock: product.stock_quantity ?? null,
                     status: product.status ?? 'active',
-                    uoms: product.uoms ?? [],
                     image_url: product.image ?? '',
                     image_file: null,
                     image_preview: '',

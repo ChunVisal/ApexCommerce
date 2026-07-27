@@ -201,7 +201,7 @@ class DashboardController extends Controller
         while ($current <= $end) {
             $data[] = [
                 'label_short' => $current->format('M d'),
-                'label_full' => $current->format('M d, Y'),
+                'label_full' => $current->format('D, M d, Y'),
                 'total' => Order::where('status', '!=', 'refunded')
                     ->whereDate('created_at', $current)
                     ->sum('total') ?: 0,

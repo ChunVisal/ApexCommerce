@@ -14,9 +14,11 @@
     </div>
     <div class="items-center flex gap-4">
         <button @click="openAdd()"
-            class="mt-3 sm:mt-0 inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-p rounded-md hover:bg-[#0c5972] transition">
-            <i class="fa-solid fa-plus"></i> Add Product
+            class="mt-3 sm:mt-0 inline-flex justify-center items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-p rounded-md hover:bg-[#0c5972] transition">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Product</span>
         </button>
+
         <div class="flex items-center border border-gray-300 dark:border-zinc-700 rounded-md overflow-hidden">
             <button @click="viewMode = 'table'; localStorage.setItem('productViewMode', 'table')"
                 :class="viewMode === 'table' ? 'bg-p text-white' :
@@ -41,8 +43,7 @@
     <div class="relative flex-1 min-w-[200px]">
         <i
             class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs"></i>
-        <input type="text" x-model="searchQuery"
-            placeholder="Search by name, categories, code, or barcode..."
+        <input type="text" x-model="searchQuery" placeholder="Search by name, categories, code, or barcode..."
             class="w-full pl-8 pr-8 py-1.5 text-xs bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md focus:outline-none focus:ring-1 focus:ring-p placeholder-gray-400 dark:placeholder-zinc-500">
         <button type="button" x-show="searchQuery" @click="searchQuery = ''; filterProducts()"
             class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 z-10">
@@ -100,7 +101,7 @@
     </div>
 
     {{-- Bulk Action Bar --}}
-    <div id="bulkBar" style="display:none;"
+    {{-- <div id="bulkBar" style="display:none;"
         class="flex items-center justify-between pl-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 rounded-md">
         <span class="text-xs text-red-600 dark:text-red-400 font-medium mr-4">
             <span id="bulkCount">0</span> selected
@@ -115,7 +116,7 @@
                 Cancel
             </button>
         </div>
-    </div>
+    </div> --}}
 
 </div>
 

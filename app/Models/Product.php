@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Uom;
 
 class Product extends Model
 {
@@ -11,7 +12,6 @@ class Product extends Model
 
     protected $fillable = [
         'code',
-
         'name',
         'category_id',
         'barcode',
@@ -22,7 +22,15 @@ class Product extends Model
         'brand',
         'image',
         'low_stock_threshold',
+        'has_uom',
+        'base_unit_name',
+        'base_unit_code',
     ];
+
+    public function uoms()
+    {
+        return $this->hasMany(ProductUom::class);
+    }
 
     public function category(): BelongsTo
     {
