@@ -44,19 +44,19 @@
             </button>
         </div>
 
-        <div class="relative min-w-0" style="height: 150px;">
+        <div class="relative min-w-0" style="height: 180px;">
             <canvas id="paymentChart"></canvas>
         </div>
 
         <div class="flex items-center justify-center gap-4 mt-2">
-            <span class="flex items-center gap-2 text-[11px] text-gray-600 dark:text-zinc-400">
-                <span class="w-2.5 h-2.5 rounded-full" style="background:#a262e0"></span> Cash
+            <span class="flex items-center gap-2 text-[12px] text-gray-600 dark:text-zinc-400">
+                <span class="w-3 h-3 rounded-full" style="background:#a262e0"></span> Cash
             </span>
-            <span class="flex items-center gap-2 text-[11px] text-gray-600 dark:text-zinc-400">
-                <span class="w-2.5 h-2.5 rounded-full" style="background:#c9a3ec"></span> Credit/Debit
+            <span class="flex items-center gap-2 text-[12px] text-gray-600 dark:text-zinc-400">
+                <span class="w-3 h-3 rounded-full" style="background:#c9a3ec"></span> Credit/Debit
             </span>
-            <span class="flex items-center gap-2 text-[11px] text-gray-600 dark:text-zinc-400">
-                <span class="w-2.5 h-2.5 rounded-full" style="background:#e9d9f8"></span> KHQR
+            <span class="flex items-center gap-2 text-[12px] text-gray-600 dark:text-zinc-400">
+                <span class="w-3 h-3 rounded-full" style="background:#e9d9f8"></span> KHQR
             </span>
         </div>
     </div>
@@ -226,7 +226,7 @@
                     const cy = (chartArea.top + chartArea.bottom) / 2;
 
                     ctx.save();
-                    ctx.font = '600 12px sans-serif';
+                    ctx.font = '600 14px sans-serif';
                     ctx.fillStyle = isDarkMode ? '#e4e4e7' : '#374151';
                     ctx.strokeStyle = isDarkMode ? '#52525b' : '#9ca3af';
                     ctx.lineWidth = 1;

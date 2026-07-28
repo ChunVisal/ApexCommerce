@@ -6,6 +6,7 @@
             categories: @json($categories),
 
             // Slide-over visibility + mode
+            // uomFormOpen: true,
             uomFormOpen: false,
             editMode: false,
             submitting: false,
@@ -41,8 +42,9 @@
             }],
 
             get uomProducts() {
-                return this.products.filter(p => p.uoms && p.uoms.length > 0);
+                return this.products.filter(p => p.has_uom);
             },
+            
             // Open panel to CREATE a new product OR EDIT an existing product's UOMs
             openUomForm(product) {
                 this.selectedProductName = '';
@@ -62,6 +64,7 @@
                         base_unit_name: '',
                         base_unit_code: '',
                         price: 0,
+                        stock: 0,
                         status: 'active',
                     };
 
@@ -73,14 +76,15 @@
                     this.uomFormProduct = product;
 
                     this.form = {
-                        category_code: product.category_code || '',
+                        category_code: product.category?.code || '',
                         name: product.name || '',
                         image_url: product.image_url || '',
                         image_preview: '',
                         image_file: null,
                         base_unit_name: product.base_unit_name || '',
                         base_unit_code: product.base_unit_code || '',
-                        price: product.price || 0,
+                        price: product.selling_price || 0,
+                        stock: product.stock_quantity || 0,
                         status: product.status || 'active',
                     };
 
@@ -179,13 +183,14 @@
                 payload.append('name', this.form.name);
                 payload.append('base_unit_name', this.form.base_unit_name);
                 payload.append('base_unit_code', this.form.base_unit_code);
+                payload.append('stock', this.form.stock);
                 payload.append('price', this.form.price);
                 payload.append('status', this.form.status);
                 payload.append('has_uom', 1);
                 payload.append('uoms', JSON.stringify(this.uomFormList));
 
                 if (this.form.image_file) {
-                    payload.append('image', this.form.image_file);
+                    payload.append('image_file', this.form.image_file);
                 } else if (this.form.image_url) {
                     payload.append('image_url', this.form.image_url);
                 }

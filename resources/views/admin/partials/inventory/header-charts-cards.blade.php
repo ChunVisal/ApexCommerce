@@ -113,7 +113,7 @@
                             {{ $card['value'] }}
                         @endif
                     </h2>
-               
+
                     <div class="flex items-start gap-1 text-[12px]">
                         <span
                             class="font-semibold {{ $card['trend'] === 'up' ? 'text-green-500' : 'text-red-500' }} flex items-center gap-0.5">

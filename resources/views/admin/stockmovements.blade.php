@@ -185,9 +185,15 @@
                                 </td>
 
                                 {{-- Quantities Numeric Text Element --}}
-                                <td class="py-3.5 px-3 text-center font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap"
-                                    x-text="movement.dynamic_quantity_rendered || movement.quantity">
+                                <td
+                                    class="py-3.5 px-3 text-center font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
+                                    <span x-text="movement.dynamic_quantity_rendered ?? movement.quantity"></span> <span
+                                        class="text-xs font-bold rounded-full text-gray-800 dark:text-zinc-200 whitespace-nowrap lowercase"
+                                        x-show="movement.product?.has_uom" x-text="movement.product?.base_unit_name">
+                                    </span>
                                 </td>
+
+
 
                                 {{-- Context Statement Reason Element row field --}}
                                 <td class="py-3.5 pl-10 text-xs text-left text-gray-600 dark:text-zinc-400 font-medium">

@@ -50,6 +50,7 @@
             ✕
         </button>
     </div>
+    
 
     {{-- Category --}}
     <div class="relative">

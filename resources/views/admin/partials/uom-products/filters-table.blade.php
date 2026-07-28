@@ -13,17 +13,16 @@
 
 {{-- UOM Table --}}
 <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-200 dark:border-zinc-800/60">
-    <div class="overflow-x-auto">
+    <div class=" overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
                 <tr
                     class="text-left text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-200 dark:border-zinc-800">
                     <th class="pb-2 pr-4 font-medium">Product</th>
-                    <th class="pb-2 px-4 font-medium">Category</th>
+                    <th class="pb-2 px-4 font-medium text-center whitespace-nowrap">Base Unit</th>
                     <th class="pb-2 px-4 font-medium text-right">Price</th>
-                    <th class="pb-2 px-4 font-medium text-center">Base Unit</th>
                     <th class="pb-2 px-4 font-medium text-center">UOMs</th>
-                    <th class="pb-2 px-4 font-medium text-center">Status</th>
+                    <th class="pb-2 px-4 font-medium text-center">Stock</th>
                     <th class="pb-2 px-4 font-medium">Date</th>
                     <th class="pb-2 pl-4 font-medium text-right">Actions</th>
                 </tr>
@@ -32,35 +31,45 @@
                 <template x-for="product in uomProducts" :key="product.id">
                     <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition">
 
-                        {{-- Product Image & Name --}}
-                        <td class="py-3 pr-4">
-                            <div class="flex items-center gap-3">
-                                <img :src="product.image ||
-                                    'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
-                                    class="w-12 h-12 bg-[#0F6E8C]/10 dark:bg-[#0F6E8C]/20 rounded-xs shrink-0 object-cover" />
-                                <div>
-                                    <p class="font-medium text-gray-800 dark:text-zinc-200 line-clamp-3"
-                                        x-text="product.name"></p>
-                                    <p class="text-xs text-gray-400 dark:text-zinc-500" x-text="product.code"></p>
+                        {{-- Product Info Column - Improved Layout --}}
+                        <td class="py-3 pr-4 min-w-[220px]">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <img :src="product.image ||
+                                        'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
+                                        class="w-14 h-14 rounded-md object-cover border border-gray-200 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-800" />
+                                    <span class="absolute -top-1 -right-1 inline-block w-3.5 h-3.5 rounded-full"
+                                        :class="product.status === 'active' ?
+                                            'bg-green-400 border border-white dark:border-zinc-800' :
+                                            'bg-gray-400 border border-white dark:border-zinc-800'">
+                                    </span>
+                                </div>
+                                <div class="flex flex-col truncate">
+                                    <span class="font-semibold text-gray-900 dark:text-zinc-100 text-sm truncate"
+                                        x-text="product.name"></span>
+                                    <span
+                                        class="text-xs text-gray-500 dark:text-zinc-400 truncate flex items-center gap-1">
+
+                                        <span x-text="product.category?.name || 'Unassigned'"></span>
+                                    </span>
+                                    <span class="text-[12px] text-gray-400 dark:text-zinc-500 font-mono tracking-wide"
+                                        x-text="product.code"></span>
                                 </div>
                             </div>
                         </td>
 
-                        {{-- Category --}}
-                        <td class="py-3 px-4 text-gray-600 dark:text-zinc-400 text-xs"
-                            x-text="product.category?.name || 'Unassigned'"></td>
-
-                        {{-- Price --}}
-                        <td class="py-3 px-4 text-right font-medium text-gray-800 dark:text-zinc-200 text-xs"
-                            x-text="'$' + Number(product.selling_price || 0).toFixed(2)"></td>
 
                         {{-- Base Unit --}}
                         <td class="py-3 px-4 text-center whitespace-nowrap">
                             <span
                                 class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400"
-                                x-text="product.uoms?.find(u => u.pivot?.is_default)?.name || product.uoms?.[0]?.name || 'PCS'">
+                                x-text="(product.base_unit_name || 'Unit')">
                             </span>
                         </td>
+
+                        {{-- Price --}}
+                        <td class="py-3 px-4 text-right font-medium text-gray-800 dark:text-zinc-200 text-xs"
+                            x-text="'$' + Number(product.selling_price || 0).toFixed(2)"></td>
 
                         {{-- UOM unit --}}
                         <td class="py-3 px-4 text-center">
@@ -68,34 +77,38 @@
                                 <template x-for="uom in product.uoms.filter(u => !u.is_default)" :key="uom.id">
                                     <span
                                         class="px-2 py-0.5 text-[12px] font-medium bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
-
-                                        <span x-text="uom.quantity_per_unit"></span> <span
-                                            x-text="uom.name || 'Unit'"></span> -
+                                        <span x-text="uom.name || 'Unit'"></span>
+                                        (<span x-text="uom.quantity_per_unit"></span><span
+                                            x-text="product.base_unit_code || product.base_unit_name || 'Unit'"></span>)
+                                        -
                                         $<span x-text="parseFloat(uom.price).toFixed(2)"></span>
                                     </span>
                                 </template>
+                                {{-- Fallback: base unit only, no additional UOMs --}}
                                 <span x-show="!product.uoms || product.uoms.filter(u => !u.is_default).length === 0"
-                                    class="text-xs text-gray-400">-</span>
+                                    class="px-2 py-0.5 text-[12px] font-medium  bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
+                                    1 <span x-text="product.base_unit_code || product.base_unit_name || 'unit'"></span>
+                                    -
+                                    $<span x-text="Number(product.selling_price || 0).toFixed(2)"></span>
+                                </span>
                             </div>
                         </td>
 
-                        {{-- Status --}}
-                        <td class="py-3 text-center">
-                            <span class="px-2 py-0.5 text-[12px] font-semibold rounded-full capitalize"
-                                :class="product.status === 'active' ?
-                                    'bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400' :
-                                    'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-500'"
-                                x-text="product.status || 'inactive'">
+                        {{-- Stock Column --}}
+                        <td class="py-3 px-4 text-center">
+                            <span
+                                class="px-2 py-0.5 text-[13px] font-bold rounded-full bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400">
+                                <span x-text="product.stock_quantity"></span>
                             </span>
                         </td>
 
                         {{-- Timestamps --}}
                         <td class="py-3 px-4 text-xs whitespace-nowrap">
-                            <p class="text-gray-500 dark:text-zinc-500">Created
+                            <p class="text-gray-500 dark:text-zinc-400">Created
                                 <label class="text-gray-600 dark:text-zinc-500 font-semibold"
                                     x-text="product.created_at ? new Date(product.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'"></label>
                             </p>
-                            <p class="text-gray-500 dark:text-zinc-500">Updated
+                            <p class="text-gray-500 dark:text-zinc-400">Updated
                                 <label class="text-gray-600 dark:text-zinc-500 font-semibold"
                                     x-text="product.updated_at ? new Date(product.updated_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'"></label>
                             </p>

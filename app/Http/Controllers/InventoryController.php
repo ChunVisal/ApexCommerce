@@ -10,6 +10,7 @@ use App\Models\StockMovement;
 use App\Models\User;
 use App\Models\StockRequest;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -35,7 +36,7 @@ class InventoryController extends Controller
 
         $categories = Categories::withCount([
             'products as total_stock' => function ($q) {
-                $q->select(\DB::raw('COALESCE(sum(stock_quantity), 0)'));
+                $q->select(DB::raw('COALESCE(sum(stock_quantity), 0)'));
             },
         ])->get();
         $cashiers = User::where('role', 'cashier')->get();
@@ -45,11 +46,8 @@ class InventoryController extends Controller
         $summaryCards = InventoryData::getSummaryCards();
         $trend = $this->getMovementTrend($request);
 
-        if ($request->ajax === '1') {
-
-            $html = view('admin.partials.inventory.table-rows', compact('products'))->render();
-
-            return response()->json(['table' => $html]);
+        if ($request->ajax) {
+            return response()->json(['products' => $products]);
         }
 
         return view('admin.inventory', compact('products', 'categories', 'summary', 'summaryCards', 'trend', 'cashiers'));

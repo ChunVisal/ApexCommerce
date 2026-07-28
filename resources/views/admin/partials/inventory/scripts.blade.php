@@ -18,6 +18,11 @@
                 quantity: 1
             },
             cashierStocks: @json($cashierStocks ?? []),
+
+            searchQuery: '',
+            categoryFilter: '',
+            statusFilter: 'all',
+            stockFilter: 'all',
             products: @json($products),
 
             form: {
@@ -35,9 +40,44 @@
             selectedCashierName: '',
             cashiers: @json($cashiers ?? []),
 
+
+            get filteredProducts() {
+                let result = [...this.products];
+
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    result = result.filter(p =>
+                        p.name.toLowerCase().includes(q) ||
+                        (p.code || '').toLowerCase().includes(q) ||
+                        (p.barcode || '').toLowerCase().includes(q) ||
+                        (p.category?.name || '').toLowerCase().includes(q)
+                    );
+                }
+
+                if (this.categoryFilter) {
+                    result = result.filter(p => p.category?.name === this.categoryFilter);
+                }
+
+                if (this.statusFilter && this.statusFilter !== 'all') {
+                    result = result.filter(p => p.status === this.statusFilter.toLowerCase());
+                }
+
+                if (this.stockFilter === 'out') {
+                    result = result.filter(p => p.stock_quantity <= 0);
+                } else if (this.stockFilter === 'low') {
+                    result = result.filter(p => p.stock_quantity > 0 && p.stock_quantity <= (p
+                        .low_stock_threshold || 5));
+                } else if (this.stockFilter === 'in') {
+                    result = result.filter(p => p.stock_quantity > (p.low_stock_threshold || 5));
+                }
+                return result;
+            },
+
+
             get currentStock() {
                 return this.form.product_code ? (this.stockMap[this.form.product_code] ?? null) : null;
             },
+
 
             get currentThreshold() {
                 return this.form.product_code ? (this.thresholdMap[this.form.product_code] ?? null) : null;

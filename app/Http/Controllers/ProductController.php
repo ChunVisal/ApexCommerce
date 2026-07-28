@@ -43,71 +43,94 @@ class ProductController extends Controller
         return view('admin.products', compact('products', 'categories'));
     }
 
-    public function uoms()
+    public function uoms(Request $request)
     {
         $categories = Categories::all();
-        $products = Product::with('uoms', 'category')->get();
+        $products = Product::with('uoms', 'category')->where('has_uom', true)->get();
         $uoms = ProductUom::all();
         return view('admin.products-uom', compact('products', 'categories', 'uoms'));
     }
 
     public function storeUom(Request $request)
     {
-        try {
-            $product = Product::create([
-                'name' => $request->name,
-                'category_id' => Categories::where('code', $request->category_code)->first()->id,
-                'selling_price' => $request->price,
-                'stock_quantity' => $request->stock ?? 0,
-                'status' => $request->status ?? 'active',
-                'has_uom' => true,
-                'base_unit_name' => $request->base_unit_name,
-                'base_unit_code' => $request->base_unit_code,
-                'code' => 'PROD-' . strtoupper(substr($request->name, 0, 3)) . '-' . rand(1000, 9999),
-                'barcode' => str_pad(rand(0, 999999999999), 12, '0', STR_PAD_LEFT),
-            ]);
+        $category = Categories::where('code', $request->category_code)->first();
 
-            // Handle image
-            if ($request->hasFile('image')) {
-                $product->image = $request->file('image')->store('products', 'public');
-            } elseif ($request->image_url) {
-                $product->image = $request->image_url;
-            }
-            $product->save();
-
-            // Save UOMs
-            if ($request->uoms) {
-                $uoms = json_decode($request->uoms, true);
-                foreach ($uoms as $uom) {
-                    $product->uoms()->create($uom);
-                }
-            }
-
-            return response()->json(['success' => true, 'message' => 'UOM product created']);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        if (!$category) {
+            return response()->json(['error' => 'Category not found'], 422);
         }
-    }
-
-    public function updateUom(Request $request, $id)
-    {
-        $product = Product::findOrFail($id);
-
-        $product->update([
-            'name' => $request->name,
-            'selling_price' => $request->price,
+        Log::info('Store UOM data:', [
             'base_unit_name' => $request->base_unit_name,
             'base_unit_code' => $request->base_unit_code,
-            'status' => $request->status,
+            'all' => $request->all()
         ]);
 
-        // Handle image
+        $product = Product::create([
+            'name' => $request->name,
+            'category_id' => $category->id,
+            'cost_price' => 0,  // ← Add this
+            'selling_price' => $request->price,
+            'stock_quantity' => $request->stock ?? 0,
+            'status' => $request->status ?? 'active',
+            'has_uom' => true,
+            'base_unit_name' => $request->base_unit_name,
+            'base_unit_code' => $request->base_unit_code,
+            'code' => 'PROD-' . strtoupper(substr($request->name, 0, 3)) . '-' . rand(1000, 9999),
+        ]);
+
         if ($request->hasFile('image')) {
             $product->image = $request->file('image')->store('products', 'public');
         } elseif ($request->image_url) {
             $product->image = $request->image_url;
         }
         $product->save();
+
+        if ($request->uoms) {
+            $uoms = json_decode($request->uoms, true);
+            foreach ($uoms as $uom) {
+                if (!empty($uom['name'])) {
+                    $product->uoms()->create($uom);
+                }
+            }
+        }
+
+        // Log initial stock as stock movement
+        if ($product->stock_quantity > 0) {
+            StockMovement::create([
+                'product_id' => $product->id,
+                'type' => 'in',
+                'quantity' => $product->stock_quantity,
+                'reason' => 'Initial stock',
+                'notes' => 'Product created with initial stock of ' . $product->stock_quantity . ' ' . ($product->base_unit_code ?: $product->base_unit_name ?: 'unit'),
+                'user_id' => Auth::id(),
+            ]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'UOM product created']);
+    }
+
+    public function updateUom(Request $request, $id)
+    {
+
+        $product = Product::findOrFail($id);
+        $category = Categories::where('code', $request->category_code)->first();
+
+        $imageUrl = $product->image;
+        if ($request->hasFile('image_file')) {
+            $imageUrl = $this->uploadToCloudinary($request->file('image_file')); // ← use private method
+        } elseif ($request->image_url) {
+            $imageUrl = $request->image_url;
+        }
+
+        $product->update([
+            'category_id' => $category ? $category->id : $product->category_id,
+            'name' => $request->name,
+            'selling_price' => $request->price,
+            'stock_quantity' => $request->stock ?? $product->stock_quantity,
+            'image' => $imageUrl,
+            'base_unit_name' => $request->base_unit_name,
+            'base_unit_code' => $request->base_unit_code,
+            'status' => $request->status,
+        ]);
 
         // Update UOMs - delete old, create new
         if ($request->uoms) {
@@ -123,6 +146,7 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
+
         try {
             $product = Product::findOrFail($id);
 

@@ -45,7 +45,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/products', [ProductController::class, 'index'])->name('admin.products');
     Route::get('/products/uoms', [ProductController::class, 'uoms'])->name('admin.products.uoms');
     Route::post('/products/uoms', [ProductController::class, 'storeUom'])->name('admin.products.uoms.store');
-    Route::put('/admin/products/{id}/uoms', [ProductController::class, 'updateUom'])->name('admin.products.uoms.update');
+    Route::put('/products/{id}/uoms', [ProductController::class, 'updateUom'])->name('admin.products.uoms.update');
     Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
     Route::get('/products/by-category', [ProductController::class, 'byCategory'])
         ->name('admin.products.byCategory');

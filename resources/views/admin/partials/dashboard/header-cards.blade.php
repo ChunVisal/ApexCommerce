@@ -3,8 +3,19 @@
         <h1 class="text-xl font-bold text-gray-800 dark:text-zinc-100">Dashboard</h1>
         <div class="flex gap-1 items-center">
 
-            <p class=" text-xs text-gray-500 dark:text-zinc-400">Welcome back,</p>
-            <h4 class="pb-[1px] text-[15px] text text-gray-600 dark:text-zinc-300"> {{ auth()->user()->name }}</h4>
+            @php
+                $hour = now()->format('H');
+                if ($hour < 12) {
+                    $greeting = 'Good morning';
+                } elseif ($hour < 18) {
+                    $greeting = 'Good afternoon';
+                } else {
+                    $greeting = 'Good evening';
+                }
+            @endphp
+            <p class="text-[15px] text-gray-500 dark:text-zinc-400">{{ $greeting }}👋,</p>
+
+            <h4 class="text-[15px] text-gray-600 dark:text-zinc-300"> {{ auth()->user()->name }}</h4>
         </div>
     </div>
     <div class="flex items-center gap-3 mt-3 sm:mt-0">
