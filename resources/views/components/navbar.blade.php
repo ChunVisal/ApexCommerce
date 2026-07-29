@@ -20,15 +20,21 @@
         <!-- Dark Mode Toggle -->
         <x-dark-mode-toggle />
 
-        <!-- Notifications Dropdown -->
+        <!-- Notifications Dropdown (now includes Order notifications) -->
         <div class="relative flex-shrink-0" x-data="{ open: false }">
             <button @click="open = !open"
-                class="relative p-2 text-gray-700 dark:text-zinc-300 hover:text-[#0F6E8C] dark:hover:text-[#138cb3] hover:bg-gray-100 dark:hover:bg-zinc-900 rounded-full transition-colors focus:outline-none">
+                class="relative p-2 text-gray-700 dark:text-zinc-300 hover:text-p dark:hover:text-[#138cb3] hover:bg-gray-100 dark:hover:bg-zinc-900 rounded-full transition-colors focus:outline-none">
                 <i class="fa-solid fa-bell text-xl"></i>
                 @php
-                    $pendingCount = \App\Models\StockRequest::whereIn('status', ['pending', 'loss_reported'])
+                    // StockRequests badge count (pending & loss_reported, unseen)
+                    $pendingStockCount = \App\Models\StockRequest::whereIn('status', ['pending', 'loss_reported'])
                         ->whereNull('seen_at')
                         ->count();
+
+                    // Orders pending approval count (e.g. status 'pending_approval', unseen)
+                    $pendingOrderCount = \App\Models\Order::where('status', 'pending_approval')->count();
+
+                    $pendingCount = $pendingStockCount + $pendingOrderCount;
                 @endphp
                 @if ($pendingCount > 0)
                     <span
@@ -55,7 +61,7 @@
                     </h3>
                     <div class="flex items-center gap-3">
                         <button type="button" @click="markAllRead()"
-                            class="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 text-[#0F6E8C] dark:text-[#1389af] hover:text-cyan-700 dark:hover:text-cyan-400 transition-colors"
+                            class="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 text-p dark:text-[#1389af] hover:text-cyan-700 dark:hover:text-cyan-400 transition-colors"
                             title="Mark all notifications as read">
                             <x-heroicon-s-check-circle class="w-3.5 h-3.5" />
                             <span>Mark read</span>
@@ -68,82 +74,168 @@
                     </div>
                 </div>
 
-                <!-- Notification List -->
+                <!-- Notification List: Merge Stock and Order notifications -->
                 <div
                     class="max-h-[320px] tab-container overflow-y-auto divide-y divide-gray-100 dark:divide-zinc-800/40">
                     @php
-                        $notifications = \App\Models\StockRequest::with(['cashier', 'product'])
-                            ->whereIn('status', ['pending', 'loss_reported'])
+                        // StockRequest notifications
+                        $stockRequests = \App\Models\StockRequest::with(['cashier', 'product'])
+                            ->whereIn('status', ['pending', 'loss_reported', 'refunded'])
                             ->latest()
                             ->limit(6)
-                            ->get();
+                            ->get()
+                            ->map(function ($item) {
+                                $item->notif_type = 'stock_request';
+                                return $item;
+                            });
+
+                        // Order notifications (e.g. status 'pending_approval')
+                        $orderNotifications = \App\Models\Order::with(['customer'])
+                            ->where('status', 'pending_approval')
+                            ->latest()
+                            ->limit(6)
+                            ->get()
+                            ->map(function ($item) {
+                                $item->notif_type = 'order';
+                                return $item;
+                            });
+
+                        // Combine and sort by created_at descending, and limit to 6 total
+                        $notifications = $stockRequests
+                            ->concat($orderNotifications)
+                            ->sortByDesc(function ($item) {
+                                return $item->created_at;
+                            })
+                            ->take(6);
                     @endphp
 
                     @forelse($notifications as $notif)
-                        <div class="notif-card flex items-start gap-3 px-4 py-3 transition-colors
-                    {{ empty($notif->seen_at) ? 'bg-blue-50 dark:bg-blue-950/20 border-l-2 border-blue-500' : 'hover:bg-gray-50/60 dark:hover:bg-zinc-800/30' }}"
-                            data-notif-id="{{ $notif->id }}" style="cursor:pointer"
-                            @click.stop="markSingleRead({{ $notif->id }}, $event.target)">
-                            <!-- Product Image -->
-                            <div class="relative flex-shrink-0">
-                                <div
-                                    class="w-11 h-11 rounded-md bg-gray-100 dark:bg-zinc-850 border border-gray-200/60 dark:border-zinc-800 overflow-hidden flex items-center justify-center">
-                                    @if (!empty($notif->product->image))
-                                        <img src="{{ $notif->product->image }}" alt="{{ $notif->product->name }}"
-                                            class="w-full h-full object-cover">
+                        @if ($notif->notif_type === 'stock_request')
+                            <div class="notif-card flex items-start gap-3 px-4 py-3 transition-colors
+                        {{ empty($notif->seen_at) ? 'bg-blue-50 dark:bg-blue-950/20 border-l-2 border-blue-500' : 'hover:bg-gray-50/60 dark:hover:bg-zinc-800/30' }}"
+                                data-notif-id="s{{ $notif->id }}" style="cursor:pointer"
+                                @click.stop="markSingleRead('stock_request:{{ $notif->id }}', $event.target)">
+
+                                <div class="relative flex-shrink-0">
+                                    <div
+                                        class="w-11 h-11 rounded-md bg-gray-100 dark:bg-zinc-850 border border-gray-200/60 dark:border-zinc-800 overflow-hidden flex items-center justify-center">
+                                        @if (!empty($notif->product->image))
+                                            <img src="{{ $notif->product->image }}" alt="{{ $notif->product->name }}"
+                                                class="w-full h-full object-cover">
+                                        @else
+                                            <img src="https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png"
+                                                alt="Placeholder" class="w-full h-full object-cover">
+                                        @endif
+                                    </div>
+
+                                    @if ($notif->status === 'loss_reported')
+                                        <div
+                                            class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900 bg-red-500">
+                                            <x-heroicon-s-x-circle class="w-3.5 h-3.5 text-white" />
+                                        </div>
+                                    @elseif ($notif->status === 'refunded')
+                                        <div
+                                            class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900 bg-blue-500">
+                                            <x-heroicon-s-arrow-uturn-left class="w-3 h-3 text-white" />
+                                        </div>
                                     @else
-                                        <img src="https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png"
-                                            alt="Placeholder" class="w-full h-full object-cover">
+                                        <div
+                                            class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900 bg-amber-500">
+                                            <x-heroicon-s-clock class="w-2.5 h-2.5 text-white" />
+                                        </div>
                                     @endif
                                 </div>
-                                @if ($notif->status === 'loss_reported')
-                                    <div
-                                        class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900 bg-red-500">
-                                        <x-heroicon-s-x-circle class="w-3.5 h-3.5 text-white" />
-                                    </div>
-                                @else
-                                    <div
-                                        class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900 bg-amber-500">
-                                        <x-heroicon-s-clock class="w-2.5 h-2.5 text-white" />
-                                    </div>
-                                @endif
-                            </div>
 
-                            <!-- Notification Text & Actions -->
-                            <div class="flex flex-1 min-w-0 justify-between items-center gap-2">
-                                <div class="flex-1 min-w-0 space-y-0.5">
-                                    <p class="text-xs text-gray-800 dark:text-zinc-200 leading-snug break-words">
-                                        <span
-                                            class="font-bold text-gray-950 dark:text-zinc-50">{{ $notif->cashier->name }}</span>
-                                        @if ($notif->status === 'loss_reported')
-                                            <span class="text-red-600 dark:text-red-400">reported loss of</span>
-                                        @else
-                                            <span class="text-amber-600 dark:text-amber-400">requested</span>
-                                        @endif
-                                        <span
-                                            class="font-bold text-[#0F6E8C] dark:text-[#1389af]">{{ $notif->quantity_requested }}x</span>
-                                        <span
-                                            class="font-medium text-gray-900 dark:text-zinc-100">{{ $notif->product->name ?? ($notif->product_name ?? 'Unknown Product') }}</span>
-                                    </p>
-                                    <div class="flex items-center gap-1.5 pt-0.5 flex-wrap">
-                                        @if ($notif->status !== 'loss_reported')
+                                <div class="flex flex-1 min-w-0 justify-between items-center gap-2">
+                                    <div class="flex-1 min-w-0 space-y-0.5">
+                                        <p class="text-xs text-gray-800 dark:text-zinc-200 leading-snug break-words">
                                             <span
-                                                class="text-[10px] font-bold tracking-normal bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-950/40 px-1 py-0.5 rounded">
-                                                Pending
+                                                class="font-bold text-gray-950 dark:text-zinc-50">{{ $notif->cashier->name }}</span>
+                                            @if ($notif->status === 'loss_reported')
+                                                <span class="text-red-600 dark:text-red-400">reported loss of</span>
+                                            @elseif ($notif->status === 'refunded')
+                                                <span class="text-p dark:text-blue-400">restocked (refund)</span>
+                                            @else
+                                                <span class="text-amber-600 dark:text-amber-400">requested</span>
+                                            @endif
+                                            <span
+                                                class="font-bold text-p dark:text-[#1389af]">{{ $notif->quantity_requested }}x</span>
+                                            <span
+                                                class="font-medium text-gray-900 dark:text-zinc-100">{{ $notif->product->name ?? ($notif->product_name ?? 'Unknown Product') }}</span>
+                                        </p>
+                                        <div class="flex items-center gap-1.5 pt-0.5 flex-wrap">
+                                            @if ($notif->status === 'refunded')
+                                                <span
+                                                    class="text-[10px] font-bold tracking-normal bg-blue-50 dark:bg-blue-950/30 text-p dark:text-blue-400 border border-blue-100 dark:border-blue-950/40 px-1 py-0.5 rounded">
+                                                    Refunded
+                                                </span>
+                                            @elseif ($notif->status !== 'loss_reported')
+                                                <span
+                                                    class="text-[10px] font-bold tracking-normal bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-950/40 px-1 py-0.5 rounded">
+                                                    Pending
+                                                </span>
+                                            @endif
+                                            <span class="text-[10px] text-gray-400 dark:text-zinc-500 font-medium">
+                                                {{ $notif->created_at->diffForHumans() }}
                                             </span>
-                                        @endif
-                                        <span class="text-[10px] text-gray-400 dark:text-zinc-500 font-medium">
-                                            {{ $notif->created_at->diffForHumans() }}
-                                        </span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        @click.stop="markSingleRead('stock_request:{{ $notif->id }}', $event.target)"
+                                        class="notif-dot ml-2 w-2.5 h-2.5 rounded-full shrink-0
+                                    {{ $notif->seen_at ? 'bg-gray-300 dark:bg-zinc-700' : 'bg-red-500' }}"
+                                        title="Mark as read" aria-label="Mark as read" type="button">
+                                    </button>
+                                </div>
+                            </div>
+                        @elseif ($notif->notif_type === 'order')
+                            <div class="notif-card flex items-start gap-3 px-4 py-3 transition-colors
+                                {{ empty($notif->admin_seen_at) ? 'bg-green-50 dark:bg-green-950/20 border-l-2 border-green-500' : 'hover:bg-gray-50/60 dark:hover:bg-zinc-800/30' }}"
+                                data-notif-id="o{{ $notif->id }}" style="cursor:pointer"
+                                @click.stop="markSingleRead('order:{{ $notif->id }}', $event.target)">
+                                <!-- Order Icon -->
+                                <div class="relative flex-shrink-0">
+                                    <div
+                                        class="w-11 h-11 rounded-md bg-green-100 dark:bg-green-950/40 border border-green-100 dark:border-green-950/30 flex items-center justify-center">
+                                        <i class="fa fa-shopping-bag text-green-700 dark:text-green-300 text-xl"></i>
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900 bg-green-500">
+                                        <x-heroicon-s-arrow-up-tray class="w-3 h-3 text-white" />
                                     </div>
                                 </div>
-                                <button @click.stop="markSingleRead({{ $notif->id }}, $event.target)"
-                                    class="notif-dot ml-2 w-2.5 h-2.5 rounded-full shrink-0
-                                        {{ $notif->seen_at ? 'bg-gray-300 dark:bg-zinc-700' : 'bg-red-500' }}"
-                                    title="Mark as read" aria-label="Mark as read" type="button">
-                                </button>
+                                <!-- Notification Text & Actions -->
+                                <div class="flex flex-1 min-w-0 justify-between items-center gap-2">
+                                    <div class="flex-1 min-w-0 space-y-0.5">
+                                        <p class="text-xs text-gray-800 dark:text-zinc-200 leading-snug break-words">
+                                            <span class="font-bold text-green-900 dark:text-green-200">
+                                                {{ $notif->customer->name ?? 'Customer' }}
+                                            </span>
+                                            <span class="text-green-600 dark:text-green-300">
+                                                submitted order
+                                            </span>
+                                            <span class="font-medium text-gray-900 dark:text-zinc-100">
+                                                #{{ $notif->id }}
+                                            </span>
+                                        </p>
+                                        <div class="flex items-center gap-1.5 pt-0.5 flex-wrap">
+                                            <span
+                                                class="text-[10px] font-bold tracking-normal bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-950/30 px-1 py-0.5 rounded">
+                                                Pending Approval
+                                            </span>
+                                            <span class="text-[10px] text-gray-400 dark:text-zinc-500 font-medium">
+                                                {{ $notif->created_at->diffForHumans() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button @click.stop="markSingleRead('order:{{ $notif->id }}', $event.target)"
+                                        class="notif-dot ml-2 w-2.5 h-2.5 rounded-full shrink-0
+                                            {{ $notif->admin_seen_at ? 'bg-gray-300 dark:bg-zinc-700' : 'bg-red-500' }}"
+                                        title="Mark as read" aria-label="Mark as read" type="button">
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     @empty
                         <!-- Empty Placeholder Visual Representation Block -->
                         <div class="px-4 py-12 text-center text-xs font-medium text-gray-400 dark:text-zinc-500">
@@ -166,10 +258,11 @@
                 @endif
             </div>
             <div class="hidden sm:block leading-none">
-                <p class="font-semibold text-sm text-gray-800 dark:text-zinc-200">{{ auth()->user()->name ?? 'Guest' }}
+                <p class="font-semibold text-sm text-gray-800 dark:text-zinc-200">
+                    {{ auth()->user()->name ?? 'Guest' }}
                 </p>
                 <span
-                    class="text-xs text-[#0F6E8C] dark:text-[#138cb3] font-medium">{{ auth()->user()->role ?? 'User' }}</span>
+                    class="text-xs text-p dark:text-[#138cb3] font-medium">{{ auth()->user()->role ?? 'User' }}</span>
             </div>
         </div>
     </div>
@@ -207,8 +300,11 @@
                         'dark:bg-zinc-900/30',
                         'bg-blue-50',
                         'dark:bg-blue-950/20',
+                        'bg-green-50',
+                        'dark:bg-green-950/20',
                         'border-l-2',
-                        'border-blue-500'
+                        'border-blue-500',
+                        'border-green-500'
                     );
                 });
 
@@ -218,8 +314,18 @@
             });
     }
 
-    function markSingleRead(id, el) {
-        fetch(`/admin/notifications/${id}/mark-read`, {
+    function markSingleRead(idStr, el) {
+        // idStr: "stock_request:123" or "order:456"
+        let [type, id] = String(idStr).split(':');
+        let url = '';
+        if (type === "order") {
+            url = `/admin/orders/${id}/mark-notif-read`;
+        } else {
+            // default to stock_request (legacy)
+            url = `/admin/notifications/${id}/mark-read`;
+        }
+
+        fetch(url, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -230,7 +336,7 @@
                 if (!data.success) return;
 
                 let notifCard, notifDot;
-
+                // Find the notif card and dot by element or using [data-notif-id]
                 if (el.classList.contains('notif-dot')) {
                     notifDot = el;
                     notifCard = el.closest('.notif-card');
@@ -238,17 +344,19 @@
                     notifCard = el;
                     notifDot = notifCard.querySelector('.notif-dot');
                 } else {
-                    notifCard = document.querySelector(`.notif-card[data-notif-id="${id}"]`);
+                    notifCard = document.querySelector(`.notif-card[data-notif-id="${type.charAt(0)}${id}"]`);
                     notifDot = notifCard ? notifCard.querySelector('.notif-dot') : null;
                 }
 
                 if (notifDot) {
-                    notifDot.classList.remove('bg-blue-500');
+                    notifDot.classList.remove('bg-blue-500', 'bg-red-500');
                     notifDot.classList.add('bg-gray-300', 'dark:bg-zinc-700');
                 }
                 if (notifCard) {
-                    notifCard.classList.remove('bg-blue-50', 'dark:bg-blue-950/20', 'border-l-2',
-                        'border-blue-500');
+                    notifCard.classList.remove(
+                        'bg-blue-50', 'dark:bg-blue-950/20', 'border-l-2', 'border-blue-500',
+                        'bg-green-50', 'dark:bg-green-950/20', 'border-green-500'
+                    );
                 }
 
                 const badge = document.querySelector('.bell-badge');

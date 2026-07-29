@@ -29,6 +29,7 @@
                 product_code: '',
                 type: 'in',
                 quantity: null,
+                reference: '',
                 low_stock_threshold: null,
                 reason: '',
                 notes: '',

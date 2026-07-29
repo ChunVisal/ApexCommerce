@@ -2,8 +2,28 @@
 
 namespace App\Helpers;
 
+use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Auth;
+
 class ActivityData
 {
+
+    public static function log($action, $description, $page, $status = 'info', $metadata = null)
+    {
+        $user = Auth::id();
+        if (!$user) return;
+
+        ActivityLog::create([
+            'user_id' => $user,
+            'user_name' => Auth::user() ? Auth::user()->name : null,
+            'action' => $action,
+            'description' => $description,
+            'page' => $page,
+            'status' => $status,
+            'metadata' => $metadata,
+        ]);
+    }
+
     public static function getSummary()
     {
         return [
@@ -73,7 +93,7 @@ class ActivityData
                 $user = $users[array_rand($users)];
                 $action = $actions[array_rand($actions)];
                 $module = $modules[array_rand($modules)];
-                
+
                 $activities[] = [
                     'date' => $date,
                     'time' => now()->subDays($dateIndex)->subHours(rand(1, 23))->format('g:i A'),
@@ -105,7 +125,7 @@ class ActivityData
             $user = $users[array_rand($users)];
             $actionType = $actionTypes[array_rand($actionTypes)];
             $module = $modules[array_rand($modules)];
-            
+
             $logs[] = [
                 'timestamp' => now()->subHours(rand(1, 72))->format('Y-m-d H:i:s'),
                 'user' => $user,

@@ -37,7 +37,8 @@
         </button>
     </div>
 
-    <nav class="tab-container overflow-x-hidden flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+    <nav
+        class="overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex-1 px-3 py-2 space-y-1 overflow-y-auto">
 
         <div x-show="!open" class="flex items-center px-3 pb-2 justify-center">
             <button @click="toggle(true)"
@@ -122,13 +123,37 @@
             </div>
         </div>
 
-
-        <a href="{{ route('admin.users') }}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('admin.users') ? 'bg-blue-50 dark:bg-zinc-900 text-p dark:text-zinc-100' : 'text-gray-700 dark:text-zinc-400 hover:bg-gray-200/30 dark:hover:bg-zinc-900/50' }}"
-            :class="open ? '' : 'justify-center'">
-            <x-heroicon-o-user class="w-5 h-5 shrink-0" />
-            <span x-show="open" class="text-sm font-medium whitespace-nowrap">Users</span>
-        </a>
+        {{-- Users with Submenu --}}
+        <div x-data="{
+            usersOpen: localStorage.getItem('submenu-users') === 'open',
+            toggleUsersSubmenu() {
+                this.usersOpen = !this.usersOpen;
+                localStorage.setItem('submenu-users', this.usersOpen ? 'open' : 'closed');
+            }
+        }">
+            <button @click="open ? toggleUsersSubmenu() : window.location.href = '{{ route('admin.users') }}'"
+                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('admin.users') || request()->routeIs('admin.staff') ? 'bg-blue-50 dark:bg-zinc-900 text-p dark:text-zinc-100' : 'text-gray-700 dark:text-zinc-400 hover:bg-gray-200/30 dark:hover:bg-zinc-900/50' }}"
+                :class="open ? '' : 'justify-center'">
+                <x-heroicon-o-user class="w-5 h-5 shrink-0" />
+                <span x-show="open" class="text-sm font-medium whitespace-nowrap flex-1 text-left">Users</span>
+                <x-heroicon-o-chevron-down x-show="open" :class="usersOpen ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" />
+            </button>
+            <div x-show="open && usersOpen" x-transition:enter="transition-all ease-out duration-300"
+                x-transition:enter-start="opacity-0 max-h-0 overflow-hidden"
+                x-transition:enter-end="opacity-100 max-h-40 overflow-hidden"
+                x-transition:leave="transition-all ease-in duration-200"
+                x-transition:leave-start="opacity-100 max-h-40 overflow-hidden"
+                x-transition:leave-end="opacity-0 max-h-0 overflow-hidden" class="ml-4 space-y-2 mt-2">
+                <a href="{{ route('admin.users') }}"
+                    class="block px-3 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-colors {{ request()->routeIs('admin.users') ? 'bg-blue-50 dark:bg-zinc-800/70 text-p dark:text-zinc-100' : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50' }}">
+                    Users List
+                </a>
+                <a {{-- href="{{ route('admin.staff') }}" --}}
+                    class="block px-3 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-colors {{ request()->routeIs('admin.staff') ? 'bg-blue-50 dark:bg-zinc-800/70 text-p dark:text-zinc-100' : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50' }}">
+                    Staff
+                </a>
+            </div>
+        </div>
 
         <a href="{{ route('admin.customers') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('admin.customers') ? 'bg-blue-50 dark:bg-zinc-900 text-p dark:text-zinc-100' : 'text-gray-700 dark:text-zinc-400 hover:bg-gray-200/30 dark:hover:bg-zinc-900/50' }}"

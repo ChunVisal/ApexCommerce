@@ -70,6 +70,8 @@ class InventoryData
 
     public static function getSummaryCards()
     {
+        $products = Product::where('has_uom', false)->get();
+
         $todayNewStockIn = StockMovement::whereDate('created_at', Carbon::today())
             ->where('type', 'in')
             ->sum('quantity');
@@ -78,7 +80,7 @@ class InventoryData
             ->where('type', 'out')
             ->sum('quantity');
 
-        $totalStock = Product::sum('stock_quantity');
+        $totalStock = $products->sum('stock_quantity');
         $totalProducts = Product::count();
         $stockValue = (float) (Product::selectRaw('SUM(stock_quantity * selling_price) as total')->value('total') ?? 0);
         $lowStock = Product::whereColumn('stock_quantity', '<', 'low_stock_threshold')->where('stock_quantity', '>', 0)->count();
@@ -113,7 +115,7 @@ class InventoryData
                 'icon' => 'fa-solid fa-circle-xmark',
                 'iconBg' => '#EF4444',
                 'iconColor' => '#EF4444',
-                'trend' => 'down',
+                'trend' => $outOfStock <= 0 ? 'up' : 'down',
                 'percentage' => $outOfStockPercent . '%',
                 'period' => 'of products',
             ],

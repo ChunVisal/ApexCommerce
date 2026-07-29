@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Helpers\ActivityHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -211,6 +212,13 @@ class CashierController extends Controller
             }
 
             DB::commit();
+
+            ActivityHelper::log(
+                'order_completed',
+                "Sale {$orderNumber} completed - \${$total} - " . count($request->items) . " items",
+                'POS',
+                'success'
+            );
 
             return response()->json([
                 'success' => true,

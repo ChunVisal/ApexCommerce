@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\StockRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Models\Product;
+use App\Helpers\ActivityHelper;
 use Illuminate\Support\Facades\Log;
 
 class StockRequestController extends Controller
 {
     public function store(Request $request)
     {
+        $productName = $request->product_name ?? Product::find($request->product_id)->name ?? 'Unknown';
+
         StockRequest::create([
             'cashier_id' => Auth::id(),
             'product_id' => $request->product_id ?: null,
@@ -19,11 +23,23 @@ class StockRequestController extends Controller
             'cashier_notes' => $request->note,
             'status' => 'pending',
         ]);
+
+        ActivityHelper::log(
+            'stock_requested',
+            "Requested restock of {$request->quantity}x {$productName}",
+            'POS',
+            'info'
+        );
+
         return response()->json(['message' => 'Request sent to admin']);
     }
 
     public function bulkProductRequest(Request $request)
     {
+        $names = collect($request->items)->map(function ($item) {
+            return ($item['quantity'] ?? 1) . 'x ' . ($item['name'] ?? 'Product #' . $item['product_id']);
+        })->join(', ');
+
         foreach ($request->items as $item) {
             StockRequest::create([
                 'cashier_id' => Auth::id(),
@@ -34,7 +50,14 @@ class StockRequestController extends Controller
                 'status' => 'pending',
             ]);
         }
-        Log::info('Product ID value:', ['id' => $item['product_id'], 'type' => gettype($item['product_id'])]);
+
+        ActivityHelper::log(
+            'stock_requested',
+            "Requested restock/new product: {$names}",
+            'POS',
+            'info'
+        );
+
         return response()->json(['message' => count($request->items) . ' requests sent']);
     }
 

@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ActivityLogController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -43,15 +44,17 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/admin/stock-requests', [StockRequestController::class, 'index'])->name('admin.stock-requests');
 
     Route::get('/products', [ProductController::class, 'index'])->name('admin.products');
-    Route::get('/products/uoms', [ProductController::class, 'uoms'])->name('admin.products.uoms');
-    Route::post('/products/uoms', [ProductController::class, 'storeUom'])->name('admin.products.uoms.store');
-    Route::put('/products/{id}/uoms', [ProductController::class, 'updateUom'])->name('admin.products.uoms.update');
     Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
     Route::get('/products/by-category', [ProductController::class, 'byCategory'])
         ->name('admin.products.byCategory');
     Route::put('/products/{id}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
     Route::post('/products/bulk-delete', [ProductController::class, 'bulkDestroy'])->name('products.bulk-delete');
+
+    Route::get('/products/uoms', [ProductController::class, 'uoms'])->name('admin.products.uoms');
+    Route::post('/products/uoms', [ProductController::class, 'storeUom'])->name('admin.products.uoms.store');
+    Route::put('/products/{id}/uoms', [ProductController::class, 'updateUom'])->name('admin.products.uoms.update');
+    Route::delete('/products/uoms/{id}', [ProductController::class, 'deleteUom'])->name('admin.products.uoms.delete');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('admin.inventory');
     Route::post('/inventory/adjust', [InventoryController::class, 'adjustStock'])->name('admin.inventory.adjust');
@@ -77,7 +80,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/customers/export/all', [CustomerController::class, 'adminExport'])->name('admin.customers.export');
     Route::get('/customers/{customer}/order/{order}', [CustomerController::class, 'getOrder']);
 
-    Route::get('/activitylog', [AdminController::class, 'activitylog'])->name('admin.activitylog');
+    Route::get('/activity-log', [AdminController::class, 'test'])->name('admin.activitylog');
+    Route::get('/activitylog', [ActivityLogController::class, 'index'])->name('admin.activitylog');
 });
 // Cashier Routes
 Route::middleware(['auth', 'role:cashier'])->group(function () {

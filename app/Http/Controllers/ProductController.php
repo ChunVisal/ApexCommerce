@@ -9,6 +9,7 @@ use App\Models\ProductUom;
 use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Helpers\ActivityHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -84,6 +85,8 @@ class ProductController extends Controller
         }
         $product->save();
 
+        ActivityHelper::log('uom_product_created', ' created UOM product: ' . $product->name, 'Products UOMs', 'info');
+
         if ($request->uoms) {
             $uoms = json_decode($request->uoms, true);
             foreach ($uoms as $uom) {
@@ -141,7 +144,32 @@ class ProductController extends Controller
             }
         }
 
+        ActivityHelper::log('uom_product_updated', ' updated UOM product: ' . $product->name, 'Products UOMs', 'info');
+
         return response()->json(['success' => true, 'message' => 'UOM product updated']);
+    }
+
+    public function deleteUom($id)
+    {
+        $product = Product::findOrFail($id);
+
+        // Check if product has orders
+        if ($product->orderItems()->exists()) {
+            return response()->json(['error' => 'Cannot delete: product has existing orders.'], 422);
+        }
+
+        // Check if product is allocated to cashiers
+        if ($product->cashierStocks()->exists()) {
+            return response()->json(['error' => 'Cannot delete: product is allocated to cashiers.'], 422);
+        }
+
+        // Delete UOMs first, then product
+        $product->uoms()->delete();
+        $product->delete();
+
+        ActivityHelper::log('product_deleted', ' deleted product: ' . $product->name, 'Products UOMs', 'danger');
+
+        return response()->json(['success' => true, 'message' => 'Product deleted']);
     }
 
     public function update(Request $request, $id)
@@ -169,6 +197,8 @@ class ProductController extends Controller
                 'low_stock_threshold' => $request->low_stock_threshold ?? $product->low_stock_threshold,
                 // code and barcode intentionally omitted — never change them on update
             ]);
+
+            ActivityHelper::log('product_updated', ' updated product: ' . $product->name, 'Products List', 'info');
 
             return response()->json($product->fresh());
         } catch (\Exception $e) {
@@ -230,12 +260,7 @@ class ProductController extends Controller
             ], 422);
         }
 
-        // Check if product has stock movements
-        if ($product->stockMovements()->exists()) {
-            return response()->json([
-                'message' => 'Cannot delete this product. It has stock movement history.',
-            ], 422);
-        }
+        ActivityHelper::log('product_deleted', ' deleted product: ' . $product->name, 'Products List', 'danger');
 
         return response()->json(['message' => 'Deleted']);
     }
@@ -346,7 +371,10 @@ class ProductController extends Controller
                 ]);
             }
 
+            ActivityHelper::log('product_created', ' created product: ' . $product->name, 'Products List', 'info');
+
             Cache::put($cacheKey, $product, 5);
+
 
             return response()->json($product);
         } catch (\Exception $e) {

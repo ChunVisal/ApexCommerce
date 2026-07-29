@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
 use App\Models\StockRequest;
+use App\Helpers\ActivityHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -63,6 +64,9 @@ class InventoryController extends Controller
             : now();
 
         $movements = StockMovement::whereBetween('created_at', [$start->startOfDay(), $end->endOfDay()])
+            ->whereHas('product', function ($q) {
+                $q->where('has_uom', false);
+            })
             ->get()
             ->groupBy(fn($m) => $m->created_at->format('M d'));
 
@@ -152,14 +156,26 @@ class InventoryController extends Controller
             'seen_at' => null,
         ]);
 
+        $cashierName = User::find($request->cashier_id)->name;
+
         // Log stock movement
         StockMovement::create([
             'product_id' => $request->product_id,
             'type' => 'out',
             'quantity' => $request->quantity,
+            'balance' => $product->stock_quantity,
             'reason' => 'Transfer to ' . User::find($request->cashier_id)->name,
+            'reference' => 'DROP-' . str_pad($request->cashier_id, 3, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
             'user_id' => Auth::id(),
         ]);
+
+
+        ActivityHelper::log(
+            'stock_transferred',
+            "transferred {$request->quantity}x {$product->name} to {$cashierName}",
+            'Inventory',
+            'success'
+        );
 
         return response()->json(['success' => true, 'message' => 'Stock transferred']);
     }
@@ -203,6 +219,12 @@ class InventoryController extends Controller
 
         $product = Product::where('code', $request->product_code)->firstOrFail();
 
+        $reference = match ($request->type) {
+            'in' => 'STK-IN-' . str_pad(StockMovement::where('type', 'in')->count() + 1, 5, '0', STR_PAD_LEFT),
+            'out' => 'STK-OUT-' . str_pad(StockMovement::where('type', 'out')->count() + 1, 5, '0', STR_PAD_LEFT),
+            default => null,
+        };
+
         // Stock quantity change
         if ($request->quantity > 0) {
             if (!$request->reason) {
@@ -222,10 +244,20 @@ class InventoryController extends Controller
                 'product_id' => $product->id,
                 'type' => $request->type,
                 'quantity' => $request->quantity,
+                'balance' => $product->stock_quantity,
                 'reason' => $request->reason,
+                'reference' => $request->reference ?? $reference,
                 'notes' => $request->notes,
                 'user_id' => Auth::id(),
             ]);
+
+
+            ActivityHelper::log(
+                'stock_adjusted',
+                "adjusted stock for {$product->name}: {$request->type} {$request->quantity} ({$request->reason})",
+                'Inventory',
+                $request->type === 'in' ? 'success' : 'warning'
+            );
         }
 
         // Threshold change
@@ -236,6 +268,17 @@ class InventoryController extends Controller
         // Status only change (no quantity)
         if ($request->status && $request->quantity == 0) {
             $product->update(['status' => $request->status]);
+        }
+
+        if ($request->status && $request->quantity == 0) {
+            $product->update(['status' => $request->status]);
+
+            ActivityHelper::log(
+                'product_status_changed',
+                "changed {$product->name} status to {$request->status}",
+                'Inventory',
+                'info'
+            );
         }
 
         return response()->json([
@@ -309,6 +352,8 @@ class InventoryController extends Controller
             fclose($file);
         };
 
+        ActivityHelper::log('inventory_exported', 'exported inventory report (CSV)', 'Inventory', 'info');
+
         return response()->stream($callback, 200, $headers);
     }
 
@@ -353,6 +398,13 @@ class InventoryController extends Controller
 
             fclose($file);
         };
+
+        ActivityHelper::log(
+            'movements_exported',
+            "exported stock movements report ({$start->format('M d')} - {$end->format('M d')})",
+            'Inventory',
+            'info'
+        );
 
         return response()->stream($callback, 200, $headers);
     }

@@ -60,9 +60,7 @@
             <thead>
                 <tr
                     class="text-left text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-200 dark:border-zinc-800 whitespace-nowrap">
-                    <th class="flex gap-1 pb-2 pr-4 font-medium">Product:<h4
-                            class="font-semibold text-gray-600 dark:text-zinc-300">
-                            {{ $products->sum('stock_quantity') }}</h7>
+                    <th class="flex gap-1 pb-2 pr-4 font-medium">Product
                     </th>
                     <th class="pb-2 px-4 font-medium">Category</th>
                     <th class="pb-2 px-4 font-medium text-center">Current Stock</th>

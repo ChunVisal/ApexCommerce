@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityHelper;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
@@ -290,6 +291,13 @@ class DashboardController extends Controller
 
             fclose($file);
         };
+
+        ActivityHelper::log(
+            'report_exported',
+            'Exported dashboard report',
+            'Dashboard',
+            'info'
+        );
 
         return response()->stream($callback, 200, $headers);
     }

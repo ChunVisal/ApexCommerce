@@ -152,7 +152,7 @@
                                 <div class="flex items-center gap-3">
                                     <img :src="product.image ||
                                         'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
-                                        class="w-12 h-12 bg-p/10 dark:bg-p/20 rounded-xs shrink-0 object-cover" />
+                                        class="w-14 h-14 bg-p/10 dark:bg-p/20 rounded-xs shrink-0 object-cover" />
                                     <div>
                                         <p class="font-medium text-gray-800 dark:text-zinc-200 line-clamp-3"
                                             x-text="product.name"></p>

@@ -140,30 +140,32 @@
         {{-- Premium Scannable Table Component Container Block --}}
         <div
             class="bg-white dark:bg-zinc-900 pb-4 px-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
-            <div class=" scroll-smooth table-scroll overflow-auto max-h-[600px]" x-ref="tableBody">
-                <table class="w-full text-sm">
+            <div class="scroll-smooth table-scroll overflow-auto max-h-[600px]" x-ref="tableBody">
+                <table class="w-full text-sm text-left">
                     <thead class="sticky top-0 z-10 bg-white dark:bg-zinc-900">
                         <tr
-                            class="text-left text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-200 dark:border-zinc-800/80 bg-gray-50/50 dark:bg-zinc-900/50">
-                            <th class="py-2 pt-4 pl-4 font-medium">Date</th>
-                            <th class="py-2 pt-4 px-3 font-medium">Product</th>
-                            <th class="py-2 pt-4 px-3 font-medium text-left">Type</th>
-                            <th class="py-2 pt-4 px-3 font-medium text-center">Qty</th>
-                            <th class="py-2 pt-4 pl-10 font-medium text-left">Reason</th>
-                            <th class="py-2 pt-4 font-medium text-left">User</th>
+                            class="text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-200 dark:border-zinc-800/80 bg-gray-50/50 dark:bg-zinc-900/50">
+                            <th class="py-3 px-4 font-medium whitespace-nowrap">Date</th>
+                            <th class="py-3 px-4 font-medium min-w-[165px]">Product</th>
+                            <th class="py-3 px-4 font-medium text-left">Type</th>
+                            <th class="py-3 px-4 font-medium text-center">Qty</th>
+                            <th class="py-3 px-4 font-medium text-right">Balance</th>
+                            <th class="py-3 font-medium text-center min-w-[150px]">Reason</th>
+                            <th class="py-3 px-4 font-medium text-center">Reference</th>
+                            <th class="py-3 px-4 font-medium text-left min-w-[140px]">User</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-zinc-800/50">
                         <template x-for="movement in paginatedMovements" :key="movement.id">
                             <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition-colors">
                                 {{-- Date Column Field Element --}}
-                                <td class="py-3.5 pl-4 text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
+                                <td class="py-3 px-4 text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
                                     x-text="new Date(movement.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' ' + new Date(movement.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })">
                                 </td>
 
                                 {{-- Product + Category Visual Hierarchy Mapping row --}}
-                                <td class="py-3.5 px-3">
-                                    <div class="min-w-[160px]">
+                                <td class="py-3 px-4">
+                                    <div class="min-w-[100px]">
                                         <p class="font-medium text-gray-800 dark:text-zinc-200 text-sm leading-tight"
                                             x-text="movement.product?.name || '-'">
                                         </p>
@@ -174,7 +176,7 @@
                                 </td>
 
                                 {{-- Status Badge dynamic Element Block Row Layout --}}
-                                <td class="py-3.5 px-3 text-left whitespace-nowrap">
+                                <td class="py-3 px-4 text-left whitespace-nowrap">
                                     <span
                                         class="px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider inline-block"
                                         :class="movement.type === 'in' ?
@@ -186,24 +188,34 @@
 
                                 {{-- Quantities Numeric Text Element --}}
                                 <td
-                                    class="py-3.5 px-3 text-center font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
-                                    <span x-text="movement.dynamic_quantity_rendered ?? movement.quantity"></span> <span
-                                        class="text-xs font-bold rounded-full text-gray-800 dark:text-zinc-200 whitespace-nowrap lowercase"
+                                    class="py-3 px-4 text-center font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
+                                    <span x-text="movement.dynamic_quantity_rendered ?? movement.quantity"></span>
+                                    <span
+                                        class="text-xs font-bold text-gray-800 dark:text-zinc-200 whitespace-nowrap lowercase"
                                         x-show="movement.product?.has_uom" x-text="movement.product?.base_unit_name">
                                     </span>
                                 </td>
 
-
+                                {{-- Balance Numeric Text Element --}}
+                                <td
+                                    class="py-3 px-4 text-center font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
+                                    <span x-text="movement.balance ?? 0"></span>
+                                </td>
 
                                 {{-- Context Statement Reason Element row field --}}
-                                <td class="py-3.5 pl-10 text-xs text-left text-gray-600 dark:text-zinc-400 font-medium">
+                                <td class="py-3 pl-2 text-xs text-left text-gray-600 dark:text-zinc-400 font-medium">
                                     <p class="max-w-[200px] break-words line-clamp-2" x-text="movement.reason || '-'">
                                     </p>
                                 </td>
 
+                                {{-- Reference Numeric Text Element --}}
+                                <td
+                                    class="text-[12px] py-3 pl-2 text-center font-medium text-gray-800 dark:text-zinc-300 whitespace-nowrap">
+                                    <span x-text="movement.reference || '-'"></span>
+                                </td>
 
                                 {{-- Authorized User Metadata Structure Layout --}}
-                                <td class="py-3.5    text-xs text-left">
+                                <td class="py-3 px-4 text-xs text-left">
                                     <div class="min-w-[140px]">
                                         <p class="font-medium text-gray-800 dark:text-zinc-300"
                                             x-text="movement.user?.name || '-'">
@@ -218,7 +230,7 @@
 
                         {{-- Empty State Row --}}
                         <tr x-show="filteredMovements.length === 0">
-                            <td colspan="6" class="text-center py-16 bg-white dark:bg-zinc-900">
+                            <td colspan="8" class="text-center py-16 bg-white dark:bg-zinc-900">
                                 <div class="max-w-xs mx-auto flex flex-col items-center justify-center">
                                     {{-- Circular minimalist movement path icon container --}}
                                     <div

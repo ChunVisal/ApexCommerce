@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\StockRequest;
 use App\Models\User;
+use App\Helpers\ActivityHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ class NotificationController extends Controller
         $perPage = $request->per_page ?? 3;
 
         $stockRequests = StockRequest::with(['cashier', 'product'])
-            ->whereIn('status', ['pending', 'loss_reported'])
+            ->whereIn('status', ['pending', 'loss_reported', 'refunded'])
             ->latest()
             ->get()
             ->groupBy(function ($req) {
@@ -34,7 +35,7 @@ class NotificationController extends Controller
             return view('admin.partials.notifications.list', compact('stockRequests', 'hasMore', 'perPage', 'totalGroups'))->render();
         }
 
-        $pendingCount = StockRequest::whereIn('status', ['pending', 'loss_reported'])->whereNull('seen_at')->count();
+        $pendingCount = StockRequest::whereIn('status', ['pending', 'loss_reported', 'refunded'])->whereNull('seen_at')->count();
         return view('admin.notifications', compact('stockRequests', 'pendingCount', 'hasMore', 'perPage', 'totalGroups'));
     }
 
@@ -121,7 +122,9 @@ class NotificationController extends Controller
                 'product_id' => $stockRequest->product_id,
                 'type' => 'out',
                 'quantity' => $quantity,
+                'balance' => Product::find($stockRequest->product_id)->stock_quantity,
                 'reason' => 'Transfer to ' . User::find($stockRequest->cashier_id)->name,
+                'reference' => 'DROP-' . str_pad($stockRequest->cashier_id, 3, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
                 'user_id' => Auth::id(),
             ]);
 
@@ -132,6 +135,13 @@ class NotificationController extends Controller
                 'approved_by' => Auth::id(),
                 'seen_at' => null,
             ]);
+
+            ActivityHelper::log(
+                'request_approved',
+                "Approved {$quantity}x {$product->name} for " . $stockRequest->cashier->name,
+                'Notifications',
+                'success'
+            );
         });
 
         return back()->with('success', 'Stock transferred!');
@@ -139,12 +149,23 @@ class NotificationController extends Controller
 
     public function reject(Request $request, $id)
     {
-        StockRequest::findOrFail($id)->update([
+        $req = StockRequest::findOrFail($id);
+        $req->update([
             'status' => 'rejected',
             'approved_by' => Auth::id(),
             'dispute_reason' => $request->reason,
             'seen_at' => null,
         ]);
+
+        $productName = $req->product->name ?? $req->product_name ?? 'Unknown';
+
+        ActivityHelper::log(
+            'request_rejected',
+            "Rejected request for {$req->quantity_requested}x {$productName} - Reason: {$request->reason}",
+            'Notifications',
+            'warning'
+        );
+
         return back()->with('success', 'Request rejected');
     }
 
@@ -169,19 +190,31 @@ class NotificationController extends Controller
             ->where('product_id', $request->product_id)
             ->first();
 
-        if ($cashierStock) {
-            $remaining = $cashierStock->allocated_quantity - $cashierStock->sold_quantity;
-            if ($request->quantity > $remaining) {
-                return response()->json(['message' => 'Cannot report more than available'], 422);
-            }
-            $cashierStock->decrement('allocated_quantity', $request->quantity);
+        if (!$cashierStock) {
+            return response()->json(['message' => 'No cashier stock found for this product.'], 422);
         }
+
+        // Only use cashier's own allocated stock for returning/loss
+        $remaining = $cashierStock->allocated_quantity - $cashierStock->sold_quantity;
+        if ($request->quantity > $remaining) {
+            return response()->json(['message' => 'Cannot report more than available in your allocated stock'], 422);
+        }
+
+        $remaining_before = $cashierStock->allocated_quantity - $cashierStock->sold_quantity;
+
+        $cashierStock->decrement('allocated_quantity', $request->quantity);
+
+        // Refresh from database to get updated value
+        $cashierStock->refresh();
+        $new_remaining = $remaining_before - $request->quantity;
 
         StockMovement::create([
             'product_id' => $request->product_id,
             'type' => 'out',
             'quantity' => $request->quantity,
+            'balance' => $new_remaining,
             'reason' => 'Loss: ' . $request->reason . ' - ' . Auth::user()->name,
+            'reference' => 'LOSS-' . str_pad(StockMovement::where('type', 'out')->where('reason', 'like', 'Loss:%')->count() + 1, 5, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
             'user_id' => Auth::id(),
         ]);
 

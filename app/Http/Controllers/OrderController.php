@@ -7,6 +7,8 @@ use App\Models\Payment;
 use App\Models\StockMovement;
 use App\Models\CashierStock;
 use App\Models\Product;
+use App\Models\StockRequest;
+use App\Helpers\ActivityHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -126,12 +128,13 @@ class OrderController extends Controller
     public function refund(Request $request, $id)
     {
         $order = Order::with('items')->where('cashier_id', Auth::id())->findOrFail($id);
+        $order_number = $order->order_number; // get the order_number here
 
         if ($order->status !== 'completed') {
-            return response()->json(['message' => 'Order already refunded'], 400);
+            return response()->json(['message' => 'Order already refunded', 'order_number' => $order_number], 400);
         }
 
-        DB::transaction(function () use ($order, $request) {
+        DB::transaction(function () use ($order, $request, $order_number) {
             // Mark order as refunded
             $order->update([
                 'status' => 'refunded',
@@ -152,17 +155,38 @@ class OrderController extends Controller
                         $cashierStock->decrement('sold_quantity', $item->quantity);
                     }
 
-                    StockMovement::create([
+                    $stockMovement = StockMovement::create([
                         'product_id' => $item->product_id,
                         'type' => 'in',
                         'quantity' => $item->quantity,
+                        'balance' => Product::find($item->product_id)->stock_quantity,
+                        'reference' => 'REF-' . $order_number,
                         'reason' => 'Refund: ' . $request->reason,
                         'user_id' => Auth::id(),
                     ]);
+
+                    // After refund StockMovement, create StockRequest to notify cashier of refund restock
+                    StockRequest::create([
+                        'cashier_id' => $order->cashier_id,
+                        'product_id' => $item->product_id,
+                        'quantity_requested' => $item->quantity,
+                        'quantity_approved' => $item->quantity,
+                        'status' => 'refunded',
+                        'cashier_notes' => 'Order ' . $order->order_number . ' refunded: ' . $request->reason,
+                        'approved_by' => Auth::id(),
+                        'seen_at' => null,
+                    ]);
+
+                    ActivityHelper::log(
+                        'order_refunded',
+                        "Order {$order_number} refunded - " . Auth::user()->name,
+                        'Orders',
+                        'danger'
+                    );
                 }
             }
         });
 
-        return response()->json(['message' => 'Order refunded successfully']);
+        return response()->json(['message' => 'Order refunded successfully', 'order_number' => $order_number]);
     }
 }

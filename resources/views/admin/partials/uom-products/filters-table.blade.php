@@ -11,8 +11,49 @@
     </button>
 </div>
 
+<div class="flex flex-wrap items-center gap-3 mb-4">
+
+    {{-- Search --}}
+    <div class="relative flex-1 min-w-[200px]">
+        <i
+            class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs"></i>
+        <input type="text" x-model="searchQuery" @input="filterProducts()"
+            placeholder="Search product name, category or code..."
+            class="w-full pl-8 pr-8 py-1.5 text-xs border border-gray-300 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
+        <button x-show="searchQuery" @click="searchQuery = ''; filterProducts()"
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 text-xs">✕</button>
+    </div>
+
+    {{-- UOM Type Filter --}}
+    <select x-model="uomFilter" @change="filterProducts()"
+        class="text-xs border border-gray-300 dark:border-zinc-800 rounded-md px-3 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
+        <option value="">All UOM Types</option>
+        @foreach ($uomCounts as $uomName => $count)
+            <option value="{{ $uomName }}">{{ $uomName }} ({{ $count }})</option>
+        @endforeach
+
+    </select>
+
+    {{-- Status Filter --}}
+    <select x-model="statusFilter" @change="filterProducts()"
+        class="text-xs border border-gray-300 dark:border-zinc-800 rounded-md px-3 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+    </select>
+
+    {{-- Stock Filter --}}
+    <select x-model="stockFilter" @change="filterProducts()"
+        class="text-xs border border-gray-300 dark:border-zinc-800 rounded-md px-3 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
+        <option value="">All Stock</option>
+        <option value="out">Out of Stock</option>
+        <option value="low">Low Stock</option>
+        <option value="in">In Stock</option>
+    </select>
+</div>
+
 {{-- UOM Table --}}
-<div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-200 dark:border-zinc-800/60">
+<div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-300 dark:border-zinc-800/60">
     <div class=" overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
@@ -28,7 +69,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-zinc-800/50">
-                <template x-for="product in uomProducts" :key="product.id">
+                <template x-for="product in filteredUomProducts" :key="product.id">
                     <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition">
 
                         {{-- Product Info Column - Improved Layout --}}
@@ -37,7 +78,7 @@
                                 <div class="relative">
                                     <img :src="product.image ||
                                         'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
-                                        class="w-14 h-14 rounded-md object-cover border border-gray-200 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-800" />
+                                        class="w-14 h-14 rounded-sm object-cover border border-gray-300 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-800" />
                                     <span class="absolute -top-1 -right-1 inline-block w-3.5 h-3.5 rounded-full"
                                         :class="product.status === 'active' ?
                                             'bg-green-400 border border-white dark:border-zinc-800' :
@@ -96,9 +137,27 @@
 
                         {{-- Stock Column --}}
                         <td class="py-3 px-4 text-center">
-                            <span
-                                class="px-2 py-0.5 text-[13px] font-bold rounded-full bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400">
-                                <span x-text="product.stock_quantity"></span>
+                            <span x-data="{
+                                isLow: Number(product.stock_quantity) > 0 && Number(product.stock_quantity) < Number(product.low_stock_threshold),
+                                isZero: Number(product.stock_quantity) <= 0,
+                                isOk: Number(product.stock_quantity) >= Number(product.low_stock_threshold)
+                            }" class="px-2 py-0.5 text-[13px] font-bold rounded-full"
+                                :class="isZero
+                                    ?
+                                    'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400' :
+                                    isLow ?
+                                    'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400' :
+                                    'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400'">
+                                <template x-if="isZero">
+                                    <span>Out of stock</span>
+                                </template>
+                                <template x-if="isLow">
+                                    <span x-text="product.stock_quantity + ' Low'"></span>
+                                </template>
+                                <template x-if="isOk">
+                                    <span x-text="product.stock_quantity"></span>
+                                </template>
+
                             </span>
                         </td>
 
@@ -135,7 +194,7 @@
     </div>
 
     {{-- Empty State --}}
-    <template x-if="!uomProducts || uomProducts.length === 0">
+    <template x-if="!filteredUomProducts || filteredUomProducts.length === 0">
         <div class="py-8 text-center">
             <div
                 class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
@@ -154,3 +213,29 @@
         </div>
     </template>
 </div>
+
+<script>
+    function deleteUom(id, button) {
+        if (!confirm('Delete this UOM product? This cannot be undone.')) return;
+
+        fetch(`/admin/products/uoms/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(res => {
+                console.log('Status:', res.status);
+                return res.json();
+            })
+            .then(data => {
+                console.log('Response:', data);
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    window.location.reload();
+                }
+            })
+    }
+</script>

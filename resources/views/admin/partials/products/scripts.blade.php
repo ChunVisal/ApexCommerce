@@ -41,7 +41,7 @@
             return;
         }
 
-        if (!confirm('Are you sure you want to delete this product?')) return;
+        if (!confirm('Are you sure you want to delete this product inlcude stockmovement record ?')) return;
 
         fetch('/admin/products/' + id, {
                 method: 'DELETE',

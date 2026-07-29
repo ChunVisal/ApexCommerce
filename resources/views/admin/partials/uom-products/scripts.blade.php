@@ -1,6 +1,12 @@
 <script>
     function productUomPage() {
         return {
+            // search and filters
+            searchQuery: '',
+            uomFilter: '',
+            statusFilter: '',
+            stockFilter: '',
+
             // Product list state
             products: @json($products),
             categories: @json($categories),
@@ -41,10 +47,51 @@
                 is_default: true
             }],
 
+            get filteredUomProducts() {
+                let result = this.products.filter(p => p.has_uom);
+
+                // Search
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    result = result.filter(p =>
+                        p.name.toLowerCase().includes(q) ||
+                        (p.code || '').toLowerCase().includes(q) ||
+                        (p.category && p.category.name && p.category.name.toLowerCase().includes(q))
+                    );
+                }
+
+                // UOM Type
+                if (this.uomFilter) {
+                    result = result.filter(p =>
+                        p.uoms && p.uoms.some(u => u.name === this.uomFilter)
+                    );
+                }
+
+                // Status
+                if (this.statusFilter) {
+                    result = result.filter(p => p.status === this.statusFilter);
+                }
+
+                // Stock
+                if (this.stockFilter === 'out') {
+                    result = result.filter(p => p.stock_quantity <= 0);
+                } else if (this.stockFilter === 'low') {
+                    result = result.filter(p => p.stock_quantity > 0 && p.stock_quantity <= 10);
+                } else if (this.stockFilter === 'in') {
+                    result = result.filter(p => p.stock_quantity > 10);
+                }
+
+                return result;
+            },
+
+            filterProducts() {
+                // Just triggers re-render via getter
+            },
+
             get uomProducts() {
                 return this.products.filter(p => p.has_uom);
             },
-            
+
             // Open panel to CREATE a new product OR EDIT an existing product's UOMs
             openUomForm(product) {
                 this.selectedProductName = '';
@@ -219,7 +266,7 @@
                     .finally(() => {
                         this.submitting = false;
                     });
-            },
+            }
         }
     }
 </script>

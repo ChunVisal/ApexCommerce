@@ -1,6 +1,6 @@
 @foreach ($stockRequests as $group => $requests)
     {{-- Date Block Title Header --}}
-    <div class="flex items-center gap-3 py-2">
+    <div class="flex items-center gap-3 py-6">
         <h2 class="text-xs font-bold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">
             {{ $group }}
         </h2>
@@ -19,6 +19,7 @@
 
             // Condition logic for styles
             $isLoss = $req->status === 'loss_reported';
+            $isRefund = $req->status === 'refunded';
             $isNewProduct = !$req->product_id;
         @endphp
 
@@ -55,6 +56,11 @@
                                     class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-red-200">
                                     Loss Report
                                 </span>
+                            @elseif ($isRefund)
+                                <span
+                                    class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
+                                    Refund Restock
+                                </span>
                             @elseif ($isNewProduct)
                                 <span
                                     class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
@@ -81,6 +87,12 @@
                                     class="font-bold text-rose-600 dark:text-rose-400">{{ $req->quantity_requested }}x</span>
                                 <span
                                     class="font-semibold text-gray-900 dark:text-zinc-100">{{ $req->product->name ?? ($req->product_name ?? 'Unknown') }}</span>
+                            @elseif ($isRefund)
+                                Restocked <span
+                                    class="font-bold text-blue-600 dark:text-blue-400">{{ $req->quantity_requested }}x</span>
+                                <span
+                                    class="font-semibold text-gray-900 dark:text-zinc-100">{{ $req->product->name ?? 'Unknown' }}</span>
+                                from a refund
                             @elseif (!$isNewProduct)
                                 Requested restock of <span
                                     class="font-bold text-[#0F6E8C] dark:text-cyan-400">{{ $req->quantity_requested }}x</span>
@@ -93,7 +105,18 @@
                         </p>
 
                         {{-- Inventory Meta --}}
-                        @if (!$isLoss)
+                        @if ($isLoss)
+                            <p
+                                class="text-[11px] font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1 pt-0.5">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Stock reduction request
+                                requires review
+                            </p>
+                        @elseif ($isRefund)
+                            <p
+                                class="text-[11px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1 pt-0.5">
+                                <x-heroicon-s-check-circle class="w-3.5 h-3.5" /> Already processed — no action needed
+                            </p>
+                        @else
                             <div class="flex items-center gap-3 text-[11px] text-gray-500 dark:text-zinc-400 pt-0.5">
                                 <span>Warehouse Stock: <strong
                                         class="text-gray-800 dark:text-zinc-200">{{ \App\Models\Product::find($req->product_id)->stock_quantity ?? 'None' }}</strong></span>
@@ -101,12 +124,6 @@
                                 <span>Cashier Holds: <strong
                                         class="text-gray-800 dark:text-zinc-200">{{ $cashierRemaining }}</strong></span>
                             </div>
-                        @else
-                            <p
-                                class="text-[11px] font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1 pt-0.5">
-                                <i class="fa-solid fa-triangle-exclamation"></i> Stock reduction request
-                                requires review
-                            </p>
                         @endif
 
                         {{-- Notes --}}
@@ -121,8 +138,8 @@
                     </div>
                 </div>
 
-                {{-- Action Operations Panel --}}
-                @if (!$isLoss)
+                {{-- Action Operations Panel — hidden for loss reports AND refunds, since both are already finalized --}}
+                @if (!$isLoss && !$isRefund)
                     <div
                         class="flex flex-wrap items-center gap-2 pt-3 lg:pt-0 border-t lg:border-t-0 border-gray-100 dark:border-zinc-800/60">
                         {{-- Approval Form --}}
