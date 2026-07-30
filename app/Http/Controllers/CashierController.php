@@ -152,13 +152,7 @@ class CashierController extends Controller
                 'status' => 'completed',
             ]);
 
-            $cashierStock = CashierStock::where('cashier_id', Auth::id())
-                ->where('product_id', $item['id'])
-                ->first();
-
-            if ($cashierStock) {
-                $cashierStock->increment('sold_quantity', $item['qty']);
-            }
+            $cashierStock = CashierStock::where('cashier_id', Auth::id())->where('product_id', $item['id'])->first();
 
             // 4. Create order items + Update stock
             foreach ($request->items as $item) {

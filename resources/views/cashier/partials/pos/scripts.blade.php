@@ -27,6 +27,8 @@
 
     function posPage() {
         return {
+
+
             selectedCategory: 'all',
             categoryMap: @json($categoryCounts),
             cartItems: [],
@@ -212,7 +214,6 @@
                 this.change = Math.max(0, this.amountReceived - this.total);
             },
 
-
             searchCustomers() {
                 const query = this.customerSearch || '';
                 fetch(`/cashier/customers/search?q=${encodeURIComponent(query)}`)
@@ -363,6 +364,19 @@
                             this.lastOrder = data.order;
                             this.checkoutOpen = false;
                             this.receiptOpen = true;
+                            this.$nextTick(() => {
+                                if (this.receiptData.order_number) {
+                                    JsBarcode("#barcode", this.receiptData.order_number, {
+                                        format: "CODE128",
+                                        width: 1.5,
+                                        height: 40,
+                                        displayValue: false,
+                                        margin: 0,
+                                        background: "transparent",
+                                        lineColor: "#000",
+                                    });
+                                }
+                            });
 
                             // 2. THEN clear everything
                             this.cartItems = [];

@@ -47,17 +47,41 @@
                         Product Name *
                     </label>
 
-                    {{-- Select from existing --}}
-                    <select x-model="selectedProductName" @change="form.name = $event.target.value; autoFillDetails()"
-                        :disabled="!form.category_code"
-                        class="disabled:opacity-50 disabled:cursor-not-allowed w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
-                        <option value="">Select product from catalog</option>
-                        <template x-for="product in categoryProducts" :key="product.name">
-                            <option :value="product.name" x-text="product.name"></option>
-                        </template>
-                    </select>
+                    {{-- Searchable select from existing --}}
+                    <div x-data="{ search: '', open: false }" class="relative">
+                        <div @click="form.category_code && (open = !open)"
+                            class="w-full text-sm px-3 py-2 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800 flex items-center justify-between transition-colors"
+                            :class="!form.category_code ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'">
+                            <span x-text="selectedProductName || 'Select product from catalog'"
+                                :class="!selectedProductName && 'text-gray-500 dark:text-zinc-400'"></span>
+                            <x-heroicon-o-chevron-down class="w-4 h-4 text-gray-400 dark:text-zinc-400" />
+                        </div>
 
-                    <div class="relative text-center">
+                        {{-- Dropdown Menu --}}
+                        <div x-show="open" @click.outside="open = false" x-cloak
+                            class="absolute z-20 w-full tab-container overflow-x-hidden mt-1 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md shadow-lg max-h-[300px] overflow-y-auto">
+
+                            <input type="text" x-model="search" placeholder="Search product..."
+                                class="sticky top-0 w-full text-sm border-b border-gray-200 dark:border-zinc-700 px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-500 dark:placeholder-zinc-400 focus:outline-none">
+
+                            <template
+                                x-for="product in categoryProducts.filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()))"
+                                :key="product.name">
+                                <div @click="selectedProductName = product.name; form.name = product.name; open = false; search = ''; autoFillDetails()"
+                                    class="px-3 py-2 text-sm text-gray-850 dark:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-700 cursor-pointer"
+                                    x-text="product.name">
+                                </div>
+                            </template>
+
+                            {{-- Not found message --}}
+                            <div x-show="search && categoryProducts.filter(p => p.name.toLowerCase().includes(search.toLowerCase())).length === 0"
+                                class="px-3 py-4 text-center text-gray-400 dark:text-zinc-500 text-sm select-none">
+                                No product found.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative text-center my-2">
                         <span class="bg-white dark:bg-zinc-900 px-2 text-[10px] text-gray-400 uppercase">OR</span>
                         <div class="absolute inset-0 flex items-center -z-10">
                             <div class="w-full border-t border-gray-300 dark:border-zinc-700"></div>

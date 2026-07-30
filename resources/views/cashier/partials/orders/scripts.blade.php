@@ -43,7 +43,7 @@
                     });
             },
 
-            viewOrder(id) {
+            viewOrder(id, v = false) {
                 fetch(`/cashier/orders/${id}`)
                     .then(res => res.json())
                     .then(data => {
@@ -72,6 +72,7 @@
                                 name: order.customer.name
                             } : null,
                         };
+                        console.log(this.receiptData);
                         this.lastOrder = {
                             order_number: order.order_number
                         };

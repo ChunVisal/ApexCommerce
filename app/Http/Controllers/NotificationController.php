@@ -23,6 +23,8 @@ class NotificationController extends Controller
             ->latest()
             ->get()
             ->groupBy(function ($req) {
+                if ($req->created_at->isToday()) return 'Today';
+                if ($req->created_at->isYesterday()) return 'Yesterday';
                 return $req->created_at->format('l, M d, Y');
             });
 
@@ -53,6 +55,8 @@ class NotificationController extends Controller
             ->latest()
             ->get()
             ->groupBy(function ($req) {
+                if ($req->created_at->isToday()) return 'Today';
+                if ($req->created_at->isYesterday()) return 'Yesterday';
                 return $req->created_at->format('l, M d, Y');
             });
 

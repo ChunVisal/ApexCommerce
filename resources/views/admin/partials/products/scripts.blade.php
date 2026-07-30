@@ -41,7 +41,7 @@
             return;
         }
 
-        if (!confirm('Are you sure you want to delete this product inlcude stockmovement record ?')) return;
+        if (!confirm('Are you sure you want to delete this product')) return;
 
         fetch('/admin/products/' + id, {
                 method: 'DELETE',
@@ -398,7 +398,7 @@
                 this.form.price = item.price;
                 this.form.stock = item.stock;
                 this.form.status = item.status;
-               
+
                 this.form.image_url = item.image_url ?? ''; // ← ADD
                 this.form.image_preview = item.image_preview ?? ''; // ← ADD
                 this.form.image_file = item.image_file ?? null; // ← ADD

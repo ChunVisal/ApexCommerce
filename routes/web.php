@@ -34,7 +34,7 @@ Route::post('/cashier/pin-login', [AuthenticatedSessionController::class, 'pinLo
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/admin/dashboard/export', [DashboardController::class, 'exportDashboard'])->name('admin.dashboard.export');
+    Route::get('/dashboard/export', [DashboardController::class, 'exportDashboard'])->name('admin.dashboard.export');
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
     Route::post('/admin/notifications/{id}/approve', [NotificationController::class, 'approve'])->name('admin.notifications.approve');
@@ -80,8 +80,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/customers/export/all', [CustomerController::class, 'adminExport'])->name('admin.customers.export');
     Route::get('/customers/{customer}/order/{order}', [CustomerController::class, 'getOrder']);
 
-    Route::get('/activity-log', [AdminController::class, 'test'])->name('admin.activitylog');
-    Route::get('/activitylog', [ActivityLogController::class, 'index'])->name('admin.activitylog');
+    Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('admin.activitylog');
+    Route::get('/activitylog', [AdminController::class, 'test'])->name('admin.activitylog');
 });
 // Cashier Routes
 Route::middleware(['auth', 'role:cashier'])->group(function () {

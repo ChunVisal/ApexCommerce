@@ -101,7 +101,9 @@ class ProductController extends Controller
             StockMovement::create([
                 'product_id' => $product->id,
                 'type' => 'in',
+                'reference' => 'INIT-' . str_pad($product->id, 3, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
                 'quantity' => $product->stock_quantity,
+                'balance' => $product->stock_quantity,
                 'reason' => 'Initial stock',
                 'notes' => 'Product created with initial stock of ' . $product->stock_quantity . ' ' . ($product->base_unit_code ?: $product->base_unit_name ?: 'unit'),
                 'user_id' => Auth::id(),
@@ -253,12 +255,13 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        // Check if product has orders
-        if ($product->orderItems()->exists()) {
+        // Check if product has orders or stock movements
+        if ($product->orderItems()->exists() || $product->stockMovements()->exists()) {
             return response()->json([
-                'message' => 'Cannot delete this product. It has existing orders/transactions.',
+                'message' => 'Cannot delete this product. It has existing orders/transactions or stock history.',
             ], 422);
         }
+
 
         ActivityHelper::log('product_deleted', ' deleted product: ' . $product->name, 'Products List', 'danger');
 
@@ -365,8 +368,10 @@ class ProductController extends Controller
                     'product_id' => $product->id,
                     'type' => 'in',
                     'quantity' => $product->stock_quantity,
+                    'balance' => $product->stock_quantity,
                     'reason' => 'Initial stock',
                     'notes' => 'Product created with initial stock',
+                    'reference' => 'INIT-' . str_pad($product->id, 3, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
                     'user_id' => Auth::id(),
                 ]);
             }

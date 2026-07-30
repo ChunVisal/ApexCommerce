@@ -85,9 +85,11 @@ class InventoryController extends Controller
             $stockIn[] = $dayMovements->where('type', 'in')->sum('quantity');
             $stockOut[] = $dayMovements->where('type', 'out')->sum('quantity');
 
-            $dayDetails = $dayMovements->where('type', 'out')->map(function ($m) {
-                return "{$m->quantity}x {$m->product->name} → {$m->reason}";
-            })->join(', ');
+            $dayDetails = $dayMovements->where('type', 'out')
+                ->take(10)
+                ->map(function ($m) {
+                    return "{$m->quantity}x {$m->product->name} → {$m->reason}";
+                })->join(', ');
 
             Log::info("Day: $key, Out count: " . $dayMovements->where('type', 'out')->count() . ", Details: $dayDetails");
             $details[] = $dayDetails ?: '';
@@ -220,8 +222,8 @@ class InventoryController extends Controller
         $product = Product::where('code', $request->product_code)->firstOrFail();
 
         $reference = match ($request->type) {
-            'in' => 'STK-IN-' . str_pad(StockMovement::where('type', 'in')->count() + 1, 5, '0', STR_PAD_LEFT),
-            'out' => 'STK-OUT-' . str_pad(StockMovement::where('type', 'out')->count() + 1, 5, '0', STR_PAD_LEFT),
+            'in' => 'STKIN-' . str_pad(StockMovement::where('type', 'in')->count() + 1, 5, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
+            'out' => 'STKOUT-' . str_pad(StockMovement::where('type', 'out')->count() + 1, 5, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
             default => null,
         };
 

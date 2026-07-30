@@ -3,8 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Order;
+use App\Models\CashierStock;
+use App\Models\StockRequest;
+use App\Models\StockMovement;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Helpers\ActivityHelper;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -142,6 +148,13 @@ class UserController extends Controller
             'salary' => $request->role === 'cashier' ? $request->salary : null,
         ]);
 
+        ActivityHelper::log(
+            'user_created',
+            'Created user: ' . $request->name . ' (' . $request->role . ')',
+            'Users',
+            'success'
+        );
+
         return response()->json(['success' => true, 'message' => 'User created']);
     }
 
@@ -191,6 +204,13 @@ class UserController extends Controller
 
             $user->update($data);
 
+            ActivityHelper::log(
+                'user_updated',
+                'Updated user: ' . $request->name,
+                'Users',
+                'info'
+            );
+
             return response()->json(['success' => true, 'message' => 'User updated']);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -208,10 +228,41 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
+        $user = User::findOrFail($id);
+        $userName = $user->name;
+
+        // Check if user has orders
+        if (Order::where('cashier_id', $id)->exists()) {
+            return response()->json(['error' => 'Cannot delete: user has sales history'], 422);
+        }
+
+        // Check if user has stock allocations
+        if (CashierStock::where('cashier_id', $id)->exists()) {
+            return response()->json(['error' => 'Cannot delete: user has stock allocations'], 422);
+        }
+
+        // Check if user has stock requests
+        if (StockRequest::where('cashier_id', $id)->exists()) {
+            return response()->json(['error' => 'Cannot delete: user has stock requests'], 422);
+        }
+
+        // Check if user has stock movements
+        if (StockMovement::where('user_id', $id)->exists()) {
+            return response()->json(['error' => 'Cannot delete: user has stock movement history'], 422);
+        }
+
+        // Check if user has activity logs
+        if (ActivityLog::where('user_id', $id)->exists()) {
+            return response()->json(['error' => 'Cannot delete: user has activity history'], 422);
+        }
+
+        $user->delete();
+
+        ActivityHelper::log('user_deleted', 'Deleted user: ' . $userName, 'Users', 'warning');
 
         return response()->json(['message' => 'User deleted']);
     }
+
     // UserController.php
 
     public function bulkDeactivate(Request $request)

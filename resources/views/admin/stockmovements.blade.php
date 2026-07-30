@@ -37,7 +37,7 @@
     reasonOpen = true;
     applyFilters(); 
 "
-                    placeholder="Search products or select reason..."
+                    placeholder="Search products, reference or select reason..."
                     class="w-full pl-8 pr-8 py-1.5 text-xs border border-gray-300 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
                 <button type="button" id="clearSearch" style="display:none;"
                     @click="searchQuery = ''; applyFilters(); toggleClearButton()"
@@ -299,10 +299,14 @@
                 if (this.filterCategory) result = result.filter(m => m.product?.category_id == this.filterCategory);
                 if (this.searchQuery) {
                     const q = this.searchQuery.toLowerCase();
-                    result = result.filter(m => (m.product?.name || '').toLowerCase().includes(q) || (m.reason ||
-                        '').toLowerCase().includes(q));
+                    result = result.filter(m =>
+                        (m.product?.name || '').toLowerCase().includes(q) ||
+                        (m.reason || '').toLowerCase().includes(q) ||
+                        (m.reference || '').toLowerCase().includes(q)
+                    );
                 }
                 return result;
+
             },
 
             // Inside movementPage(), add:

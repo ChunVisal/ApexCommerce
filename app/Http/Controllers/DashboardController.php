@@ -89,20 +89,22 @@ class DashboardController extends Controller
     public static function getTopProducts($limit = 5)
     {
         $items = OrderItem::whereHas('order', fn($q) => $q->where('status', '!=', 'refunded'))
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->select(
-                'name',
-                'product_id',
-                DB::raw('SUM(quantity) as total_qty'),
-                DB::raw('SUM(total) as total_revenue'),
-                DB::raw('COUNT(DISTINCT order_id) as order_count'),
-                DB::raw('ROUND(SUM(total) / SUM(quantity), 2) as avg_sale_price')
+                'order_items.name',
+                'order_items.product_id',
+                DB::raw('SUM(order_items.quantity) as total_qty'),
+                DB::raw('SUM(order_items.total) as total_revenue'),
+                // Prorate: each item's share of the order's actual discount, based on its portion of the subtotal
+                DB::raw('SUM(order_items.total - (order_items.total / NULLIF(orders.subtotal, 0)) * orders.discount) as net_revenue'),
+                DB::raw('COUNT(DISTINCT order_items.order_id) as order_count')
             )
-            ->groupBy('name', 'product_id')
-            ->orderByDesc('total_revenue')
+            ->groupBy('order_items.name', 'order_items.product_id')
+            ->orderByDesc('net_revenue')
             ->limit($limit)
             ->get();
 
-        $maxRevenue = $items->max('total_revenue') ?: 1;
+        $maxRevenue = $items->max('net_revenue') ?: 1;
 
         return $items->map(function ($item, $index) use ($maxRevenue) {
             $product = Product::with('category')->find($item->product_id);
@@ -114,9 +116,11 @@ class DashboardController extends Controller
                 'image' => $product->image ?? null,
                 'price' => $product->selling_price ?? 0,
                 'sold' => $item->total_qty,
-                'revenue' => $item->total_revenue,
-                'avg_sale_price' => $item->avg_sale_price,
-                'percent' => round(($item->total_revenue / $maxRevenue) * 100),
+                'revenue' => round($item->net_revenue, 2),
+                'avg_sale_price' => $item->total_qty > 0
+                    ? round($item->net_revenue / $item->total_qty, 2)
+                    : 0,
+                'percent' => round(($item->net_revenue / $maxRevenue) * 100),
             ];
         })->toArray();
     }
@@ -243,7 +247,7 @@ class DashboardController extends Controller
             $file = fopen('php://output', 'w');
 
             // Summary
-            $summary = DashboardController::getSummaryCards($start, $end);
+            $summary = DashboardController::getSummaryCards();
             fputcsv($file, ['DASHBOARD REPORT']);
             fputcsv($file, ['Period', Carbon::parse($start)->format('M d, Y') . ' - ' . Carbon::parse($end)->format('M d, Y')]);
             fputcsv($file, []);

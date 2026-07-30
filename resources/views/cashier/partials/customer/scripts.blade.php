@@ -72,7 +72,7 @@
                              discount: parseFloat(order.discount) || 0,
                              vip_discount: parseFloat(order.vip_discount) || 0,
                              is_vip: order.is_vip || false,
-                             status: order.status, // ← Add
+                             status: order.status,
                              refund_reason: order.refund_reason,
                              payment_method: order.payment?.method,
                              amount_received: parseFloat(order.payment?.amount_received) || parseFloat(order

@@ -47,7 +47,7 @@ class CashierProductData
                 'iconBg' => '#0F6E8C',
                 'iconColor' => '#0F6E8C',
                 'dot' => '#0F6E8C',
-                'subtitle' => '$' . number_format($totalValue) . ' total revenue',
+                'subtitle' => '$' . number_format($totalValue) . ' total value',
             ],
             [
                 'title' => 'Allocated',

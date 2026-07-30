@@ -210,7 +210,8 @@
                         display: false
                     },
                     tooltip: {
-                        enabled: true
+                        enabled: true,
+                        padding: 8
                     }
                 },
             },
@@ -226,7 +227,7 @@
                     const cy = (chartArea.top + chartArea.bottom) / 2;
 
                     ctx.save();
-                    ctx.font = '600 14px sans-serif';
+                    ctx.font = '1000 15px sans-serif';
                     ctx.fillStyle = isDarkMode ? '#e4e4e7' : '#374151';
                     ctx.strokeStyle = isDarkMode ? '#52525b' : '#9ca3af';
                     ctx.lineWidth = 1;
@@ -254,5 +255,6 @@
                 },
             }],
         });
+
     });
 </script>
