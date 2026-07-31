@@ -353,7 +353,6 @@
                                 total: data.order.total,
                                 is_vip: this.isVipCustomer,
                                 vip_discount: this.vipDiscount,
-
                                 payment_method: this.paymentMethod,
                                 amount_received: this.amountReceived,
                                 change: data.order.change,

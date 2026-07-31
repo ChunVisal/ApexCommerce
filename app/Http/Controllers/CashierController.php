@@ -9,7 +9,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
-use App\Helpers\ActivityHelper;
+use App\Helpers\ActivityData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -147,6 +147,7 @@ class CashierController extends Controller
                 'customer_id' => $customerId,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
+                'vip_discount' => $vipDiscount,
                 'tax' => $tax,
                 'total' => $total,
                 'status' => 'completed',
@@ -207,7 +208,7 @@ class CashierController extends Controller
 
             DB::commit();
 
-            ActivityHelper::log(
+            ActivityData::log(
                 'order_completed',
                 "Sale {$orderNumber} completed - \${$total} - " . count($request->items) . " items",
                 'POS',

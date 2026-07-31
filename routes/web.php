@@ -6,6 +6,7 @@ use App\Http\Controllers\CashierProductController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StockRequestController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -71,7 +72,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/users/bulk-deactivate', [UserController::class, 'bulkDeactivate'])->name('admin.users.bulk-deactivate');
     Route::post('/users/bulk-delete', [UserController::class, 'bulkDestroy'])->name('admin.users.bulk-delete');
 
-    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
+    Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
+    Route::get('/admin/reports/export', [ReportController::class, 'export'])->name('admin.reports.export');
+
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
 
     Route::get('/customers', [AdminController::class, 'customers'])->name('admin.customers');
@@ -81,7 +84,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/customers/{customer}/order/{order}', [CustomerController::class, 'getOrder']);
 
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('admin.activitylog');
-    Route::get('/activitylog', [AdminController::class, 'test'])->name('admin.activitylog');
+    Route::post('/activitylog/clear', [ActivityLogController::class, 'clear'])->name('admin.activitylog.clear');
+    Route::get('/activitylog/export', [ActivityLogController::class, 'export'])->name('admin.activitylog.export');
 });
 // Cashier Routes
 Route::middleware(['auth', 'role:cashier'])->group(function () {

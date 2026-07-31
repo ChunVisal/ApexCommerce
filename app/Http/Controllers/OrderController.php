@@ -8,7 +8,7 @@ use App\Models\StockMovement;
 use App\Models\CashierStock;
 use App\Models\Product;
 use App\Models\StockRequest;
-use App\Helpers\ActivityHelper;
+use App\Helpers\ActivityData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -177,7 +177,7 @@ class OrderController extends Controller
                         'seen_at' => null,
                     ]);
 
-                    ActivityHelper::log(
+                    ActivityData::log(
                         'order_refunded',
                         "Order {$order_number} refunded - " . Auth::user()->name,
                         'Orders',

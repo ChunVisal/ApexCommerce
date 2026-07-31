@@ -10,7 +10,7 @@ use App\Models\StockMovement;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Helpers\ActivityHelper;
+use App\Helpers\ActivityData;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -148,7 +148,7 @@ class UserController extends Controller
             'salary' => $request->role === 'cashier' ? $request->salary : null,
         ]);
 
-        ActivityHelper::log(
+        ActivityData::log(
             'user_created',
             'Created user: ' . $request->name . ' (' . $request->role . ')',
             'Users',
@@ -204,7 +204,7 @@ class UserController extends Controller
 
             $user->update($data);
 
-            ActivityHelper::log(
+            ActivityData::log(
                 'user_updated',
                 'Updated user: ' . $request->name,
                 'Users',
@@ -258,7 +258,7 @@ class UserController extends Controller
 
         $user->delete();
 
-        ActivityHelper::log('user_deleted', 'Deleted user: ' . $userName, 'Users', 'warning');
+        ActivityData::log('user_deleted', 'Deleted user: ' . $userName, 'Users', 'warning');
 
         return response()->json(['message' => 'User deleted']);
     }

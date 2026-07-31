@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Helpers\ActivityHelper;
+use App\Helpers\ActivityData;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -38,7 +38,7 @@ class AuthenticatedSessionController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        ActivityHelper::log('user_login', ' logged in', 'Auth', 'info');
+        ActivityData::log('user_login', ' logged in', 'Auth', 'info');
 
         return redirect('/cashier/pos');
     }
@@ -83,7 +83,7 @@ class AuthenticatedSessionController extends Controller
         Cache::put('user-online-' . Auth::id(), true, now()->addMinutes(1));
 
 
-        ActivityHelper::log('user_login', Auth::user()->name . ' logged in', 'Auth', 'info');
+        ActivityData::log('user_login', Auth::user()->name . ' logged in', 'Auth', 'info');
 
         // Redirect based on role
         if (Auth::user()->role === 'admin') {
@@ -109,7 +109,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        ActivityHelper::log('user_logout', ' logged out', 'Auth', 'info');
+        ActivityData::log('user_logout', ' logged out', 'Auth', 'info');
 
         return redirect('/');
     }

@@ -9,7 +9,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
 use App\Models\StockRequest;
-use App\Helpers\ActivityHelper;
+use App\Helpers\ActivityData;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -172,7 +172,7 @@ class InventoryController extends Controller
         ]);
 
 
-        ActivityHelper::log(
+        ActivityData::log(
             'stock_transferred',
             "transferred {$request->quantity}x {$product->name} to {$cashierName}",
             'Inventory',
@@ -254,7 +254,7 @@ class InventoryController extends Controller
             ]);
 
 
-            ActivityHelper::log(
+            ActivityData::log(
                 'stock_adjusted',
                 "adjusted stock for {$product->name}: {$request->type} {$request->quantity} ({$request->reason})",
                 'Inventory',
@@ -275,7 +275,7 @@ class InventoryController extends Controller
         if ($request->status && $request->quantity == 0) {
             $product->update(['status' => $request->status]);
 
-            ActivityHelper::log(
+            ActivityData::log(
                 'product_status_changed',
                 "changed {$product->name} status to {$request->status}",
                 'Inventory',
@@ -354,7 +354,7 @@ class InventoryController extends Controller
             fclose($file);
         };
 
-        ActivityHelper::log('inventory_exported', 'exported inventory report (CSV)', 'Inventory', 'info');
+        ActivityData::log('inventory_exported', 'exported inventory report (CSV)', 'Inventory', 'info');
 
         return response()->stream($callback, 200, $headers);
     }
@@ -401,7 +401,7 @@ class InventoryController extends Controller
             fclose($file);
         };
 
-        ActivityHelper::log(
+        ActivityData::log(
             'movements_exported',
             "exported stock movements report ({$start->format('M d')} - {$end->format('M d')})",
             'Inventory',

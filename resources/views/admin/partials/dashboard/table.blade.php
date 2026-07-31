@@ -11,6 +11,7 @@
             </button>
             <button id="tabCashier" class="px-4 py-1.5 text-xs font-medium text-gray-500 dark:text-zinc-400 ">
                 Top Cashier
+
             </button>
         </div>
         <a href="{{ route('admin.products') }}" id="viewAllLink"
@@ -180,7 +181,7 @@
                     @endphp
                     <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition">
                         {{-- Clean Rank System Matching Product Grid --}}
-                        <td class="py-3 pl-4 pr-2">
+                        <td class="py-3 pl-4 pr-1">
                             <span
                                 class="text-xs font-bold {{ $rank == 1 ? 'text-yellow-500' : ($rank == 2 ? 'text-blue-500' : ($rank == 3 ? 'text-amber-600' : 'text-gray-600 dark:text-zinc-500')) }}">
                                 #{{ $rank }}
@@ -191,7 +192,7 @@
                         <td class="py-3 px-2">
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="w-[48px] h-[48px] rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0 overflow-hidden bg-[#0F6E8C]">
+                                    class="w-[45px] h-[45px] rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0 overflow-hidden bg-[#0F6E8C]">
                                     @if ($cashier->avatar)
                                         <img src="{{ $cashier->avatar }}" class="w-full h-full object-cover"
                                             alt="{{ $cashier->name }}">
@@ -202,7 +203,7 @@
                                 <div class="flex flex-col">
                                     <span
                                         class="font-medium text-gray-800 dark:text-zinc-200 truncate max-w-[250px]">{{ $cashier->name }}</span>
-                                    <span class="text-xs text-gray-600 dark:text-zinc-400">
+                                    <span class="text-[12px] text-gray-600 dark:text-zinc-400">
                                         {{ $cashier->employee_id ?? 'No ID' }} · {{ $cashier->shift ?? 'No shift' }}
                                     </span>
                                 </div>

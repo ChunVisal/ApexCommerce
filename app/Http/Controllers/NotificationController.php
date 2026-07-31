@@ -7,7 +7,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\StockRequest;
 use App\Models\User;
-use App\Helpers\ActivityHelper;
+use App\Helpers\ActivityData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -140,7 +140,7 @@ class NotificationController extends Controller
                 'seen_at' => null,
             ]);
 
-            ActivityHelper::log(
+            ActivityData::log(
                 'request_approved',
                 "Approved {$quantity}x {$product->name} for " . $stockRequest->cashier->name,
                 'Notifications',
@@ -163,7 +163,7 @@ class NotificationController extends Controller
 
         $productName = $req->product->name ?? $req->product_name ?? 'Unknown';
 
-        ActivityHelper::log(
+        ActivityData::log(
             'request_rejected',
             "Rejected request for {$req->quantity_requested}x {$productName} - Reason: {$request->reason}",
             'Notifications',

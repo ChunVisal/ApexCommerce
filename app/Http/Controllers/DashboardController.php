@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ActivityHelper;
+use App\Helpers\ActivityData;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;

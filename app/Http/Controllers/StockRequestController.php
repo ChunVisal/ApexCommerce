@@ -6,7 +6,7 @@ use App\Models\StockRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Helpers\ActivityHelper;
+use App\Helpers\ActivityData;
 use Illuminate\Support\Facades\Log;
 
 class StockRequestController extends Controller
@@ -24,7 +24,7 @@ class StockRequestController extends Controller
             'status' => 'pending',
         ]);
 
-        ActivityHelper::log(
+        ActivityData::log(
             'stock_requested',
             "Requested restock of {$request->quantity}x {$productName}",
             'POS',
@@ -51,7 +51,7 @@ class StockRequestController extends Controller
             ]);
         }
 
-        ActivityHelper::log(
+        ActivityData::log(
             'stock_requested',
             "Requested restock/new product: {$names}",
             'POS',

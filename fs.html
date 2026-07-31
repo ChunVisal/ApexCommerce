@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OUM Product & Stock Management UI</title>
+    <title>POS Product UOM Interactive Demo</title>
+
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -18,474 +18,605 @@
                             100: '#e0f2fe',
                             500: '#0F6E8C',
                             600: '#0c5870',
-                            700: '#0a4659',
+                            700: '#094355',
                         }
                     }
                 }
             }
         }
     </script>
-</head>
-<body class="bg-zinc-950 text-zinc-100 font-sans antialiased min-h-screen p-4 md:p-8" x-data="productApp()">
 
-    <div class="max-w-7xl mx-auto space-y-8">
+    <!-- FontAwesome 6 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom smooth scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+    </style>
+</head>
+
+<body class="bg-zinc-950 text-zinc-100 h-full overflow-hidden antialiased" x-data="posApp()">
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('posApp', () => ({
+                searchQuery: '',
+                activeCategory: 'All',
+                activeTab: 'terminal', // terminal or settings
+                notification: null,
+                categories: ['All', 'Beverages', 'Bakery & Snacks', 'Fresh Produce', 'Hardware & Supplies'],
+                
+                // Products with multi-UOM structure
+                products: [
+                    {
+                        id: 101,
+                        name: 'Coca-Cola Original Taste',
+                        code: 'BEV-001',
+                        category: 'Beverages',
+                        baseUnit: 'Can 330ml',
+                        stockInBase: 480, // Total base units in stock
+                        image: 'fa-solid fa-bottle-water',
+                        iconBg: '#0F6E8C',
+                        selectedUomIndex: 0,
+                        uoms: [
+                            { name: 'Can', ratio: 1, price: 1.20, badge: 'Base' },
+                            { name: 'Pack (6x)', ratio: 6, price: 6.50, badge: 'Save 10%' },
+                            { name: 'Case (24x)', ratio: 24, price: 24.00, badge: 'Save 16%' }
+                        ]
+                    },
+                    {
+                        id: 102,
+                        name: 'Organic Cavendish Bananas',
+                        code: 'PRD-042',
+                        category: 'Fresh Produce',
+                        baseUnit: 'Gram',
+                        stockInBase: 25000,
+                        image: 'fa-solid fa-lemon',
+                        iconBg: '#EAB308',
+                        selectedUomIndex: 1,
+                        uoms: [
+                            { name: 'Grams (100g)', ratio: 100, price: 0.35, badge: 'Weigh' },
+                            { name: 'Kilogram (kg)', ratio: 1000, price: 2.99, badge: 'Best Value' },
+                            { name: 'Bundle (1.5kg)', ratio: 1500, price: 4.20, badge: 'Pre-packed' }
+                        ]
+                    },
+                    {
+                        id: 103,
+                        name: 'Butter Croissant Fresh',
+                        code: 'BAK-108',
+                        category: 'Bakery & Snacks',
+                        baseUnit: 'Pcs',
+                        stockInBase: 120,
+                        image: 'fa-solid fa-bread-slice',
+                        iconBg: '#D97706',
+                        selectedUomIndex: 0,
+                        uoms: [
+                            { name: 'Piece', ratio: 1, price: 2.50, badge: 'Single' },
+                            { name: 'Half-Dozen (6x)', ratio: 6, price: 13.50, badge: 'Save 10%' },
+                            { name: 'Box (12x)', ratio: 12, price: 24.00, badge: 'Save 20%' }
+                        ]
+                    },
+                    {
+                        id: 104,
+                        name: 'Premium Motor Oil 5W-30',
+                        code: 'HDW-901',
+                        category: 'Hardware & Supplies',
+                        baseUnit: 'Liter',
+                        stockInBase: 150,
+                        image: 'fa-solid fa-oil-can',
+                        iconBg: '#6366F1',
+                        selectedUomIndex: 0,
+                        uoms: [
+                            { name: '1L Bottle', ratio: 1, price: 12.99, badge: 'Standard' },
+                            { name: '4L Jug', ratio: 4, price: 46.00, badge: 'Save 12%' },
+                            { name: '20L Drum', ratio: 20, price: 210.00, badge: 'Bulk' }
+                        ]
+                    },
+                    {
+                        id: 105,
+                        name: 'Sparkling Mineral Water',
+                        code: 'BEV-008',
+                        category: 'Beverages',
+                        baseUnit: 'Bottle',
+                        stockInBase: 300,
+                        image: 'fa-solid fa-glass-water',
+                        iconBg: '#06B6D4',
+                        selectedUomIndex: 0,
+                        uoms: [
+                            { name: 'Bottle 500ml', ratio: 1, price: 1.80, badge: 'Single' },
+                            { name: 'Pack (6x)', ratio: 6, price: 9.80, badge: 'Save 9%' },
+                            { name: 'Crate (24x)', ratio: 24, price: 36.00, badge: 'Save 16%' }
+                        ]
+                    },
+                    {
+                        id: 106,
+                        name: 'Artisan Sourdough Loaf',
+                        code: 'BAK-112',
+                        category: 'Bakery & Snacks',
+                        baseUnit: 'Loaf',
+                        stockInBase: 45,
+                        image: 'fa-solid fa-wheat-awn',
+                        iconBg: '#84CC16',
+                        selectedUomIndex: 0,
+                        uoms: [
+                            { name: 'Whole Loaf', ratio: 1, price: 5.50, badge: 'Fresh' },
+                            { name: 'Half Loaf', ratio: 0.5, price: 3.00, badge: 'Sliced' },
+                            { name: 'Twin Pack', ratio: 2, price: 10.00, badge: 'Save $1' }
+                        ]
+                    }
+                ],
+
+                // Cart array
+                cart: [
+                    {
+                        productId: 101,
+                        name: 'Coca-Cola Original Taste',
+                        uomName: 'Case (24x)',
+                        ratio: 24,
+                        unitPrice: 24.00,
+                        qty: 1,
+                        baseUnitName: 'Can 330ml',
+                        iconBg: '#0F6E8C',
+                        image: 'fa-solid fa-bottle-water',
+                        availableUoms: [
+                            { name: 'Can', ratio: 1, price: 1.20 },
+                            { name: 'Pack (6x)', ratio: 6, price: 6.50 },
+                            { name: 'Case (24x)', ratio: 24, price: 24.00 }
+                        ]
+                    },
+                    {
+                        productId: 103,
+                        name: 'Butter Croissant Fresh',
+                        uomName: 'Piece',
+                        ratio: 1,
+                        unitPrice: 2.50,
+                        qty: 3,
+                        baseUnitName: 'Pcs',
+                        iconBg: '#D97706',
+                        image: 'fa-solid fa-bread-slice',
+                        availableUoms: [
+                            { name: 'Piece', ratio: 1, price: 2.50 },
+                            { name: 'Half-Dozen (6x)', ratio: 6, price: 13.50 },
+                            { name: 'Box (12x)', ratio: 12, price: 24.00 }
+                        ]
+                    }
+                ],
+
+                // Methods
+                selectCardUom(product, index) {
+                    product.selectedUomIndex = index;
+                },
+
+                filteredProducts() {
+                    return this.products.filter(p => {
+                        const matchesCategory = this.activeCategory === 'All' || p.category === this.activeCategory;
+                        const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                                              p.code.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        return matchesCategory && matchesSearch;
+                    });
+                },
+
+                addToCart(product) {
+                    const selectedUom = product.uoms[product.selectedUomIndex];
+                    
+                    // Check if exact product + UOM exists in cart
+                    const existingIndex = this.cart.findIndex(
+                        item => item.productId === product.id && item.uomName === selectedUom.name
+                    );
+
+                    if (existingIndex > -1) {
+                        this.cart[existingIndex].qty += 1;
+                    } else {
+                        this.cart.push({
+                            productId: product.id,
+                            name: product.name,
+                            uomName: selectedUom.name,
+                            ratio: selectedUom.ratio,
+                            unitPrice: selectedUom.price,
+                            qty: 1,
+                            baseUnitName: product.baseUnit,
+                            iconBg: product.iconBg,
+                            image: product.image,
+                            availableUoms: JSON.parse(JSON.stringify(product.uoms))
+                        });
+                    }
+
+                    this.showToast(`Added ${selectedUom.name} of ${product.name}`);
+                },
+
+                changeCartUom(itemIndex, newUomName) {
+                    const item = this.cart[itemIndex];
+                    const uomObj = item.availableUoms.find(u => u.name === newUomName);
+                    if (uomObj) {
+                        item.uomName = uomObj.name;
+                        item.ratio = uomObj.ratio;
+                        item.unitPrice = uomObj.price;
+                        this.showToast(`Updated UOM to ${newUomName}`);
+                    }
+                },
+
+                updateCartQty(index, delta) {
+                    this.cart[index].qty += delta;
+                    if (this.cart[index].qty <= 0) {
+                        this.removeFromCart(index);
+                    }
+                },
+
+                removeFromCart(index) {
+                    const removed = this.cart.splice(index, 1);
+                    if (removed.length > 0) {
+                        this.showToast(`Removed from order`);
+                    }
+                },
+
+                clearCart() {
+                    this.cart = [];
+                    this.showToast('Cart cleared');
+                },
+
+                getSubtotal() {
+                    return this.cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+                },
+
+                getTax() {
+                    return this.getSubtotal() * 0.08; // 8% Tax
+                },
+
+                getTotal() {
+                    return this.getSubtotal() + this.getTax();
+                },
+
+                getTotalBaseUnitsCount() {
+                    return this.cart.reduce((sum, item) => sum + (item.ratio * item.qty), 0);
+                },
+
+                showToast(msg) {
+                    this.notification = msg;
+                    setTimeout(() => {
+                        this.notification = null;
+                    }, 2200);
+                },
+
+                checkout() {
+                    if (this.cart.length === 0) return;
+                    this.showToast(`Processing $${this.getTotal().toFixed(2)} order...`);
+                    setTimeout(() => {
+                        this.cart = [];
+                        this.showToast('Order completed successfully!');
+                    }, 1200);
+                }
+            }));
+        });
+    </script>
+
+    <div class="flex flex-col h-screen">
         
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
-            <div>
-                <div class="flex items-center gap-2">
-                    <span class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-brand-500/10 text-brand-500 border border-brand-500/20">Inventory Core</span>
-                    <h1 class="text-xl font-bold tracking-tight text-white uppercase">OUM Product Setup</h1>
-                </div>
-                <p class="text-xs text-zinc-400 mt-1">Create items, define measurement units (OUM), and manage warehouse allocation.</p>
-            </div>
-            
+        <!-- POS Top Navbar -->
+        <header class="bg-zinc-900 border-b border-zinc-800 px-4 py-2.5 flex items-center justify-between shrink-0">
+            <!-- Terminal Branding -->
             <div class="flex items-center gap-3">
-                <button @click="showModal = true" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-lg shadow-brand-500/10 transition">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Create New Product</span>
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[#0F6E8C] to-cyan-700 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                        ApexPOS Terminal
+                        <span class="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800/60 px-1.5 py-0.5 rounded font-mono font-medium uppercase tracking-wider">
+                            Multi-UOM Engine v3.2
+                        </span>
+                    </h1>
+                    <p class="text-[11px] text-zinc-400">Store #104 • Cashier: Alex M. • Registers #02</p>
+                </div>
+            </div>
+
+            <!-- Global Status Bar & Quick Actions -->
+            <div class="flex items-center gap-3">
+                <div class="hidden md:flex items-center gap-2 px-3 py-1 bg-zinc-800/80 rounded-md border border-zinc-700/60 text-xs text-zinc-300">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>UOM Realtime Price Sync</span>
+                </div>
+
+                <div class="h-4 w-[1px] bg-zinc-800"></div>
+
+                <button @click="clearCart()" class="text-xs px-3 py-1.5 rounded-md border border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left text-[11px] text-amber-400"></i>
+                    Reset Cart
                 </button>
             </div>
-        </div>
+        </header>
 
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Total Products</p>
-                    <p class="text-xl font-extrabold text-white mt-1" x-text="products.length"></p>
-                </div>
-                <div class="w-10 h-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-brand-500">
-                    <i class="fa-solid fa-boxes-stacked"></i>
-                </div>
-            </div>
-
-            <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Total Inventory Value</p>
-                    <p class="text-xl font-extrabold text-emerald-400 mt-1" x-text="'$' + calculateTotalValue().toFixed(2)"></p>
-                </div>
-                <div class="w-10 h-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-emerald-400">
-                    <i class="fa-solid fa-wallet"></i>
-                </div>
-            </div>
-
-            <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Low Stock Items</p>
-                    <p class="text-xl font-extrabold text-amber-400 mt-1" x-text="products.filter(p => p.stock <= p.minStock).length"></p>
-                </div>
-                <div class="w-10 h-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-amber-400">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-            </div>
-
-            <div class="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">OUM Categories</p>
-                    <p class="text-xl font-extrabold text-cyan-400 mt-1">3 <span class="text-xs text-zinc-500 font-normal">(Gram, Meter, Box)</span></p>
-                </div>
-                <div class="w-10 h-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-cyan-400">
-                    <i class="fa-solid fa-scale-balanced"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content Area: Table Section -->
-        <div class="bg-zinc-900/70 border border-zinc-800 rounded-xl shadow-xl overflow-hidden">
+        <!-- Main Body: Split View (Products 70% | Cart 30%) -->
+        <div class="flex flex-1 overflow-hidden">
             
-            <!-- Table Header Toolbar -->
-            <div class="p-4 border-b border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-900/40">
-                <div class="relative w-full sm:w-72">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500"></i>
-                    <input type="text" x-model="searchQuery" placeholder="Search product or SKU..." 
-                        class="w-full pl-9 pr-3 py-1.5 text-xs bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-brand-500">
-                </div>
-
-                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <select x-model="categoryFilter" class="text-xs bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-1.5 text-zinc-300 focus:outline-none focus:border-brand-500">
-                        <option value="All">All OUM Types</option>
-                        <option value="Weight (g)">Weight (g)</option>
-                        <option value="Length (m)">Length (m)</option>
-                        <option value="Count (pcs)">Count (pcs)</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-zinc-300">
-                    <thead class="bg-zinc-950/80 uppercase text-[10px] font-bold text-zinc-400 border-b border-zinc-800 tracking-wider">
-                        <tr>
-                            <th class="py-3.5 px-4">Product Details</th>
-                            <th class="py-3.5 px-4">SKU</th>
-                            <th class="py-3.5 px-4">OUM Unit</th>
-                            <th class="py-3.5 px-4">Unit Cost</th>
-                            <th class="py-3.5 px-4">Selling Price</th>
-                            <th class="py-3.5 px-4">Stock Level</th>
-                            <th class="py-3.5 px-4">Status</th>
-                            <th class="py-3.5 px-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-zinc-800/60">
-                        <template x-for="(product, index) in filteredProducts()" :key="product.id">
-                            <tr class="hover:bg-zinc-800/30 transition-colors">
-                                <!-- Details -->
-                                <td class="py-3 px-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700/60 flex items-center justify-center shrink-0 text-brand-500 font-bold text-sm">
-                                            <i :class="product.icon"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-bold text-white text-xs" x-text="product.name"></p>
-                                            <p class="text-[10px] text-zinc-500" x-text="product.category"></p>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <!-- SKU -->
-                                <td class="py-3 px-4 font-mono text-zinc-400" x-text="product.sku"></td>
-
-                                <!-- OUM Unit -->
-                                <td class="py-3 px-4">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 border border-zinc-700/60 text-zinc-300" x-text="product.oum"></span>
-                                </td>
-
-                                <!-- Cost -->
-                                <td class="py-3 px-4 font-medium text-zinc-400" x-text="'$' + product.cost.toFixed(2)"></td>
-
-                                <!-- Price -->
-                                <td class="py-3 px-4 font-bold text-emerald-400" x-text="'$' + product.price.toFixed(2)"></td>
-
-                                <!-- Stock Level -->
-                                <td class="py-3 px-4">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-extrabold text-white" x-text="product.stock"></span>
-                                        <span class="text-[10px] text-zinc-500" x-text="product.oumUnit"></span>
-                                    </div>
-                                    <!-- Progress Bar -->
-                                    <div class="w-24 h-1 bg-zinc-800 rounded-full mt-1 overflow-hidden">
-                                        <div class="h-full rounded-full" 
-                                             :class="product.stock <= product.minStock ? 'bg-rose-500' : 'bg-brand-500'" 
-                                             :style="'width: ' + Math.min((product.stock / (product.minStock * 3)) * 100, 100) + '%'"></div>
-                                    </div>
-                                </td>
-
-                                <!-- Status -->
-                                <td class="py-3 px-4">
-                                    <template x-if="product.stock <= 0">
-                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-rose-950/60 text-rose-400 border border-rose-900/50">Out of Stock</span>
-                                    </template>
-                                    <template x-if="product.stock > 0 && product.stock <= product.minStock">
-                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-950/60 text-amber-400 border border-amber-900/50">Low Stock</span>
-                                    </template>
-                                    <template x-if="product.stock > product.minStock">
-                                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-950/60 text-emerald-400 border border-emerald-900/50">In Stock</span>
-                                    </template>
-                                </td>
-
-                                <!-- Actions -->
-                                <td class="py-3 px-4 text-right">
-                                    <button @click="deleteProduct(product.id)" class="p-1.5 text-zinc-500 hover:text-rose-400 hover:bg-rose-950/30 rounded transition">
-                                        <i class="fa-solid fa-trash-can text-xs"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </template>
-
-                        <template x-if="filteredProducts().length === 0">
-                            <tr>
-                                <td colspan="8" class="text-center py-12 text-zinc-500">
-                                    <i class="fa-solid fa-box-open text-3xl mb-2 text-zinc-700"></i>
-                                    <p class="text-xs">No products match your criteria.</p>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Modal: Create OUM Product -->
-        <div x-show="showModal" 
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" style="display: none;">
-            
-            <div @click.away="showModal = false" class="bg-zinc-900 border border-zinc-800 rounded-xl max-w-xl w-full p-6 shadow-2xl relative space-y-5">
+            <!-- LEFT PANEL: Catalog & Interactive Cards -->
+            <main class="flex-1 flex flex-col bg-zinc-950 border-r border-zinc-800/80 overflow-hidden">
                 
-                <!-- Modal Title -->
-                <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
-                    <div>
-                        <h2 class="text-base font-bold uppercase text-white">Create OUM Product</h2>
-                        <p class="text-xs text-zinc-400 mt-0.5">Define specs, pricing, and unit measurements</p>
+                <div class="p-3.5 bg-zinc-900/40 border-b border-zinc-800 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                    
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+                        <input type="text" 
+                               x-model="searchQuery"
+                               placeholder="Search product, barcode, SKU..." 
+                               class="w-full pl-8 pr-8 py-1.5 text-xs bg-zinc-900 text-zinc-100 border border-zinc-700/80 rounded-md focus:outline-none focus:border-[#0F6E8C] placeholder-zinc-500 transition">
+                        <button x-show="searchQuery" @click="searchQuery = ''" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 text-xs">✕</button>
                     </div>
-                    <button @click="showModal = false" class="text-zinc-500 hover:text-white text-sm">
-                        <i class="fa-solid fa-xmark"></i>
+
+                    <!-- Category Pills Horizontal Scroll -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
+                        <template x-for="cat in categories" :key="cat">
+                            <button @click="activeCategory = cat"
+                                    :class="activeCategory === cat 
+                                        ? 'bg-[#0F6E8C] text-white border-[#0F6E8C]' 
+                                        : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-200'"
+                                    class="px-3 py-1.5 text-xs rounded-md border font-medium whitespace-nowrap transition-all flex items-center gap-1.5">
+                                <span x-text="cat"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-3.5">
+                    
+                    <!-- Product Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3.5">
+                        
+                        <template x-for="product in filteredProducts()" :key="product.id">
+                            
+                            <!-- UOM Product Card Component -->
+                            <div class="relative bg-zinc-900/90 rounded-lg border border-zinc-800 hover:border-zinc-700/90 shadow-sm flex flex-col justify-between transition-all duration-150 overflow-hidden group">
+                                
+                                <!-- Card Header: Stock & Category -->
+                                <div class="p-3 pb-2 border-b border-zinc-800/50 flex items-start justify-between gap-2">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <div class="w-9 h-9 rounded-md flex items-center justify-center shrink-0"
+                                             :style="`background-color: ${product.iconBg}20; border: 1px solid ${product.iconBg}40;`">
+                                            <i :class="`${product.image} text-sm`" :style="`color: ${product.iconBg}`"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <h3 class="text-xs font-semibold text-zinc-100 truncate" x-text="product.name"></h3>
+                                            <p class="text-[10px] text-zinc-500 font-mono" x-text="`SKU: ${product.code}`"></p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Available Stock in Base Units -->
+                                    <div class="text-right shrink-0">
+                                        <span class="inline-block text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700/50 text-emerald-400">
+                                            <span x-text="product.stockInBase"></span> <span x-text="product.baseUnit"></span>s
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Card Body: Interactive UOM Selection Selector -->
+                                <div class="p-3 py-2.5 bg-zinc-900/50">
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+                                            <i class="fa-solid fa-boxes-stacked text-[9px] text-[#0F6E8C]"></i>
+                                            Select UOM Packaging:
+                                        </label>
+                                        <span class="text-[10px] text-zinc-400">
+                                            Ratio: <span class="font-mono text-zinc-200" x-text="`1:${product.uoms[product.selectedUomIndex].ratio}`"></span>
+                                        </span>
+                                    </div>
+
+                                    <!-- UOM Selector Tabs Buttons Grid -->
+                                    <div class="grid grid-cols-3 gap-1.5 mb-2">
+                                        <template x-for="(uom, uIdx) in product.uoms" :key="uIdx">
+                                            <button @click="selectCardUom(product, uIdx)"
+                                                    type="button"
+                                                    :class="product.selectedUomIndex === uIdx 
+                                                        ? 'bg-[#0F6E8C]/20 border-[#0F6E8C] text-white ring-1 ring-[#0F6E8C]' 
+                                                        : 'bg-zinc-800/60 border-zinc-700/60 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200'"
+                                                    class="relative p-1.5 rounded text-left border transition-all flex flex-col justify-between h-14">
+                                                
+                                                <!-- Badge (if discount/bulk) -->
+                                                <span x-show="uom.badge" 
+                                                      x-text="uom.badge"
+                                                      :class="product.selectedUomIndex === uIdx ? 'bg-[#0F6E8C] text-white' : 'bg-zinc-700 text-zinc-300'"
+                                                      class="absolute -top-1.5 -right-1 text-[8px] font-bold px-1 rounded-xs uppercase tracking-tighter">
+                                                </span>
+
+                                                <span class="text-[10px] font-medium truncate leading-tight" x-text="uom.name"></span>
+                                                <span class="text-xs font-bold font-mono text-zinc-100" x-text="`$${uom.price.toFixed(2)}`"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+
+                                    <!-- Selected UOM Price & Action Row -->
+                                    <div class="flex items-center justify-between mt-3 pt-2 border-t border-zinc-800/80">
+                                        <div>
+                                            <span class="text-[10px] text-zinc-500 uppercase tracking-wider block">Selected Price</span>
+                                            <span class="text-base font-bold text-emerald-400 font-mono"
+                                                  x-text="`$${product.uoms[product.selectedUomIndex].price.toFixed(2)}`">
+                                            </span>
+                                            <span class="text-[10px] text-zinc-500 font-mono" x-text="`/ ${product.uoms[product.selectedUomIndex].name}`"></span>
+                                        </div>
+
+                                        <!-- Quick Add Button -->
+                                        <button @click="addToCart(product)"
+                                                type="button"
+                                                class="px-3 py-1.5 rounded-md bg-[#0F6E8C] hover:bg-cyan-700 text-white font-medium text-xs shadow-sm transition flex items-center gap-1.5 active:scale-95">
+                                            <i class="fa-solid fa-cart-plus"></i>
+                                            Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </template>
+
+                    </div>
+
+                    <!-- Empty State if search yields no results -->
+                    <div x-show="filteredProducts().length === 0" class="py-16 text-center">
+                        <div class="w-12 h-12 rounded-full bg-zinc-800/60 border border-zinc-700 flex items-center justify-center mx-auto mb-3 text-zinc-500">
+                            <i class="fa-solid fa-box-open text-lg"></i>
+                        </div>
+                        <p class="text-xs font-bold text-zinc-300 uppercase tracking-wider">No Products Match Filters</p>
+                        <p class="text-[11px] text-zinc-500 mt-1">Try resetting your category or search key.</p>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- RIGHT PANEL: POS Checkout Cart with Inline UOM Controls -->
+            <aside class="w-96 bg-zinc-900/90 flex flex-col justify-between shrink-0 shadow-2xl relative z-10 border-l border-zinc-800">
+                
+                <!-- Cart Header -->
+                <div class="p-3.5 border-b border-zinc-800 bg-zinc-900 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-basket-shopping text-[#0F6E8C]"></i>
+                        <h2 class="text-xs font-bold text-zinc-100 uppercase tracking-wider">Current Sale Order</h2>
+                    </div>
+                    <span class="text-[10px] font-mono bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded border border-zinc-700"
+                          x-text="`${cart.length} line items`">
+                    </span>
+                </div>
+
+                <!-- Cart Line Items Scroll List -->
+                <div class="flex-1 overflow-y-auto p-3 space-y-2.5">
+                    
+                    <template x-for="(item, idx) in cart" :key="idx">
+                        <div class="bg-zinc-950 p-2.5 rounded-md border border-zinc-800/90 hover:border-zinc-700 transition">
+                            
+                            <!-- Item Header: Name & Remove -->
+                            <div class="flex items-start justify-between gap-2 mb-1.5">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="w-6 h-6 rounded flex items-center justify-center shrink-0"
+                                         :style="`background-color: ${item.iconBg}20;`">
+                                        <i :class="`${item.image} text-[10px]`" :style="`color: ${item.iconBg}`"></i>
+                                    </div>
+                                    <p class="text-xs font-semibold text-zinc-200 truncate" x-text="item.name"></p>
+                                </div>
+                                <button @click="removeFromCart(idx)" class="text-zinc-500 hover:text-red-400 text-xs px-1">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+
+                            <!-- UOM Switcher Row inside Cart line item -->
+                            <div class="flex items-center justify-between bg-zinc-900/80 p-1.5 rounded border border-zinc-800 my-1">
+                                <div class="flex items-center gap-1 min-w-0">
+                                    <span class="text-[10px] text-zinc-400">UOM:</span>
+                                    
+                                    <!-- Inline Select for UOM -->
+                                    <select :value="item.uomName" 
+                                            @change="changeCartUom(idx, $event.target.value)"
+                                            class="bg-zinc-950 text-cyan-400 border border-zinc-700/80 rounded text-[11px] font-semibold px-1.5 py-0.5 focus:outline-none focus:border-[#0F6E8C] cursor-pointer">
+                                        <template x-for="u in item.availableUoms" :key="u.name">
+                                            <option :value="u.name" :selected="u.name === item.uomName" x-text="`${u.name} ($${u.price.toFixed(2)})`"></option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <!-- Base Unit Equivalent Calculation -->
+                                <span class="text-[10px] text-zinc-500 font-mono" 
+                                      x-text="`= ${item.qty * item.ratio} ${item.baseUnitName}`">
+                                </span>
+                            </div>
+
+                            <!-- Quantity controls & Price Subtotal -->
+                            <div class="flex items-center justify-between mt-2 pt-1">
+                                <div class="flex items-center gap-1 bg-zinc-900 rounded border border-zinc-800 p-0.5">
+                                    <button @click="updateCartQty(idx, -1)" class="w-5 h-5 flex items-center justify-center text-xs text-zinc-400 hover:text-white hover:bg-zinc-800 rounded">
+                                        <i class="fa-solid fa-minus text-[9px]"></i>
+                                    </button>
+                                    <span class="w-7 text-center text-xs font-mono font-bold text-zinc-200" x-text="item.qty"></span>
+                                    <button @click="updateCartQty(idx, 1)" class="w-5 h-5 flex items-center justify-center text-xs text-zinc-400 hover:text-white hover:bg-zinc-800 rounded">
+                                        <i class="fa-solid fa-plus text-[9px]"></i>
+                                    </button>
+                                </div>
+
+                                <div class="text-right">
+                                    <span class="text-[10px] text-zinc-500 font-mono block" x-text="`$${item.unitPrice.toFixed(2)} / ${item.uomName}`"></span>
+                                    <span class="text-xs font-bold font-mono text-emerald-400" x-text="`$${(item.unitPrice * item.qty).toFixed(2)}`"></span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </template>
+
+                    <!-- Cart Empty Placeholder -->
+                    <div x-show="cart.length === 0" class="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-600">
+                        <div class="w-12 h-12 rounded-full border border-zinc-800 flex items-center justify-center mb-2">
+                            <i class="fa-solid fa-cart-flatbed text-zinc-600 text-lg"></i>
+                        </div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-zinc-500">Cart is Empty</p>
+                        <p class="text-[11px] text-zinc-600 mt-1">Select products and unit packaging from the catalog panel to begin checkout.</p>
+                    </div>
+
+                </div>
+
+                <!-- Cart Footer Summary & Checkout Actions -->
+                <div class="p-3.5 bg-zinc-900 border-t border-zinc-800 space-y-2.5">
+                    
+                    <!-- UOM Base Consumption Summary Banner -->
+                    <div class="p-2 bg-zinc-950/80 rounded border border-zinc-800/80 flex items-center justify-between text-[11px]">
+                        <span class="text-zinc-400 flex items-center gap-1">
+                            <i class="fa-solid fa-cubes text-cyan-500"></i>
+                            Total Base Units:
+                        </span>
+                        <span class="font-mono font-bold text-zinc-200" x-text="`${getTotalBaseUnitsCount()} units`"></span>
+                    </div>
+
+                    <!-- Breakdown Table -->
+                    <div class="space-y-1 text-xs">
+                        <div class="flex justify-between text-zinc-400">
+                            <span>Subtotal</span>
+                            <span class="font-mono text-zinc-200" x-text="`$${getSubtotal().toFixed(2)}`"></span>
+                        </div>
+                        <div class="flex justify-between text-zinc-400">
+                            <span>Est. Tax (8%)</span>
+                            <span class="font-mono text-zinc-200" x-text="`$${getTax().toFixed(2)}`"></span>
+                        </div>
+                        <div class="flex justify-between text-sm font-bold text-zinc-100 pt-1 border-t border-zinc-800">
+                            <span>Payable Total</span>
+                            <span class="font-mono text-emerald-400 text-base" x-text="`$${getTotal().toFixed(2)}`"></span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Action Button -->
+                    <button @click="checkout()"
+                            :disabled="cart.length === 0"
+                            :class="cart.length > 0 ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg' : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'"
+                            class="w-full py-2.5 rounded-md font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <span>Charge $</span>
+                        <span x-text="getTotal().toFixed(2)"></span>
                     </button>
                 </div>
 
-                <!-- Form -->
-                <form @submit.prevent="saveProduct()" class="space-y-4">
-                    
-                    <!-- Presets Selection for Fast Testing -->
-                    <div>
-                        <label class="block text-[10px] font-bold uppercase text-zinc-400 mb-1">Quick Presets</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button type="button" @click="applyPreset('thermal')" 
-                                class="p-2 border rounded-lg text-left text-xs transition bg-zinc-950 border-zinc-800 hover:border-brand-500">
-                                <p class="font-bold text-white">Thermal Paste</p>
-                                <p class="text-[10px] text-zinc-500">OUM: Gram (g)</p>
-                            </button>
-                            <button type="button" @click="applyPreset('cable')" 
-                                class="p-2 border rounded-lg text-left text-xs transition bg-zinc-950 border-zinc-800 hover:border-brand-500">
-                                <p class="font-bold text-white">Ethernet Cable</p>
-                                <p class="text-[10px] text-zinc-500">OUM: Meter (m)</p>
-                            </button>
-                            <button type="button" @click="applyPreset('screws')" 
-                                class="p-2 border rounded-lg text-left text-xs transition bg-zinc-950 border-zinc-800 hover:border-brand-500">
-                                <p class="font-bold text-white">M3 Screws Box</p>
-                                <p class="text-[10px] text-zinc-500">OUM: Box (pcs)</p>
-                            </button>
-                        </div>
-                    </div>
+            </aside>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <!-- Product Name -->
-                        <div class="col-span-2 sm:col-span-1">
-                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Product Name</label>
-                            <input type="text" x-model="form.name" required placeholder="e.g. Arctic MX-4 Thermal Compound"
-                                class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
-                        </div>
+        </div>
 
-                        <!-- SKU -->
-                        <div class="col-span-2 sm:col-span-1">
-                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">SKU / Code</label>
-                            <input type="text" x-model="form.sku" required placeholder="TP-MX4-01"
-                                class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500 font-mono">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-3">
-                        <!-- OUM Type -->
-                        <div>
-                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">OUM Metric</label>
-                            <select x-model="form.oum" @change="updateOumUnit()" class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
-                                <option value="Weight">Weight</option>
-                                <option value="Length">Length</option>
-                                <option value="Quantity">Quantity / Pack</option>
-                            </select>
-                        </div>
-
-                        <!-- OUM Base Unit -->
-                        <div>
-                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Base Unit</label>
-                            <input type="text" x-model="form.oumUnit" readonly
-                                class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-400 focus:outline-none font-bold">
-                        </div>
-
-                        <!-- Initial Stock -->
-                        <div>
-                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Stock Qty</label>
-                            <input type="number" x-model.number="form.stock" required min="0"
-                                class="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
-                        </div>
-                    </div>
-
-                    <!-- Pricing & Calculations -->
-                    <div class="p-3 bg-zinc-950/60 border border-zinc-800/80 rounded-lg space-y-3">
-                        <p class="text-[10px] font-bold uppercase text-brand-500 tracking-wider">Pricing Logic</p>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Unit Cost ($)</label>
-                                <input type="number" step="0.01" x-model.number="form.cost" required
-                                    class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-semibold text-zinc-400 mb-1">Selling Price ($)</label>
-                                <input type="number" step="0.01" x-model.number="form.price" required
-                                    class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-brand-500">
-                            </div>
-                        </div>
-
-                        <!-- Computed Margin Preview -->
-                        <div class="flex items-center justify-between text-[11px] pt-1 border-t border-zinc-800/60">
-                            <span class="text-zinc-500">Estimated Profit per Unit:</span>
-                            <span class="font-bold text-emerald-400" x-text="'$' + (form.price - form.cost).toFixed(2) + ' (' + calculateMargin() + '%)'"></span>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-zinc-400 hover:text-white transition">Cancel</button>
-                        <button type="submit" class="px-5 py-2 text-xs font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-lg shadow-brand-500/20 transition">
-                            Save & Add Item
-                        </button>
-                    </div>
-
-                </form>
-            </div>
+        <!-- Notification Toast Toast Popover -->
+        <div x-show="notification"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 translate-y-2"
+             class="fixed bottom-4 left-4 z-50 bg-zinc-800 text-zinc-100 border border-zinc-700 px-3.5 py-2 rounded-md shadow-2xl flex items-center gap-2 text-xs">
+            <i class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span x-text="notification"></span>
         </div>
 
     </div>
 
-    <script>
-        function productApp() {
-            return {
-                showModal: false,
-                searchQuery: '',
-                categoryFilter: 'All',
-                
-                form: {
-                    name: 'Thermal Paste MX-4',
-                    sku: 'TP-MX4-01',
-                    category: 'Thermal Compound',
-                    oum: 'Weight',
-                    oumUnit: 'g (grams)',
-                    cost: 3.50,
-                    price: 8.00,
-                    stock: 120,
-                    minStock: 25,
-                    icon: 'fa-solid fa-flask-vial'
-                },
-
-                products: [
-                    {
-                        id: 1,
-                        name: 'Thermal Paste Arctic MX-4 (4g)',
-                        sku: 'TP-MX4-04G',
-                        category: 'Thermal Compound',
-                        oum: 'Weight (g)',
-                        oumUnit: 'grams',
-                        cost: 3.20,
-                        price: 7.99,
-                        stock: 85,
-                        minStock: 20,
-                        icon: 'fa-solid fa-flask-vial'
-                    },
-                    {
-                        id: 2,
-                        name: 'CAT6 Ethernet Cable (Bulk Roll)',
-                        sku: 'CB-CAT6-100M',
-                        category: 'Cables & Wiring',
-                        oum: 'Length (m)',
-                        oumUnit: 'meters',
-                        cost: 0.45,
-                        price: 1.20,
-                        stock: 450,
-                        minStock: 100,
-                        icon: 'fa-solid fa-network-wired'
-                    },
-                    {
-                        id: 3,
-                        name: 'M3 Hex Screws Pack (100pcs)',
-                        sku: 'SCR-M3-100P',
-                        category: 'Hardware & Screws',
-                        oum: 'Count (pcs)',
-                        oumUnit: 'boxes',
-                        cost: 1.50,
-                        price: 4.50,
-                        stock: 8,
-                        minStock: 15,
-                        icon: 'fa-solid fa-screwdriver'
-                    }
-                ],
-
-                applyPreset(type) {
-                    if (type === 'thermal') {
-                        this.form = {
-                            name: 'Thermal Grizzly Kryonaut (1g)',
-                            sku: 'TG-KRYO-01',
-                            category: 'Thermal Compound',
-                            oum: 'Weight',
-                            oumUnit: 'grams',
-                            cost: 5.50,
-                            price: 12.00,
-                            stock: 50,
-                            minStock: 10,
-                            icon: 'fa-solid fa-flask-vial'
-                        };
-                    } else if (type === 'cable') {
-                        this.form = {
-                            name: 'Fiber Optic Cable Single-Mode',
-                            sku: 'CB-FO-SM01',
-                            category: 'Cables & Wiring',
-                            oum: 'Length',
-                            oumUnit: 'meters',
-                            cost: 1.10,
-                            price: 2.80,
-                            stock: 200,
-                            minStock: 50,
-                            icon: 'fa-solid fa-network-wired'
-                        };
-                    } else if (type === 'screws') {
-                        this.form = {
-                            name: 'Standoff Brass Screws Set',
-                            sku: 'SCR-BRS-SET',
-                            category: 'Hardware & Screws',
-                            oum: 'Quantity',
-                            oumUnit: 'boxes',
-                            cost: 2.20,
-                            price: 5.99,
-                            stock: 5,
-                            minStock: 10,
-                            icon: 'fa-solid fa-screwdriver'
-                        };
-                    }
-                },
-
-                updateOumUnit() {
-                    if (this.form.oum === 'Weight') this.form.oumUnit = 'grams';
-                    else if (this.form.oum === 'Length') this.form.oumUnit = 'meters';
-                    else this.form.oumUnit = 'boxes';
-                },
-
-                calculateMargin() {
-                    if (!this.form.price || this.form.price === 0) return 0;
-                    const profit = this.form.price - this.form.cost;
-                    return ((profit / this.form.price) * 100).toFixed(1);
-                },
-
-                calculateTotalValue() {
-                    return this.products.reduce((acc, item) => acc + (item.cost * item.stock), 0);
-                },
-
-                filteredProducts() {
-                    return this.products.filter(product => {
-                        const matchesSearch = product.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
-                                              product.sku.toLowerCase().includes(this.searchQuery.toLowerCase());
-                        const matchesCategory = this.categoryFilter === 'All' || product.oum.includes(this.categoryFilter.split(' ')[0]);
-                        return matchesSearch && matchesCategory;
-                    });
-                },
-
-                saveProduct() {
-                    this.products.unshift({
-                        id: Date.now(),
-                        name: this.form.name,
-                        sku: this.form.sku,
-                        category: this.form.category || 'General Hardware',
-                        oum: `${this.form.oum} (${this.form.oumUnit.charAt(0)})`,
-                        oumUnit: this.form.oumUnit,
-                        cost: this.form.cost,
-                        price: this.form.price,
-                        stock: this.form.stock,
-                        minStock: this.form.minStock || 10,
-                        icon: this.form.icon || 'fa-solid fa-box'
-                    });
-
-                    this.showModal = false;
-                },
-
-                deleteProduct(id) {
-                    this.products = this.products.filter(p => p.id !== id);
-                }
-            }
-        }
-    </script>
 </body>
 </html>

@@ -9,7 +9,7 @@ use App\Models\ProductUom;
 use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use App\Helpers\ActivityHelper;
+use App\Helpers\ActivityData;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -85,7 +85,7 @@ class ProductController extends Controller
         }
         $product->save();
 
-        ActivityHelper::log('uom_product_created', ' created UOM product: ' . $product->name, 'Products UOMs', 'info');
+        ActivityData::log('uom_product_created', ' created UOM product: ' . $product->name, 'Products UOMs', 'info');
 
         if ($request->uoms) {
             $uoms = json_decode($request->uoms, true);
@@ -146,7 +146,7 @@ class ProductController extends Controller
             }
         }
 
-        ActivityHelper::log('uom_product_updated', ' updated UOM product: ' . $product->name, 'Products UOMs', 'info');
+        ActivityData::log('uom_product_updated', ' updated UOM product: ' . $product->name, 'Products UOMs', 'info');
 
         return response()->json(['success' => true, 'message' => 'UOM product updated']);
     }
@@ -169,7 +169,7 @@ class ProductController extends Controller
         $product->uoms()->delete();
         $product->delete();
 
-        ActivityHelper::log('product_deleted', ' deleted product: ' . $product->name, 'Products UOMs', 'danger');
+        ActivityData::log('product_deleted', ' deleted product: ' . $product->name, 'Products UOMs', 'danger');
 
         return response()->json(['success' => true, 'message' => 'Product deleted']);
     }
@@ -200,7 +200,7 @@ class ProductController extends Controller
                 // code and barcode intentionally omitted — never change them on update
             ]);
 
-            ActivityHelper::log('product_updated', ' updated product: ' . $product->name, 'Products List', 'info');
+            ActivityData::log('product_updated', ' updated product: ' . $product->name, 'Products List', 'info');
 
             return response()->json($product->fresh());
         } catch (\Exception $e) {
@@ -254,7 +254,6 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-
         // Check if product has orders or stock movements
         if ($product->orderItems()->exists() || $product->stockMovements()->exists()) {
             return response()->json([
@@ -263,7 +262,7 @@ class ProductController extends Controller
         }
 
 
-        ActivityHelper::log('product_deleted', ' deleted product: ' . $product->name, 'Products List', 'danger');
+        ActivityData::log('product_deleted', ' deleted product: ' . $product->name, 'Products List', 'danger');
 
         return response()->json(['message' => 'Deleted']);
     }
@@ -376,7 +375,7 @@ class ProductController extends Controller
                 ]);
             }
 
-            ActivityHelper::log('product_created', ' created product: ' . $product->name, 'Products List', 'info');
+            ActivityData::log('product_created', ' created product: ' . $product->name, 'Products List', 'info');
 
             Cache::put($cacheKey, $product, 5);
 

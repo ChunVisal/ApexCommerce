@@ -71,9 +71,4 @@ class AdminController extends Controller
     {
         return view('admin.activity-log');
     }
-
-    public function test()
-    {
-        return view('admin.activitylog');
-    }
 }
