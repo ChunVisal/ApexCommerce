@@ -1,25 +1,28 @@
 {{-- resources/views/admin/partials/dashboard/top-tables.blade.php --}}
-<div class="mt-4 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-5 border border-gray-200 dark:border-zinc-800/60">
+<div class="mt-4 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-5 border border-gray-200 dark:border-zinc-800/60"
+    x-data="{ tab: 'products' }">
     {{-- Tab Header --}}
     <div class="flex flex-wrap items-center justify-between pb-3 border-b border-gray-200 dark:border-zinc-800">
         <div class="flex items-center gap-1">
-            <button id="tabProducts" class="px-4 py-1.5 text-xs font-semibold text-[#0F6E8C] ">
+            <button @click="tab = 'products'"
+                :class="tab === 'products' ? 'text-[#0F6E8C] font-semibold' : 'text-gray-500 dark:text-zinc-400 font-medium'"
+                class="px-4 py-1.5 text-xs transition">
                 Best Selling Products
             </button>
-            <button id="tabCategories" class="px-4 py-1.5 text-xs font-medium text-gray-500 dark:text-zinc-400 ">
+            <button @click="tab = 'categories'"
+                :class="tab === 'categories' ? 'text-[#0F6E8C] font-semibold' : 'text-gray-500 dark:text-zinc-400 font-medium'"
+                class="px-4 py-1.5 text-xs transition">
                 Top Categories
             </button>
-            <button id="tabCashier" class="px-4 py-1.5 text-xs font-medium text-gray-500 dark:text-zinc-400 ">
-                Top Cashier
-
-            </button>
         </div>
-        <a href="{{ route('admin.products') }}" id="viewAllLink"
-            class="text-xs text-[#0F6E8C] hover:underline font-medium whitespace-nowrap">View All Products →</a>
+        <a :href="tab === 'products' ? '{{ route('admin.products') }}' : '{{ route('admin.inventory') }}'"
+            class="text-xs text-[#0F6E8C] hover:underline font-medium whitespace-nowrap">
+            <span x-text="tab === 'products' ? 'View All Products →' : 'View All Categories →'"></span>
+        </a>
     </div>
 
     {{-- Products Table --}}
-    <div id="productsTable" class="overflow-x-auto">
+    <div x-show="tab === 'products'" class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
                 <tr
@@ -80,7 +83,7 @@
     </div>
 
     {{-- Categories Table (Redesigned) --}}
-    <div id="categoriesTable" class="overflow-x-auto hidden">
+    <div x-show="tab === 'categories'" style="display: none;" class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead>
                 <tr
@@ -156,86 +159,5 @@
             </tbody>
         </table>
     </div>
-    {{-- Cashiers Table --}}
-    <div id="cashierTable" class="overflow-x-auto hidden">
-        <table class="w-full text-sm">
-            <thead>
-                <tr
-                    class="text-left text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-100 dark:border-zinc-800">
-                    <th class="py-3 pl-4 pr-2 font-medium w-10">
-                        <span
-                            class="bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 px-2 py-0.5 rounded text-[11px]">No</span>
-                    </th>
-                    <th class="py-3 px-2 font-medium">Cashier</th>
-                    <th class="py-3 px-2 font-medium text-center">Orders</th>
-                    <th class="py-3 px-2 font-medium text-center">Items Sold</th>
-                    <th class="py-3 font-medium text-right">Revenue & Performance</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50 dark:divide-zinc-800/50">
-                @php $maxRevenue = $topCashiers->max('total_revenue') ?: 1; @endphp
-                @foreach ($topCashiers as $index => $cashier)
-                    @php
-                        $rank = $index + 1;
-                        $percent = round(($cashier->total_revenue / $maxRevenue) * 100);
-                    @endphp
-                    <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition">
-                        {{-- Clean Rank System Matching Product Grid --}}
-                        <td class="py-3 pl-4 pr-1">
-                            <span
-                                class="text-xs font-bold {{ $rank == 1 ? 'text-yellow-500' : ($rank == 2 ? 'text-blue-500' : ($rank == 3 ? 'text-amber-600' : 'text-gray-600 dark:text-zinc-500')) }}">
-                                #{{ $rank }}
-                            </span>
-                        </td>
 
-                        {{-- Cashier Meta Block --}}
-                        <td class="py-3 px-2">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="w-[45px] h-[45px] rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0 overflow-hidden bg-[#0F6E8C]">
-                                    @if ($cashier->avatar)
-                                        <img src="{{ $cashier->avatar }}" class="w-full h-full object-cover"
-                                            alt="{{ $cashier->name }}">
-                                    @else
-                                        {{ strtoupper(substr($cashier->name, 0, 1)) }}
-                                    @endif
-                                </div>
-                                <div class="flex flex-col">
-                                    <span
-                                        class="font-medium text-gray-800 dark:text-zinc-200 truncate max-w-[250px]">{{ $cashier->name }}</span>
-                                    <span class="text-[12px] text-gray-600 dark:text-zinc-400">
-                                        {{ $cashier->employee_id ?? 'No ID' }} · {{ $cashier->shift ?? 'No shift' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </td>
-
-                        {{-- Orders Count --}}
-                        <td class="py-3 px-2 text-center font-medium text-gray-700 dark:text-zinc-200">
-                            {{ $cashier->total_orders }}
-                        </td>
-
-                        {{-- Items Sold --}}
-                        <td class="py-3 px-2 text-center font-medium text-gray-700 dark:text-zinc-200">
-                            {{ $cashier->total_items_sold ?? 0 }}
-                        </td>
-
-                        {{-- Revenue & Dynamic Performance Progress Bar Layout --}}
-                        <td class="py-3">
-                            <div class="flex items-center gap-2">
-                                <p class="text-gray-700 dark:text-zinc-200 font-semibold">
-                                    ${{ number_format($cashier->total_revenue, 2) }}
-                                </p>
-                                <div class="flex-1 h-2 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                                    <div class="h-full bg-[#0F6E8C] rounded-l-full"
-                                        style="width: {{ $percent }}%"></div>
-                                </div>
-                                <span class="text-[10px] text-gray-400 shrink-0">{{ $percent }}%</span>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
 </div>

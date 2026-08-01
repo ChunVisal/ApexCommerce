@@ -85,8 +85,13 @@ class CustomerController extends Controller
             ->get();
 
         $totalOrders = $orders->count();
-        $totalSpent = $orders->sum('total');
-        $avgOrder = $totalOrders > 0 ? $totalSpent / $totalOrders : 0;
+
+        // Exclude refunded orders from money calculations
+        $nonRefundedOrders = $orders->where('status', '!=', 'refunded');
+        $totalSpent = $nonRefundedOrders->sum('total');
+        $avgOrder = $nonRefundedOrders->count() > 0
+            ? $totalSpent / $nonRefundedOrders->count()
+            : 0;
 
         return response()->json([
             'customer' => [
@@ -124,9 +129,6 @@ class CustomerController extends Controller
     public function show($id)
     {
         $customer = Customer::findOrFail($id);
-        $customer->avg_order = $customer->total_orders > 0
-            ? $customer->total_spent / $customer->total_orders
-            : 0;
 
         $orders = Order::with('payment', 'items')
             ->where('customer_id', $id)
@@ -135,13 +137,18 @@ class CustomerController extends Controller
             ->limit(10)
             ->get();
 
-        // Calculate stats from filtered orders only
         $totalOrders = $orders->count();
-        $totalSpent = $orders->sum('total');
-        $validOrders = $orders->where('status', '!=', 'refunded');
+
+        // Exclude refunded orders from money calculations
+        $nonRefundedOrders = $orders->where('status', '!=', 'refunded');
+        $totalSpent = $nonRefundedOrders->sum('total');
+        $avgOrder = $nonRefundedOrders->count() > 0
+            ? $totalSpent / $nonRefundedOrders->count()
+            : 0;
+
         $customer->total_orders = $totalOrders;
         $customer->total_spent = $totalSpent;
-        $customer->avg_order = $totalOrders > 0 ? $totalSpent / $totalOrders : 0;
+        $customer->avg_order = round($avgOrder, 2);
 
         return response()->json([
             'customer' => $customer,

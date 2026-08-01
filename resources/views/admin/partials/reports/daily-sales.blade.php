@@ -25,7 +25,7 @@
                     <th class="py-3 px-4 font-medium text-right">Discount</th>
                     <th class="py-3 px-4 font-medium text-right">VIP Discount</th>
                     <th class="py-3 px-4 font-medium text-right">Tax</th>
-                    <th class="py-3 pr-4 font-medium text-right">Net Total</th>
+                    <th class="py-3 pr-7 font-medium text-right">Net Total</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-zinc-800/50">
@@ -49,7 +49,7 @@
                         <td class="py-3 px-4 text-right text-gray-600 dark:text-zinc-300">
                             ${{ number_format($day->tax, 2) }}
                         </td>
-                        <td class="py-3 pr-4 text-right font-bold text-[#0F6E8C]">
+                        <td class="py-3 pr-7 text-right font-bold text-[#0F6E8C]">
                             ${{ number_format($day->revenue - $day->discount, 2) }}
                         </td>
                     </tr>

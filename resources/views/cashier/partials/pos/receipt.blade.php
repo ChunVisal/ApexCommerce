@@ -95,7 +95,7 @@
                     <span>-$<span x-text="(receiptData.discount || 0).toFixed(2)"></span></span>
                 </div>
                 <div x-show="receiptData.vip_discount > 0" class="flex justify-between text-sm text-yellow-600">
-                    <span><i class="fa-solid fa-crown mr-1"></i> VIP Discount (5%)</span>
+                    <span>VIP Discount (5%)</span>
                     <span>-$<span x-text="(receiptData.vip_discount || 0).toFixed(2)"></span></span>
                 </div>
                 <div class="flex justify-between ">

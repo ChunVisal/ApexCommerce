@@ -87,7 +87,8 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
     @foreach ($summaryCards as $card)
         <div
-            class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-200 dark:border-zinc-800/60 flex flex-col justify-between relative overflow-hidden h-32">
+            class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-200 dark:border-zinc-800/60 flex flex-col justify-between relative overflow-hidden h-32  hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-zinc-950/50 transition-shadow duration-200">
+
 
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
@@ -129,70 +130,3 @@
         </div>
     @endforeach
 </div>
-<script>
-    function dateRangePicker() {
-        return {
-            open: false,
-            displayText: 'Last 14 Days',
-            startDate: '',
-            endDate: '',
-
-            setRange(range, label) {
-                this.open = false;
-                const now = new Date();
-
-                switch (range) {
-                    case 'today':
-                        this.startDate = this.formatDate(now);
-                        this.endDate = this.formatDate(now);
-                        break;
-                    case 'yesterday':
-                        const yesterday = new Date(now);
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        this.startDate = this.formatDate(yesterday);
-                        this.endDate = this.formatDate(yesterday);
-                        break;
-                    case '7days':
-                        const weekAgo = new Date(now);
-                        weekAgo.setDate(weekAgo.getDate() - 6);
-                        this.startDate = this.formatDate(weekAgo);
-                        this.endDate = this.formatDate(now);
-                        break;
-                    case '30days':
-                        const monthAgo = new Date(now);
-                        monthAgo.setDate(monthAgo.getDate() - 29);
-                        this.startDate = this.formatDate(monthAgo);
-                        this.endDate = this.formatDate(now);
-                        break;
-                    case 'thisMonth':
-                        this.startDate = this.formatDate(new Date(now.getFullYear(), now.getMonth(), 1));
-                        this.endDate = this.formatDate(now);
-                        break;
-                    case 'lastMonth':
-                        this.startDate = this.formatDate(new Date(now.getFullYear(), now.getMonth() - 1, 1));
-                        this.endDate = this.formatDate(new Date(now.getFullYear(), now.getMonth(), 0));
-                        break;
-                }
-
-                this.displayText = label;
-                this.updateChart();
-            },
-
-            setCustomRange() {
-                if (this.startDate && this.endDate) {
-                    this.displayText = this.startDate + ' - ' + this.endDate;
-                    this.open = false;
-                    this.updateChart();
-                }
-            },
-
-            formatDate(date) {
-                return date.toISOString().split('T')[0];
-            },
-
-            updateChart() {
-                window.location.href = '?start=' + this.startDate + '&end=' + this.endDate;
-            },
-        };
-    }
-</script>

@@ -1,9 +1,12 @@
 <div class="bg-white dark:bg-zinc-900 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
     <div class="px-4 py-3 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between">
         <h3 class="text-sm font-semibold text-gray-800 dark:text-zinc-100">All Orders</h3>
-        <span class="text-xs text-gray-500 dark:text-zinc-400">{{ $orders->count() }} orders</span>
+        <div class="flex items-center gap-3 text-xs">
+            <span class="text-gray-600 dark:text-zinc-400">{{ $orders->count() }} total</span>
+            <span class="text-green-600">{{ $orders->where('status', 'completed')->count() }} completed</span>
+            <span class="text-red-500">{{ $orders->where('status', 'refunded')->count() }} refunded</span>
+        </div>
     </div>
-
     <div class="overflow-x-auto max-h-[600px] overflow-y-auto tab-container">
         <table class="w-full text-sm">
             <thead class="sticky top-0 bg-white dark:bg-zinc-900">

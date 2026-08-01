@@ -1,22 +1,12 @@
 {{-- ADD / EDIT USER SLIDE-OVER PANEL --}}
 <div x-show="open && viewMode !== 'detail'" x-cloak class="fixed inset-0 z-50" style="display: none;">
-    <div 
-        x-show="open" 
-        x-transition.opacity 
-        @click="closePanel()"
-        class="absolute inset-0 bg-gray-900/40 dark:bg-black/60"
-    ></div>
+    <div x-show="open" x-transition.opacity @click="closePanel()"
+        class="absolute inset-0 bg-gray-900/40 dark:bg-black/60"></div>
 
-    <div 
-        x-show="open" 
-        x-transition:enter="transition ease-out duration-300" 
-        x-transition:enter-start="translate-x-full"
-        x-transition:enter-end="translate-x-0" 
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="translate-x-0" 
-        x-transition:leave-end="translate-x-full"
-        class="absolute right-0 top-0 h-full w-full max-w-md bg-white dark:bg-zinc-900 shadow-xl flex flex-col"
-    >
+    <div x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-x-full"
+        x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
+        class="absolute right-0 top-0 h-full w-full max-w-md bg-white dark:bg-zinc-900 shadow-xl flex flex-col">
         {{-- Header --}}
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-zinc-800">
             <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-100"
@@ -32,22 +22,18 @@
             <div>
                 <label class="block text-xs font-medium text-gray-600 dark:text-zinc-400 mb-2">Role</label>
                 <div class="grid grid-cols-2 gap-2">
-                    <button type="button"
-                        @click="form.role = 'admin'"
+                    <button type="button" @click="form.role = 'admin'"
                         class="flex items-center justify-center gap-2 py-2.5 rounded-md text-xs font-semibold border transition w-full"
-                        :class="form.role === 'admin'
-                            ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-400'
-                            : 'border-gray-300 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800'"
-                    >
+                        :class="form.role === 'admin' ?
+                            'bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-400' :
+                            'border-gray-300 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800'">
                         <i class="fa-solid fa-user-shield"></i> Admin
                     </button>
-                    <button type="button"
-                        @click="form.role = 'cashier'"
+                    <button type="button" @click="form.role = 'cashier'"
                         class="flex items-center justify-center gap-2 py-2.5 rounded-md text-xs font-semibold border transition w-full"
-                        :class="form.role === 'cashier'
-                            ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-400'
-                            : 'border-gray-300 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800'"
-                    >
+                        :class="form.role === 'cashier' ?
+                            'bg-blue-50 dark:bg-blue-950/40 border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-400' :
+                            'border-gray-300 dark:border-zinc-700 text-gray-500 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800'">
                         <i class="fa-solid fa-cash-register"></i> Cashier
                     </button>
                 </div>
@@ -78,18 +64,17 @@
                 </div>
                 {{-- Avatar Upload --}}
                 <div>
-                    <label class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">
+                    <label
+                        class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">
                         Profile Photo
                     </label>
                     {{-- Preview --}}
                     <div x-show="avatarPreview || form.avatar_url" class="mb-2 relative inline-block">
                         <img :src="avatarPreview || form.avatar_url"
                             class="h-24 w-24 object-cover rounded-md border border-gray-200 dark:border-zinc-700">
-                        <button
-                            type="button"
+                        <button type="button"
                             @click="avatarPreview = ''; form.avatar_url = ''; form.avatar_file = null;"
-                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
-                        >
+                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>
@@ -137,22 +122,16 @@
             <div class="flex items-center justify-between">
                 <label class="text-xs text-gray-500 dark:text-zinc-400">Status</label>
                 <div class="flex gap-1">
-                    <button
-                        type="button"
-                        @click="form.status = 'active'"
+                    <button type="button" @click="form.status = 'active'"
                         class="px-3 py-1 text-xs rounded-l-md transition"
-                        :class="form.status === 'active'
-                            ? 'bg-green-500 text-white'
-                            : 'bg-gray-200 dark:bg-zinc-700 text-gray-500'"
-                    >Active</button>
-                    <button
-                        type="button"
-                        @click="form.status = 'inactive'"
+                        :class="form.status === 'active' ?
+                            'bg-green-500 text-white' :
+                            'bg-gray-200 dark:bg-zinc-700 text-gray-500'">Active</button>
+                    <button type="button" @click="form.status = 'inactive'"
                         class="px-3 py-1 text-xs rounded-r-md transition"
-                        :class="form.status === 'inactive'
-                            ? 'bg-red-500 text-white'
-                            : 'bg-gray-200 dark:bg-zinc-700 text-gray-500'"
-                    >Inactive</button>
+                        :class="form.status === 'inactive' ?
+                            'bg-red-500 text-white' :
+                            'bg-gray-200 dark:bg-zinc-700 text-gray-500'">Inactive</button>
                 </div>
             </div>
 
@@ -180,13 +159,16 @@
                                 class="bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200">
                                 Afternoon → Night
                             </option>
-                            <option value="night-morning" class="bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200">
+                            <option value="night-morning"
+                                class="bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200">
                                 Night → Morning
                             </option>
-                            <option value="full-morning" class="bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200">
+                            <option value="full-morning"
+                                class="bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200">
                                 Full (Morning-Afternoon)
                             </option>
-                            <option value="full-night" class="bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200">
+                            <option value="full-night"
+                                class="bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200">
                                 Full (Night-Morning)
                             </option>
                         </select>
@@ -217,7 +199,8 @@
             <div x-show="form.role === 'admin'" class="space-y-3">
                 <p class="text-xs font-semibold text-purple-500 dark:text-purple-400 uppercase">
                     Admin Privileges</p>
-                <div class="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-md p-3">
+                <div
+                    class="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-md p-3">
                     <p class="text-xs text-purple-700 dark:text-purple-400">
                         <i class="fa-solid fa-shield-halved mr-1"></i>
                         Admin has full access to all features: products, inventory, users,
@@ -228,7 +211,8 @@
         </form>
 
         {{-- Footer --}}
-        <div class="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-200 dark:border-zinc-800 shrink-0">
+        <div
+            class="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-200 dark:border-zinc-800 shrink-0">
             <button @click="closePanel()" type="button"
                 class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-700 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
                 Cancel
@@ -240,4 +224,4 @@
             </button>
         </div>
     </div>
-</div>  
+</div>

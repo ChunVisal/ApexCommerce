@@ -5,6 +5,12 @@
         <p class="text-xs text-gray-500 dark:text-zinc-400">Sales, inventory, and staff performance insights</p>
     </div>
     <div class="flex items-center gap-2 mt-3 sm:mt-0">
+        <a href="{{ route('admin.reports') }}"
+            class="bg-yellow-500 dark:bg-yellow-700 inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-gray-100 dark:text-zinc-300 border border-gray-300 dark:border-zinc-800 rounded-md hover:bg-yellow-500/90 dark:hover:bg-yellow-800 transition">
+            <x-heroicon-m-arrow-path class="w-4 h-4" />
+            Refresh
+        </a>
+
         <div class="relative" x-data="{ open: false }">
             <div @click="open = !open"
                 class="bg-white dark:bg-zinc-900 flex items-center text-xs gap-2 px-3 py-2 border border-gray-300 dark:border-zinc-800 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-800/60 transition cursor-pointer">
