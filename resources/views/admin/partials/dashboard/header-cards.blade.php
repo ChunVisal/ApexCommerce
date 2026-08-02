@@ -89,7 +89,6 @@
         <div
             class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-200 dark:border-zinc-800/60 flex flex-col justify-between relative overflow-hidden h-32  hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-zinc-950/50 transition-shadow duration-200">
 
-
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2">
                     <div class="rounded-md p-2 px-3"
