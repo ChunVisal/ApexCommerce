@@ -51,7 +51,6 @@
         </button>
     </div>
     
-
     {{-- Category --}}
     <div class="relative">
         <select x-model="categoryFilter"

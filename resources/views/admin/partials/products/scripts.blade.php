@@ -1,36 +1,4 @@
 <script>
-    // ── Filter table ──────────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', function() {
-
-        $(document).ready(function() {
-            let searchTimer;
-
-            $('#search').on('input', function() {
-                clearTimeout(searchTimer);
-                const query = $(this).val();
-                $('#clearSearch').toggle(query.length > 0);
-
-                searchTimer = setTimeout(function() {
-                    $.get('{{ route('admin.products') }}', {
-                        search: query,
-                        ajax: 1
-                    }, function(data) {
-                        const alpine = document.querySelector(
-                            '[x-data="productPage()"]').__x.$data;
-                        alpine.products = data.products;
-                    });
-                }, 400);
-            });
-
-            $('#clearSearch').on('click', function() {
-                $('#search').val('').trigger('input');
-            });
-        });
-
-        var emptyRow = document.getElementById('noCategoryRow');
-        var emptyGrid = document.getElementById('noFilterResultsGrid');
-    });
-
     function deleteProduct(id, button) {
         if (button.dataset.hasOrders === '1') {
             alert('Cannot delete: This product has existing orders');

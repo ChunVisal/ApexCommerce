@@ -7,6 +7,8 @@
             filterStock: '',
             products: @json($products),
 
+            viewMode: 'list',
+
             // new product request
             requestNewProduct: false,
             newProductList: [{
@@ -59,8 +61,9 @@
 
             get filteredRequestProducts() {
                 const q = (this.requestSearch || '').toLowerCase();
-                return this.products.filter(p => (p.remaining || 0) <= 5 && (!q || p.name.toLowerCase().includes(
-                    q)));
+                return this.products.filter(p =>
+                    (p.remaining || 0) <= (p.low_stock_threshold || 5) && (!q || p.name.toLowerCase().includes(
+                        q)));
             },
 
             submitRequest() {

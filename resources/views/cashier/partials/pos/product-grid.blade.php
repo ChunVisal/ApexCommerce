@@ -12,10 +12,9 @@
         <div class="flex items-center gap-3 flex-1 max-w-xl">
             <div class="relative flex-1">
                 <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-zinc-400"></i>
-                <input id="search" type="text" value="{{ request('search') }}" type="search"
-                    placeholder="Search products, categories, code..."
+                <input x-model="searchQuery" type="search" placeholder="Search products, categories, code..."
                     class="w-full pl-9 pr-4 py-2 border border-gray-400 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 rounded-full text-sm outline-none">
-                <button type="button" id="clearSearch" style="display:none;"
+                <button type="button" x-show="searchQuery" @click="searchQuery = ''; filterProducts()"
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 z-10">
                     ✕
                 </button>
@@ -35,7 +34,7 @@
                         <i class="fa-solid fa-pause text-gray-600 dark:text-zinc-400 text-[11px]"></i>
                         <span>Held Orders</span>
                         <span
-                            class="px-2.5 py-1 text-[10px] font-bold text-gray-100 bg-gray-700 dark:bg-zinc-600 rounded-full"
+                            class="px-2.5 flex-1 py-1 text-[10px] font-bold text-gray-100 bg-gray-700 dark:bg-zinc-600 rounded-full"
                             x-text="heldCartsList.length"></span>
                     </div>
                     <i class="fa-solid fa-chevron-down text-[10px] px-1 rounded-full text-gray-500 dark:text-zinc-400 transition-transform duration-200"
@@ -149,22 +148,117 @@
     </div>
 
     {{-- Products Grid Mapping Frame --}}
-    <div id="productGridContainer" x-show="hasProducts()"
-        class="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    <div class="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
 
-        @forelse($products as $product)
-            @include('cashier.partials.pos.table-rows')
-        @empty
-            <div class="bg-gray-200/50 dark:bg-zinc-900  col-span-full flex flex-col items-center justify-center py-12">
-                <div class="rounded-full bg-gray-100 dark:bg-zinc-800 p-4 mb-4">
-                    <x-heroicon-o-shopping-bag class="w-10 h-10 text-gray-400 dark:text-zinc-600" />
+        <template x-for="product in filteredProducts" :key="product.id">
+
+            <div x-show="selectedCategory === 'all' || selectedCategory === product.category_id"
+                class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 overflow-hidden hover:shadow-md transition-all relative group flex flex-col rounded-sm">
+
+                {{-- Product Code Badge --}}
+                <span
+                    class="absolute top-1 right-1 text-[10px] font-mono text-gray-600 dark:text-zinc-100 bg-gray-100 dark:bg-zinc-600 px-1.5 py-0.5 rounded z-10"
+                    x-text="product.code"></span>
+
+                {{-- Image --}}
+                <div class="w-full h-[160px] bg-gray-50 dark:bg-zinc-600 overflow-hidden">
+                    <img :src="product.image ||
+                        'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
+                        class="w-full h-full object-cover">
                 </div>
-                <h4 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Product Not Exist</h4>
-                <p class="text-xs text-center text-gray-500 dark:text-zinc-400 max-w-[200px] mt-1">
-                    There are currently no products registered in this category.
-                </p>
-            </div>
-        @endforelse
 
+                {{-- Content --}}
+                <div class="p-3 flex flex-col flex-1">
+                    <p class="text-sm font-medium text-gray-800 dark:text-zinc-100 line-clamp-2" x-text="product.name">
+                    </p>
+                    <p class="text-xs mb-1 font-semibold text-gray-600 dark:text-zinc-300"
+                        x-text="product.category?.name"></p>
+                    <span
+                        class="w-fit mb-3 text-[10px] font-mono text-gray-600 dark:text-zinc-100 bg-gray-100 dark:bg-zinc-600 px-1.5 py-0.5 rounded"
+                        x-text="product.code"></span>
+
+                    {{-- UOM or Normal Price --}}
+                    <div class="mt-auto pt-2 border-t border-gray-100 dark:border-zinc-800">
+                        {{-- UOM Select --}}
+                        <div x-show="product.uom_list && product.uom_list.length > 0">
+                            <select
+                                class="w-full text-xs font-medium border rounded px-2 py-1.5 mb-1 bg-gray-200/30 text-gray-900 dark:bg-zinc-800 dark:text-zinc-100 border-gray-200  dark:border-zinc-700"
+                                @change="product._uomPrice = $event.target.selectedOptions[0].dataset.price; product._uomStock = $event.target.selectedOptions[0].dataset.stock">
+                                <option value="base" :data-price="product.selling_price"
+                                    :data-stock="product.available_stock"
+                                    x-text="(product.base_unit_name || 'Piece') + ' - $' + Number(product.selling_price).toFixed(2)">
+                                </option>
+                                <template x-for="uom in product.uom_list" :key="uom.id">
+                                    <option :value="uom.id" :data-price="uom.price"
+                                        :data-stock="Math.floor(product.available_stock / uom.conversion)"
+                                        x-text="uom.name + ' - $' + Number(uom.price).toFixed(2)"></option>
+                                </template>
+                            </select>
+                            <div class="flex justify-between items-center">
+                                <span class="text-base font-bold text-green-600 dark:text-green-400"
+                                    x-text="'$' + Number(product._uomPrice || product.selling_price).toFixed(2)"></span>
+                                <span class="text-xs text-gray-500 dark:text-zinc-400">Qty: <label
+                                        class="font-semibold text-gray-900 dark:text-zinc-100"
+                                        x-text="product._uomStock || product.available_stock"></label></span>
+                            </div>
+                        </div>
+                        {{-- Normal Price --}}
+                        <div x-show="!product.uom_list || product.uom_list.length === 0" class="flex justify-between">
+                            <span class="text-sm font-bold text-green-600"
+                                x-text="'$' + Number(product.selling_price).toFixed(2)"></span>
+                            <span class="text-xs text-gray-500">Qty: <label class="font-semibold"
+                                    x-text="product.available_stock"></label></span>
+                        </div>
+                    </div>
+
+                    {{-- Add to Cart --}}
+                    <div class="mt-2 pt-1.5 border-t border-gray-50 dark:border-zinc-800">
+                        <button
+                            @click="addToCart({ 
+                            id: product.id, 
+                            name: product.name, 
+                            price: product._uomPrice || product.selling_price, 
+                            image: product.image, 
+                            stock: product._uomStock || product.available_stock,
+                            base_unit: product.base_unit_name || 'piece'
+                        })"
+                            x-show="!cartItems.find(i => i.id === product.id)"
+                            class="w-full py-1.5 text-xs font-medium text-white bg-[#1063a2] rounded hover:bg-[#0c4f82] transition">
+                            <i class="bi bi-plus-lg"></i> Add to Order
+                        </button>
+
+                        {{-- Qty Controls --}}
+                        <div x-show="cartItems.find(i => i.id === product.id)"
+                            class="flex items-center justify-between">
+                            <button @click="decreaseQty(cartItems.findIndex(i => i.id === product.id))"
+                                class="px-2.5 flex-1 py-1.5 bg-red-500 text-white rounded text-xs font-bold">-</button>
+                            <span x-text="cartItems.find(i => i.id === product.id)?.qty || 0"
+                                class="text-sm px-4 text-black dark:text-zinc-100 font-bold"></span>
+                            <button
+                                @click="addToCart({ 
+                                id: product.id, 
+                                name: product.name, 
+                                price: product._uomPrice || product.selling_price, 
+                                image: product.image, 
+                                stock: product._uomStock || product.available_stock,
+                                base_unit: product.base_unit_name || 'piece'
+                            })"
+                                class="px-2.5 flex-1 py-1.5 bg-green-600 text-white rounded text-xs font-bold">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <div x-show="!filteredProducts || filteredProducts.length === 0"
+            class="bg-gray-200/50 dark:bg-zinc-900  col-span-full flex flex-col items-center justify-center py-12">
+            <div class="rounded-full bg-gray-100 dark:bg-zinc-800 p-4 mb-4">
+                <x-heroicon-o-shopping-bag class="w-10 h-10 text-gray-400 dark:text-zinc-600" />
+            </div>
+            <h4 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Product Not Exist</h4>
+            <p class="text-xs text-center text-gray-500 dark:text-zinc-400 max-w-[200px] mt-1">
+                There are currently no products registered in this category.
+            </p>
+        </div>
     </div>
 </div>

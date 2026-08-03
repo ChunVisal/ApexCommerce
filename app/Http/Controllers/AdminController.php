@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Categories;
-use App\Models\Product;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
@@ -39,12 +37,7 @@ class AdminController extends Controller
 
     public function inventory()
     {
-        // Fetch raw collections directly from your database tables
-        $categories = Categories::all();
-        $products = Product::with('category')->get();
-
-        // Send them cleanly to your UI file
-        return view('admin.inventory', compact('categories', 'products'));
+        return view('admin.inventory');
     }
 
     public function users()

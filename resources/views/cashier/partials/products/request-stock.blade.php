@@ -63,12 +63,15 @@
                                 <p class="text-xs font-bold text-gray-800 dark:text-zinc-200 leading-tight"
                                     x-text="product.name"></p>
                                 {{-- Precision Context Stock Alert Badges --}}
-                                <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium "
+                                <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border"
                                     :class="product.remaining == 0 ?
-                                        'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400' :
-                                        'bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400'">
-                                    <span class="w-1 h-1 rounded-full"
-                                        :class="product.remaining == 0 ? 'bg-red-500' : 'bg-amber-500'"></span>
+                                        'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/40 dark:text-red-200 dark:border-red-800/60' :
+                                        'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-800/60'">
+
+                                    <span class="w-1.5 h-1.5 rounded-full shrink-0"
+                                        :class="product.remaining == 0 ? 'bg-red-500 dark:bg-red-400' :
+                                            'bg-amber-500 dark:bg-amber-400'"></span>
+
                                     <span
                                         x-text="product.remaining == 0 ? 'Out of stock' : product.remaining + ' units remaining'"></span>
                                 </div>
@@ -96,7 +99,6 @@
                             </button>
                         </div>
                     </div>
-
 
                     {{-- Dynamic Quantity Entry Slide Mechanism Component --}}
                     <div x-show="requestForm.product_id === product.id"

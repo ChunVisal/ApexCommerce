@@ -28,13 +28,6 @@ class ProductController extends Controller
             ->where(function ($q) {
                 $q->where('has_uom', false)->orWhereNull('has_uom');
             })
-            ->when($request->search, function ($q) use ($request) {
-                $search = $request->search;
-                $q->where('name', 'like', "%$search%")
-                    ->orWhere('code', 'like', "%$search%")
-                    ->orWhere('barcode', 'like', "%$search%")
-                    ->orWhereHas('category', fn($cat) => $cat->where('name', 'like', "%$search%"));
-            })
             ->get();
 
         if ($request->ajax) {
@@ -59,11 +52,6 @@ class ProductController extends Controller
         if (!$category) {
             return response()->json(['error' => 'Category not found'], 422);
         }
-        Log::info('Store UOM data:', [
-            'base_unit_name' => $request->base_unit_name,
-            'base_unit_code' => $request->base_unit_code,
-            'all' => $request->all()
-        ]);
 
         $product = Product::create([
             'name' => $request->name,

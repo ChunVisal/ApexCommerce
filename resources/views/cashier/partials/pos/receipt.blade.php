@@ -31,13 +31,20 @@
 
                 {{-- Header --}}
                 <div class=" text-center mb-4">
-                    <img src="{{ asset('images/logo.png') }}" alt="POS Technology Logo"
-                        class="mx-auto h-12 w-auto mb-2 dark:hidden" />
-                    <img src="{{ asset('images/logodarkmode.png') }}" alt="POS Technology Logo"
-                        class="mx-auto h-12 w-auto mb-2 hidden dark:block" />
+                    @php $logo = App\Models\Setting::get('logo'); @endphp
 
-                    <p class="text-[10px] text-gray-500 dark:text-zinc-300 mt-0.5">123 Monivong Blvd, Phnom Penh</p>
-                    <p class="text-[10px] text-gray-500 dark:text-zinc-300">Tel: 012 345 678</p>
+                    @if ($logo)
+                        <img src="{{ $logo }}" class="mx-auto h-12 w-auto mb-2" />
+                    @else
+                        <img src="{{ asset('images/logo.png') }}" class="mx-auto h-12 w-auto mb-2 dark:hidden" />
+                        <img src="{{ asset('images/logodarkmode.png') }}"
+                            class="mx-auto h-12 w-auto mb-2 hidden dark:block" />
+                    @endif
+                    <p class="text-[10px] text-gray-500 dark:text-zinc-300 mt-0.5">
+                        {{ App\Models\Setting::get('shop_address', '123 Monivong Blvd, Phnom Penh') }}
+                    </p>
+                    <p class="text-[10px] text-gray-500 dark:text-zinc-300">Tel:
+                        {{ App\Models\Setting::get('shop_phone', '012 345 678') }}</p>
                     <div class="border-t border-dashed border-gray-300 dark:border-zinc-700 my-3"></div>
 
                 </div>
@@ -76,6 +83,9 @@
                         <div class="flex justify-between text-xs">
                             <span class="flex-1 truncate dark:text-zinc-200">
                                 <span x-text="item.qty"></span>x <span x-text="item.name"></span>
+                                <span class="text-[12px] text-gray-700 dark:text-zinc-100"
+                                    x-text="item.base_unit ? '(' + item.base_unit + ')' : '' "></span>
+
                             </span>
                             <span class="font-semibold ml-2 dark:text-zinc-200">$<span
                                     x-text="(item.price * item.qty).toFixed(2)"></span></span>

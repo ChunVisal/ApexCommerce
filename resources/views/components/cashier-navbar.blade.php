@@ -1,10 +1,20 @@
 <nav
-    class="bg-white dark:bg-black border-b border-gray-300 dark:border-zinc-800 px-5 py-2 flex items-center justify-between sticky top-0 z-40 transition-colors duration-200">
-
+    class="bg-white dark:bg-black border-b border-gray-300 dark:border-zinc-800 px-4 py-2 flex items-center justify-between sticky top-0 z-40 transition-colors duration-200">
     <!-- Logo Section -->
-    <div class="flex items-center gap-4 min-w-0">
-        <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-[90px] dark:hidden shrink-0">
-        <img src="{{ asset('images/logodarkmode.png') }}" alt="Logo" class="w-[90px] hidden dark:block shrink-0">
+    <div class="flex items-center">
+        {{-- <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-[90px] dark:hidden shrink-0">
+        <img src="{{ asset('images/logodarkmode.png') }}" alt="Logo" class="w-[90px] hidden dark:block shrink-0"> --}}
+
+        @php $logo = App\Models\Setting::get('logo'); @endphp
+
+        @if ($logo)
+            <img src="{{ $logo }}" class="h-[41px] w-auto max-w-[120px] object-contain shrink-0" />
+        @else
+            <img src="{{ asset('images/logo.png') }}"
+                class="h-[41px] w-auto max-w-[120px] object-contain shrink-0 dark:hidden" />
+            <img src="{{ asset('images/logodarkmode.png') }}"
+                class="h-[41px] w-auto max-w-[120px] object-contain shrink-0 hidden dark:block" />
+        @endif
     </div>
 
     <div class="flex items-center gap-3">
@@ -133,7 +143,13 @@
                                         <span class="font-bold">{{ $notif->quantity_requested }}x</span>
                                     @endif
                                     <span
-                                        class="font-medium">{{ $notif->product->name ?? ($notif->product_name ?? 'Unknown') }}</span>
+                                        class="font-medium">{{ $notif->product->name ?? ($notif->product_name ?? 'Unknown') }}
+                                        @if ($notif->product && $notif->product->base_unit_name)
+                                            <span class="text-gray-700 dark:text-zinc-400">
+                                                ({{ $notif->product->base_unit_name }})
+                                            </span>
+                                        @endif
+                                    </span>
                                 </p>
                                 <p
                                     class="text-xs font-normal tracking-normal mt-1

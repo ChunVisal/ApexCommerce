@@ -12,11 +12,18 @@ class CashierProductData
         $cashierId = Auth::id();
 
         $stocks = CashierStock::where('cashier_id', $cashierId)
+            ->whereHas('product', fn($q) => $q->where('has_uom', false)->orWhereNull('has_uom'))
             ->whereRaw('allocated_quantity > sold_quantity')
             ->get();
 
-        $totalAllocated = CashierStock::where('cashier_id', $cashierId)->sum('allocated_quantity');
-        $totalSold = CashierStock::where('cashier_id', $cashierId)->sum('sold_quantity');
+        $totalAllocated = CashierStock::where('cashier_id', $cashierId)
+            ->whereHas('product', fn($q) => $q->where('has_uom', false)->orWhereNull('has_uom'))
+            ->sum('allocated_quantity');
+
+        $totalSold = CashierStock::where('cashier_id', $cashierId)
+            ->whereHas('product', fn($q) => $q->where('has_uom', false)->orWhereNull('has_uom'))
+            ->sum('sold_quantity');
+            
         $totalRemaining = $totalAllocated - $totalSold;
         $totalProducts = CashierStock::where('cashier_id', $cashierId)
             ->distinct('product_id')

@@ -39,7 +39,7 @@
 
     <nav class="tab-container overflow-x-hidden flex-1 px-3 py-2 space-y-1 overflow-y-auto">
 
-        <div x-show="!open" class="flex items-center px-3 justify-center">
+        <div x-show="!open" class="flex items-center px-3 pb-2 justify-center">
             <button @click="toggle(true)"
                 class="flex items-center justify-center hover:bg-gray-200/30 dark:hover:bg-zinc-900/30 transition">
                 <x-heroicon-o-chevron-right
@@ -73,13 +73,6 @@
             :class="open ? '' : 'justify-center'">
             <x-heroicon-o-user-group class="w-5 h-5 shrink-0" />
             <span x-show="open" class="text-sm font-medium whitespace-nowrap">Customers</span>
-        </a>
-
-        <a href="{{ route('admin.settings') }}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('admin.settings') ? 'bg-blue-50 dark:bg-zinc-900 text-p dark:text-zinc-100' : 'text-gray-700 dark:text-zinc-400 hover:bg-gray-200/30 dark:hover:bg-zinc-900/50' }}"
-            :class="open ? '' : 'justify-center'">
-            <x-heroicon-o-cog-6-tooth class="w-5 h-5 shrink-0" />
-            <span x-show="open" class="text-sm font-medium whitespace-nowrap">Settings</span>
         </a>
 
         <form method="POST" action="{{ route('logout') }}">

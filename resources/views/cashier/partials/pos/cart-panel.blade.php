@@ -25,7 +25,9 @@
                 <div class="flex-1 min-w-0">
                     <p class="text-xs font-medium text-gray-800 dark:text-zinc-200 truncate" x-text="item.name"></p>
                     <p class="text-xs text-gray-600 dark:text-zinc-400">$<span
-                            x-text="(item.price * item.qty).toFixed(2)"></span></p>
+                            x-text="(item.price * item.qty).toFixed(2)"></span>
+                        <span class="text-[11px] text-gray-500" x-text="(item.base_unit || '')"></span>
+                    </p>
 
                     {{-- Quantity Controls --}}
                     <div class="flex items-center gap-1.5 mt-1.5">

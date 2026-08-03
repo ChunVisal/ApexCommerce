@@ -83,26 +83,47 @@
                         {{-- Quantity & Target Product Text --}}
                         <p class="text-xs text-gray-700 dark:text-zinc-300 leading-snug">
                             @if ($isLoss)
-                                Reported loss of <span
-                                    class="font-bold text-rose-600 dark:text-rose-400">{{ $req->quantity_requested }}x</span>
+                                <span class="text-red-600 dark:text-red-400 font-bold">reported loss of</span>
                                 <span
-                                    class="font-semibold text-gray-900 dark:text-zinc-100">{{ $req->product->name ?? ($req->product_name ?? 'Unknown') }}</span>
+                                    class="font-bold text-p dark:text-[#1389af]">{{ $req->quantity_requested }}x</span>
+                                @if ($req->product && $req->product->base_unit_name)
+                                    <span class="text-p font-bold dark:text-[#1389af]">
+                                        {{ $req->product->base_unit_name }}
+                                    </span>
+                                @endif
+                                <span class="font-medium text-gray-900 dark:text-zinc-100">
+                                    {{ $req->product->name ?? ($req->product_name ?? 'Unknown Product') }}
+                                </span>
                             @elseif ($isRefund)
-                                Restocked <span
-                                    class="font-bold text-blue-600 dark:text-blue-400">{{ $req->quantity_requested }}x</span>
+                                <span class="text-p dark:text-blue-400">restocked (refund)</span>
                                 <span
-                                    class="font-semibold text-gray-900 dark:text-zinc-100">{{ $req->product->name ?? 'Unknown' }}</span>
-                                from a refund
+                                    class="font-bold text-p dark:text-[#1389af]">{{ $req->quantity_requested }}x</span>
+                                @if ($req->product && $req->product->base_unit_name)
+                                    <span class="text-p font-bold dark:text-[#1389af]">
+                                        {{ $req->product->base_unit_name }}
+                                    </span>
+                                @endif
+                                <span class="font-medium text-gray-900 dark:text-zinc-100">
+                                    {{ $req->product->name ?? ($req->product_name ?? 'Unknown Product') }}
+                                </span>
                             @elseif (!$isNewProduct)
-                                Requested restock of <span
-                                    class="font-bold text-[#0F6E8C] dark:text-cyan-400">{{ $req->quantity_requested }}x</span>
+                                <span class="text-amber-600 dark:text-amber-400">requested</span>
                                 <span
-                                    class="font-semibold text-gray-900 dark:text-zinc-100">{{ $req->product->name ?? 'Unknown' }}</span>
+                                    class="font-bold text-p dark:text-[#1389af]">{{ $req->quantity_requested }}x</span>
+                                @if ($req->product && $req->product->base_unit_name)
+                                    <span class="text-p font-bold dark:text-[#1389af]">
+                                        {{ $req->product->base_unit_name }}
+                                    </span>
+                                @endif
+                                <span class="font-medium text-gray-900 dark:text-zinc-100">
+                                    {{ $req->product->name ?? ($req->product_name ?? 'Unknown Product') }}
+                                </span>
                             @else
                                 Requested new product: <span
                                     class="font-semibold text-gray-900 dark:text-zinc-100">{{ $req->product_name }}</span>
                             @endif
                         </p>
+
 
                         {{-- Inventory Meta --}}
                         @if ($isLoss)
@@ -192,13 +213,12 @@
                                 <option value="Other">Other</option>
                             </select>
                             <button type="submit"
-                                class="px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-100 bg-red-200 dark:bg-rose-600 hover:bg-rose-50 dark:hover:bg-rose-700 border border-rose-200 dark:border-rose-900 rounded-md transition">
+                                class="px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-100 bg-red-200 dark:bg-rose-600 dark:hover:bg-rose-700 border border-rose-200 dark:border-rose-900 rounded-md transition">
                                 Reject
                             </button>
                         </form>
                     </div>
                 @endif
-
             </div>
         </div>
     @endforeach

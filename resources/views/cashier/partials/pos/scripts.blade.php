@@ -1,33 +1,9 @@
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // searching filter 
-        $(document).ready(function() {
-            let searchTimer;
-
-            $('#search').on('input', function() {
-                clearTimeout(searchTimer);
-                const query = $(this).val();
-                $('#clearSearch').toggle(query.length > 0);
-
-                searchTimer = setTimeout(function() {
-                    $.get('{{ route('cashier.pos') }}', {
-                        search: query,
-                        ajax: 1
-                    }, function(data) {
-                        $('#productGridContainer').html(data);
-                    });
-                }, 400);
-            });
-
-            $('#clearSearch').on('click', function() {
-                $('#search').val('').trigger('input');
-            });
-        });
-    });
-
     function posPage() {
         return {
 
+            products: @json($products),
+            searchQuery: '',
 
             selectedCategory: 'all',
             categoryMap: @json($categoryCounts),
@@ -74,6 +50,25 @@
 
             heldCartsList: JSON.parse(localStorage.getItem('heldCarts') || '[]'),
 
+            get filteredProducts() {
+                let result = [...this.products];
+
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    result = result.filter(p =>
+                        p.name.toLowerCase().includes(q) ||
+                        (p.code || '').toLowerCase().includes(q) ||
+                        (p.barcode || '').toLowerCase().includes(q) ||
+                        (p.category?.name || '').toLowerCase().includes(q)
+                    );
+                }
+
+                if (this.categoryFilter) {
+                    result = result.filter(p => p.category?.name === this.categoryFilter);
+                }
+                return result;
+            },
+
             get subtotal() {
                 return this.cartItems.reduce((sum, i) => sum + (i.price * i.qty), 0);
             },
@@ -99,7 +94,8 @@
                 return Math.max(0, this.subtotal - this.discount);
             },
             get tax() {
-                return (this.subtotal - this.manualDiscount - this.vipDiscount) * 0.10;
+                const taxRate = {{ App\Models\Setting::get('tax_rate', 10) }} / 100;
+                return (this.subtotal - this.manualDiscount - this.vipDiscount) * taxRate;
             },
 
             get isVipCustomer() {
@@ -150,11 +146,6 @@
                 });
             },
 
-            hasProducts() {
-                if (this.selectedCategory === 'all') return true;
-                return (this.categoryMap[this.selectedCategory] || 0) > 0;
-            },
-
             addToCart(product) {
                 const existing = this.cartItems.find(i => i.id === product.id);
                 const currentQty = existing ? existing.qty : 0;
@@ -194,6 +185,7 @@
             removeItem(index) {
                 this.cartItems.splice(index, 1);
             },
+
             openCheckout() {
                 if (this.cartItems.length === 0) return;
                 this.customerForm = {
@@ -261,6 +253,11 @@
                 return this.total >= 700;
             },
 
+            hasProducts() {
+                if (this.selectedCategory === 'all') return true;
+                return (this.categoryMap[this.selectedCategory] || 0) > 0;
+            },
+
             holdCart() {
                 if (this.cartItems.length === 0) return;
 
@@ -317,7 +314,8 @@
                         body: JSON.stringify({
                             items: this.cartItems.map(i => ({
                                 id: i.id,
-                                qty: i.qty
+                                qty: i.qty,
+                                base_unit: i.base_unit || ''
                             })),
                             payment_method: this.paymentMethod,
                             total: this.total,
@@ -346,7 +344,13 @@
                         if (data.success) {
                             this.receiptData = {
                                 order_number: data.order.order_number,
-                                items: [...this.cartItems],
+                                items: this.cartItems.map(i => ({
+                                    id: i.id,
+                                    name: i.name,
+                                    price: i.price,
+                                    qty: i.qty,
+                                    base_unit: i.base_unit || '',
+                                })),
                                 subtotal: this.subtotal,
                                 tax: this.tax,
                                 discount: this.manualDiscount,
@@ -434,37 +438,6 @@
                 return m + ':' + String(s).padStart(2, '0');
             },
 
-            openTestReceipt() {
-                this.receiptData = {
-                    order_number: 'INV-00001',
-                    items: [{
-                            id: 1,
-                            name: 'RTX 4070 Graphics Card',
-                            price: 599,
-                            qty: 1
-                        },
-                        {
-                            id: 2,
-                            name: 'Corsair 32GB RAM',
-                            price: 89,
-                            qty: 2
-                        },
-                        {
-                            id: 3,
-                            name: 'Samsung 1TB SSD',
-                            price: 79,
-                            qty: 1
-                        },
-                    ],
-                    subtotal: 856.00,
-                    tax: 85.60,
-                    total: 941.60,
-                    payment_method: 'cash',
-                    amount_received: 1000.00,
-                    change: 58.40,
-                };
-                this.receiptOpen = true;
-            },
         };
     }
 </script>

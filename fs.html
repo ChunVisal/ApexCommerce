@@ -3,304 +3,365 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>POS Admin Master Data Hub</title>
+  <title>POS Cashier Selling Terminal</title>
   <style>
     :root {
-      --bg: #090d16;
+      --bg: #0b0f19;
       --card: #111827;
-      --border: #1f293d;
-      --header-bg: #162032;
+      --panel: #1f293d;
+      --border: #2d3748;
       --text: #f3f4f6;
       --muted: #9ca3af;
-      --blue: #3b82f6;
-      --cyan: #06b6d4;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --green: #10b981;
       --red: #ef4444;
       --amber: #f59e0b;
-      --green: #10b981;
+      --purple: #a855f7;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 20px; font-size: 13px; }
+    body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-    header h1 { font-size: 1.25rem; font-weight: 700; }
-    .tag-live { color: var(--green); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-    .dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; display: inline-block; }
+    /* TOP CASHIER BAR */
+    header { background: var(--card); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .terminal-info { display: flex; gap: 12px; align-items: center; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; font-family: monospace; }
+    .badge-shop { background: rgba(59, 130, 246, 0.2); color: var(--accent); border: 1px solid var(--accent); }
+    .badge-term { background: rgba(168, 85, 247, 0.2); color: var(--purple); border: 1px solid var(--purple); }
 
-    /* SECTION 1: 4 SUMMARY CARDS */
-    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
-    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 500px) { .kpi-grid { grid-template-columns: 1fr; } }
+    /* MAIN POS LAYOUT */
+    .pos-container { display: grid; grid-template-columns: 1fr 380px; flex: 1; overflow: hidden; }
 
-    .kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
-    .kpi-val { font-size: 1.6rem; font-weight: 700; font-family: monospace; }
-    .kpi-val.blue { color: var(--blue); }
-    .kpi-val.cyan { color: var(--cyan); }
-    .kpi-val.red { color: var(--red); }
-    .kpi-val.green { color: var(--green); }
+    /* LEFT: PRODUCT CATALOG */
+    .catalog-section { padding: 16px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+    
+    .search-bar { display: flex; gap: 10px; }
+    .search-bar input { flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 6px; font-size: 14px; outline: none; }
+    .search-bar input:focus { border-color: var(--accent); }
 
-    /* SECTION 2: FILTERS */
-    .filter-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 20px; display: flex; gap: 16px; flex-wrap: wrap; }
-    .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px; }
-    .filter-group label { font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-    select, input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; outline: none; font-size: 13px; }
-    select:focus, input:focus { border-color: var(--blue); }
+    .category-pills { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .pill { background: var(--card); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; color: var(--muted); }
+    .pill.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: 600; }
 
-    /* CONTAINERS & TABLES */
-    .section-panel { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
-    .panel-header { background: var(--header-bg); padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: flex; justify-content: space-between; align-items: center; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    
+    .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; transition: transform 0.1s, border-color 0.1s; }
+    .product-card:hover { border-color: var(--accent); }
+    .product-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .product-title { font-size: 14px; font-weight: 600; }
+    .product-sku { font-size: 11px; color: var(--muted); font-family: monospace; }
+    
+    /* UOM SELECTOR INSIDE CARD */
+    .uom-control { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+    .uom-control label { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+    .uom-select { background: var(--panel); border: 1px solid var(--border); color: var(--accent); padding: 6px; border-radius: 4px; font-size: 12px; font-weight: 600; outline: none; cursor: pointer; }
 
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th { background: rgba(0,0,0,0.2); color: var(--muted); font-size: 11px; text-transform: uppercase; padding: 10px 14px; border-bottom: 1px solid var(--border); }
-    td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
-    tr:last-child td { border-bottom: none; }
-    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    .product-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+    .product-price { font-size: 16px; font-weight: 700; color: var(--green); font-family: monospace; }
+    .btn-add { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .btn-add:hover { background: var(--accent-hover); }
 
-    /* BADGES */
-    .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; font-family: monospace; }
-    .badge-shop { background: rgba(59, 130, 246, 0.15); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.3); }
-    .badge-terminal { background: rgba(6, 182, 212, 0.15); color: var(--cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
-    .badge-red { background: rgba(239, 68, 68, 0.15); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
-    .badge-amber { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
-    .mono { font-family: monospace; }
+    /* RIGHT: CART & BILLING */
+    .cart-section { background: var(--card); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+    .cart-header { padding: 14px; border-bottom: 1px solid var(--border); font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    
+    .cart-items { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .cart-item { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .cart-item-top { display: flex; justify-content: space-between; font-weight: 600; font-size: 13px; }
+    .cart-item-uom { font-size: 11px; color: var(--purple); font-weight: 600; }
+    .cart-item-bottom { display: flex; justify-content: space-between; align-items: center; }
+    
+    .qty-controls { display: flex; align-items: center; gap: 6px; }
+    .btn-qty { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
+    .qty-val { font-family: monospace; font-size: 13px; width: 24px; text-align: center; }
 
-    /* BOTTOM OVERVIEW DUAL GRID */
-    .overview-grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
-    @media (max-width: 900px) { .overview-grid { grid-template-columns: 1fr; } }
+    /* BILLING SUMMARY */
+    .cart-summary { padding: 16px; border-top: 1px solid var(--border); background: var(--panel); display: flex; flex-direction: column; gap: 10px; }
+    .summary-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+    .summary-row.total { font-size: 18px; font-weight: 700; color: var(--text); border-top: 1px solid var(--border); padding-top: 10px; }
+    .total-val { color: var(--green); font-family: monospace; }
+
+    .btn-checkout { background: var(--green); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase; margin-top: 6px; }
+    .btn-checkout:hover { opacity: 0.9; }
+    .btn-clear { background: rgba(239, 68, 68, 0.15); color: var(--red); border: 1px solid var(--red); padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
   </style>
 </head>
 <body>
 
+  <!-- TOP TERMINAL HEADER -->
   <header>
-    <h1>POS Multi-Shop Admin Master Hub</h1>
-    <div class="tag-live"><span class="dot"></span> Live Data Stream</div>
+    <div class="terminal-info">
+      <strong>POS Cashier Terminal</strong>
+      <span class="badge badge-shop">Branch: Outlet #01</span>
+      <span class="badge badge-term">Terminal: #T-01</span>
+    </div>
+    <div>
+      Cashier: <strong>Sokha</strong>
+    </div>
   </header>
 
-  <!-- LAYER 1: 4 SUMMARY CARDS -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Active Shop Outlets</div>
-      <div class="kpi-val blue" id="kpiShops">2</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Active Cashier Terminals</div>
-      <div class="kpi-val cyan" id="kpiCashiers">3</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Low Stock Alerts</div>
-      <div class="kpi-val red" id="kpiLowStock">0</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Total Master SKUs</div>
-      <div class="kpi-val green" id="kpiProducts">5</div>
-    </div>
-  </div>
+  <!-- POS CONTENT GRID -->
+  <div class="pos-container">
 
-  <!-- LAYER 2: FILTERS -->
-  <div class="filter-bar">
-    <div class="filter-group">
-      <label>Filter Cashier / Terminal</label>
-      <select id="cashierSelect" onchange="render()"><option value="ALL">All Cashiers</option></select>
-    </div>
-    <div class="filter-group">
-      <label>Filter Shop Branch</label>
-      <select id="shopSelect" onchange="render()"><option value="ALL">All Outlets</option></select>
-    </div>
-    <div class="filter-group">
-      <label>Search Product SKU / Name</label>
-      <input type="text" id="searchInput" placeholder="Type SKU or Product Name..." onkeyup="render()">
-    </div>
-  </div>
-
-  <!-- LAYER 2 (CONTINUED): PRODUCTS OF EACH CASHIER PAGE/TABLE -->
-  <div class="section-panel">
-    <div class="panel-header">
-      <span>📦 Products Assigned to Selected Cashier</span>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Cashier Name</th>
-          <th>Terminal ID</th>
-          <th>Shop Outlet</th>
-          <th>SKU</th>
-          <th>Product Name</th>
-          <th>Unit Price</th>
-          <th>Current Shop Stock</th>
-        </tr>
-      </thead>
-      <tbody id="cashierProductTable"></tbody>
-    </table>
-  </div>
-
-  <!-- LAYER 3: OVERALL DATA OVERVIEW (ALL SHOP DATA) -->
-  <div class="overview-grid">
-    
-    <!-- Urgent Low Stock Across All Shops -->
-    <div class="section-panel" style="margin-bottom: 0;">
-      <div class="panel-header">
-        <span style="color: var(--red);">⚠️ Urgent Low Stock Alerts</span>
-        <span class="badge badge-red" id="alertCountBadge">0 Items</span>
+    <!-- LEFT CATALOG -->
+    <div class="catalog-section">
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search product name or SKU..." onkeyup="renderCatalog()">
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Shop</th>
-            <th>Product</th>
-            <th>Stock Status</th>
-          </tr>
-        </thead>
-        <tbody id="lowStockTable"></tbody>
-      </table>
+
+      <div class="category-pills">
+        <div class="pill active" onclick="filterCategory('ALL', this)">All Products</div>
+        <div class="pill" onclick="filterCategory('Beverage', this)">Beverages</div>
+        <div class="pill" onclick="filterCategory('Bakery', this)">Bakery</div>
+        <div class="pill" onclick="filterCategory('Raw Material', this)">Raw Materials</div>
+      </div>
+
+      <div class="product-grid" id="productGrid"></div>
     </div>
 
-    <!-- Complete Inventory Master Stock Overview -->
-    <div class="section-panel" style="margin-bottom: 0;">
-      <div class="panel-header">
-        <span>🌐 Global Outlets Stock Inventory Overview</span>
+    <!-- RIGHT CART -->
+    <div class="cart-section">
+      <div class="cart-header">
+        <span>Current Sale Cart</span>
+        <button class="btn-clear" onclick="clearCart()">Clear Cart</button>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Shop ID</th>
-            <th>SKU</th>
-            <th>Product Name</th>
-            <th>Unit Price</th>
-            <th>Current Stock</th>
-            <th>Min Threshold</th>
-          </tr>
-        </thead>
-        <tbody id="masterStockTable"></tbody>
-      </table>
+
+      <div class="cart-items" id="cartItems"></div>
+
+      <div class="cart-summary">
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span id="subtotalVal">$0.00</span>
+        </div>
+        <div class="summary-row">
+          <span>Tax (0%)</span>
+          <span>$0.00</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total Pay</span>
+          <span class="total-val" id="totalVal">$0.00</span>
+        </div>
+        <button class="btn-checkout" onclick="checkout()">Complete Sale</button>
+      </div>
     </div>
 
   </div>
 
   <script>
-    // MASTER DATA ARRAYS
-    const masterProducts = {
-      "PRD_001": { name: "Espresso Beans 1kg", sku: "BE-001", price: 18.00 },
-      "PRD_002": { name: "Iced Milk Tea 500ml", sku: "BV-002", price: 2.50 },
-      "PRD_003": { name: "Butter Croissant", sku: "FD-001", price: 2.00 },
-      "PRD_004": { name: "Club Sandwich", sku: "FD-002", price: 3.50 },
-      "PRD_005": { name: "Matcha Powder 250g", sku: "BE-002", price: 14.50 }
-    };
-
-    const shopInventory = [
-      { shop_id: "SHOP_01", product_id: "PRD_001", stock: 3, min: 10 },
-      { shop_id: "SHOP_01", product_id: "PRD_002", stock: 45, min: 15 },
-      { shop_id: "SHOP_01", product_id: "PRD_003", stock: 1, min: 5 },
-      { shop_id: "SHOP_01", product_id: "PRD_004", stock: 12, min: 5 },
-      { shop_id: "SHOP_02", product_id: "PRD_001", stock: 18, min: 10 },
-      { shop_id: "SHOP_02", product_id: "PRD_002", stock: 2, min: 15 },
-      { shop_id: "SHOP_02", product_id: "PRD_005", stock: 0, min: 5 }
+    // PRODUCT MASTER DATA WITH MULTIPLE SELLING UOMs
+    const products = [
+      {
+        id: "PRD_001",
+        name: "Espresso Coffee Beans",
+        sku: "BE-001",
+        category: "Raw Material",
+        uomList: [
+          { uom: "Bag (1kg)", price: 18.00, ratio: 1 },
+          { uom: "Pack (250g)", price: 5.00, ratio: 0.25 },
+          { uom: "Box (10 Bags)", price: 170.00, ratio: 10 }
+        ]
+      },
+      {
+        id: "PRD_002",
+        name: "Iced Milk Tea",
+        sku: "BV-002",
+        category: "Beverage",
+        uomList: [
+          { uom: "Cup (500ml)", price: 2.50, ratio: 1 },
+          { uom: "Bottle (1L)", price: 4.50, ratio: 2 },
+          { uom: "Box (12 Cups)", price: 28.00, ratio: 12 }
+        ]
+      },
+      {
+        id: "PRD_003",
+        name: "Butter Croissant",
+        sku: "FD-001",
+        category: "Bakery",
+        uomList: [
+          { uom: "Piece", price: 2.00, ratio: 1 },
+          { uom: "Box (6 Pcs)", price: 11.00, ratio: 6 }
+        ]
+      },
+      {
+        id: "PRD_004",
+        name: "Matcha Powder",
+        sku: "BE-002",
+        category: "Raw Material",
+        uomList: [
+          { uom: "Can (500g)", price: 15.00, ratio: 1 },
+          { uom: "Carton (6 Cans)", price: 85.00, ratio: 6 }
+        ]
+      },
+      {
+        id: "PRD_005",
+        name: "Mineral Water",
+        sku: "BV-003",
+        category: "Beverage",
+        uomList: [
+          { uom: "Bottle (500ml)", price: 0.50, ratio: 1 },
+          { uom: "Pack (6 Bottles)", price: 2.70, ratio: 6 },
+          { uom: "Carton (24 Bottles)", price: 10.00, ratio: 24 }
+        ]
+      }
     ];
 
-    const cashierCatalog = [
-      { shop_id: "SHOP_01", terminal_id: "TERM_01", cashier: "Sokha", product_id: "PRD_001" },
-      { shop_id: "SHOP_01", terminal_id: "TERM_01", cashier: "Sokha", product_id: "PRD_002" },
-      { shop_id: "SHOP_01", terminal_id: "TERM_01", cashier: "Sokha", product_id: "PRD_003" },
-      { shop_id: "SHOP_01", terminal_id: "TERM_02", cashier: "Dara", product_id: "PRD_001" },
-      { shop_id: "SHOP_01", terminal_id: "TERM_02", cashier: "Dara", product_id: "PRD_004" },
-      { shop_id: "SHOP_02", terminal_id: "TERM_03", cashier: "Bopha", product_id: "PRD_001" },
-      { shop_id: "SHOP_02", terminal_id: "TERM_03", cashier: "Bopha", product_id: "PRD_002" },
-      { shop_id: "SHOP_02", terminal_id: "TERM_03", cashier: "Bopha", product_id: "PRD_005" }
-    ];
+    let currentCategory = 'ALL';
+    let cart = [];
 
-    function initFilters() {
-      const cashierSelect = document.getElementById('cashierSelect');
-      const shopSelect = document.getElementById('shopSelect');
-
-      const cashiers = [...new Set(cashierCatalog.map(c => c.cashier))];
-      const shops = [...new Set(shopInventory.map(s => s.shop_id))];
-
-      cashiers.forEach(c => cashierSelect.innerHTML += `<option value="${c}">${c}</option>`);
-      shops.forEach(s => shopSelect.innerHTML += `<option value="${s}">${s}</option>`);
-
-      render();
-    }
-
-    function render() {
-      const selectedCashier = document.getElementById('cashierSelect').value;
-      const selectedShop = document.getElementById('shopSelect').value;
+    // RENDER PRODUCT CATALOG
+    function renderCatalog() {
+      const grid = document.getElementById('productGrid');
       const query = document.getElementById('searchInput').value.toLowerCase();
+      grid.innerHTML = '';
 
-      const cashierProductTable = document.getElementById('cashierProductTable');
-      const lowStockTable = document.getElementById('lowStockTable');
-      const masterStockTable = document.getElementById('masterStockTable');
+      products.forEach(p => {
+        const matchCategory = currentCategory === 'ALL' || p.category === currentCategory;
+        const matchSearch = p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query);
 
-      cashierProductTable.innerHTML = '';
-      lowStockTable.innerHTML = '';
-      masterStockTable.innerHTML = '';
+        if (matchCategory && matchSearch) {
+          const defaultUom = p.uomList[0];
+          
+          let uomOptionsHtml = p.uomList.map((u, index) => 
+            `<option value="${index}">${u.uom} - $${u.price.toFixed(2)}</option>`
+          ).join('');
 
-      let lowStockAlertCount = 0;
+          grid.innerHTML += `
+            <div class="product-card">
+              <div>
+                <div class="product-header">
+                  <div class="product-title">${p.name}</div>
+                </div>
+                <div class="product-sku">${p.sku}</div>
+                
+                <div class="uom-control">
+                  <label>Select Sell UOM:</label>
+                  <select class="uom-select" id="uom_select_${p.id}" onchange="updateCardPrice('${p.id}')">
+                    ${uomOptionsHtml}
+                  </select>
+                </div>
+              </div>
 
-      // 1. Render Cashier Assigned Products Table
-      cashierCatalog.forEach(entry => {
-        const prod = masterProducts[entry.product_id];
-        const inv = shopInventory.find(i => i.shop_id === entry.shop_id && i.product_id === entry.product_id);
-        const matchCashier = selectedCashier === 'ALL' || entry.cashier === selectedCashier;
-        const matchShop = selectedShop === 'ALL' || entry.shop_id === selectedShop;
-        const matchQuery = prod.name.toLowerCase().includes(query) || prod.sku.toLowerCase().includes(query);
-
-        if (matchCashier && matchShop && matchQuery) {
-          const stock = inv ? inv.stock : 0;
-          const isLow = inv && stock <= inv.min;
-          cashierProductTable.innerHTML += `
-            <tr>
-              <td><strong>${entry.cashier}</strong></td>
-              <td><span class="badge badge-terminal">${entry.terminal_id}</span></td>
-              <td><span class="badge badge-shop">${entry.shop_id}</span></td>
-              <td class="mono">${prod.sku}</td>
-              <td>${prod.name}</td>
-              <td class="mono">$${prod.price.toFixed(2)}</td>
-              <td class="mono" style="${isLow ? 'color:var(--red); font-weight:bold;' : ''}">${stock} units</td>
-            </tr>
+              <div class="product-footer">
+                <div class="product-price" id="price_${p.id}">$${defaultUom.price.toFixed(2)}</div>
+                <button class="btn-add" onclick="addToCart('${p.id}')">+ Add</button>
+              </div>
+            </div>
           `;
         }
       });
-
-      // 2. Render Global Master Inventory & Low Stock Alerts
-      shopInventory.forEach(item => {
-        const prod = masterProducts[item.product_id];
-        const matchShop = selectedShop === 'ALL' || item.shop_id === selectedShop;
-        const matchQuery = prod.name.toLowerCase().includes(query) || prod.sku.toLowerCase().includes(query);
-
-        if (matchShop && matchQuery) {
-          // Master Overview Table
-          masterStockTable.innerHTML += `
-            <tr>
-              <td><span class="badge badge-shop">${item.shop_id}</span></td>
-              <td class="mono">${prod.sku}</td>
-              <td><strong>${prod.name}</strong></td>
-              <td class="mono">$${prod.price.toFixed(2)}</td>
-              <td class="mono">${item.stock}</td>
-              <td class="mono">${item.min}</td>
-            </tr>
-          `;
-
-          // Low Stock Alert Condition
-          if (item.stock <= item.min) {
-            lowStockAlertCount++;
-            const badgeClass = item.stock <= 2 ? 'badge-red' : 'badge-amber';
-            lowStockTable.innerHTML += `
-              <tr>
-                <td><span class="badge badge-shop">${item.shop_id}</span></td>
-                <td><strong>${prod.name}</strong><br><small class="mono" style="color:var(--muted);">${prod.sku}</small></td>
-                <td><span class="badge ${badgeClass}">${item.stock} left (Min: ${item.min})</span></td>
-              </tr>
-            `;
-          }
-        }
-      });
-
-      // Update KPI Badges
-      document.getElementById('kpiLowStock').innerText = lowStockAlertCount;
-      document.getElementById('alertCountBadge').innerText = `${lowStockAlertCount} Items`;
     }
 
-    initFilters();
+    // UPDATE CARD PRICE BASED ON UOM SELECTOR
+    function updateCardPrice(productId) {
+      const p = products.find(prod => prod.id === productId);
+      const uomIndex = document.getElementById(`uom_select_${productId}`).value;
+      const selectedUom = p.uomList[uomIndex];
+      document.getElementById(`price_${productId}`).innerText = `$${selectedUom.price.toFixed(2)}`;
+    }
+
+    // CATEGORY FILTER
+    function filterCategory(cat, element) {
+      currentCategory = cat;
+      document.querySelectorAll('.pill').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+      renderCatalog();
+    }
+
+    // ADD TO CART WITH SELECTED UOM
+    function addToCart(productId) {
+      const p = products.find(prod => prod.id === productId);
+      const uomIndex = document.getElementById(`uom_select_${productId}`).value;
+      const selectedUom = p.uomList[uomIndex];
+
+      const cartKey = `${productId}_${selectedUom.uom}`;
+      const existing = cart.find(item => item.key === cartKey);
+
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({
+          key: cartKey,
+          productId: p.id,
+          name: p.name,
+          uom: selectedUom.uom,
+          price: selectedUom.price,
+          qty: 1
+        });
+      }
+
+      renderCart();
+    }
+
+    // QUANTITY ADJUSTMENTS
+    function changeQty(key, delta) {
+      const item = cart.find(i => i.key === key);
+      if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) {
+          cart = cart.filter(i => i.key !== key);
+        }
+      }
+      renderCart();
+    }
+
+    // CLEAR CART
+    function clearCart() {
+      cart = [];
+      renderCart();
+    }
+
+    // RENDER CART SUMMARY
+    function renderCart() {
+      const cartContainer = document.getElementById('cartItems');
+      cartContainer.innerHTML = '';
+      let subtotal = 0;
+
+      if (cart.length === 0) {
+        cartContainer.innerHTML = `<div style="text-align:center; color: var(--muted); margin-top: 40px; font-size: 13px;">Cart is empty.<br>Select products to sell.</div>`;
+      } else {
+        cart.forEach(item => {
+          const itemTotal = item.price * item.qty;
+          subtotal += itemTotal;
+
+          cartContainer.innerHTML += `
+            <div class="cart-item">
+              <div class="cart-item-top">
+                <span>${item.name}</span>
+                <span style="font-family: monospace;">$${itemTotal.toFixed(2)}</span>
+              </div>
+              <div class="cart-item-uom">Sell Unit: ${item.uom}</div>
+              <div class="cart-item-bottom">
+                <span style="font-size: 11px; color: var(--muted);">$${item.price.toFixed(2)} / ${item.uom}</span>
+                <div class="qty-controls">
+                  <button class="btn-qty" onclick="changeQty('${item.key}', -1)">-</button>
+                  <span class="qty-val">${item.qty}</span>
+                  <button class="btn-qty" onclick="changeQty('${item.key}', 1)">+</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById('subtotalVal').innerText = `$${subtotal.toFixed(2)}`;
+      document.getElementById('totalVal').innerText = `$${subtotal.toFixed(2)}`;
+    }
+
+    // CHECKOUT SIMULATION
+    function checkout() {
+      if (cart.length === 0) {
+        alert("Cart is empty!");
+        return;
+      }
+      const total = document.getElementById('totalVal').innerText;
+      alert(`Sale completed successfully!\nTotal Received: ${total}`);
+      clearCart();
+    }
+
+    // INITIAL RENDER
+    renderCatalog();
+    renderCart();
   </script>
 </body>
 </html>

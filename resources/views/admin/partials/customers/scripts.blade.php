@@ -84,6 +84,7 @@
                                 name: i.name,
                                 price: parseFloat(i.price) || 0,
                                 qty: i.quantity,
+                                base_unit: i.base_unit || '',
                             })),
                             subtotal: parseFloat(order.subtotal) || 0,
                             tax: parseFloat(order.tax) || 0,

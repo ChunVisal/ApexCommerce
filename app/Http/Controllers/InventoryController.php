@@ -42,16 +42,19 @@ class InventoryController extends Controller
         ])->get();
         $cashiers = User::where('role', 'cashier')->get();
 
-        // Mock data not yet migrated
-        $summary = InventoryData::getSummary();
         $summaryCards = InventoryData::getSummaryCards();
         $trend = $this->getMovementTrend($request);
+
+        // Fetch raw collections directly from your database tables
+        $categories = Categories::all();
+        $products = Product::with('category')->get();
+
 
         if ($request->ajax) {
             return response()->json(['products' => $products]);
         }
 
-        return view('admin.inventory', compact('products', 'categories', 'summary', 'summaryCards', 'trend', 'cashiers'));
+        return view('admin.inventory', compact('products', 'categories', 'summaryCards', 'trend', 'cashiers'));
     }
 
     private function getMovementTrend(Request $request)

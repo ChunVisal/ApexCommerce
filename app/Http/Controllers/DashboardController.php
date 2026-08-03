@@ -74,7 +74,7 @@ class DashboardController extends Controller
                 'period' => 'All time',
             ],
             [
-                'title' => 'Low Stock Alert',
+            'title' => 'Low Stock Alert',
                 'value' => $lowStock + $outOfStock,
                 'icon' => 'fa-solid fa-triangle-exclamation',
                 'iconBg' => '#EF4444',

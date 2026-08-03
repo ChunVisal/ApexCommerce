@@ -16,7 +16,7 @@ class CashierProductController extends Controller
     {
         $cashierId = Auth::id();
 
-        $products = Product::with(['category', 'cashierStocks' => function ($q) use ($cashierId) {
+        $products = Product::with(['category', 'uoms', 'cashierStocks' => function ($q) use ($cashierId) {
             $q->where('cashier_id', $cashierId);
         }])
             ->where('status', 'active')
@@ -29,7 +29,6 @@ class CashierProductController extends Controller
             })
             ->get()
             ->map(function ($product) {
-                $stock = $product->cashierStocks->first();
                 $product->allocated = $product->cashierStocks->sum('allocated_quantity');
                 $product->sold = $product->cashierStocks->sum('sold_quantity');
                 $product->remaining = $product->allocated - $product->sold;
@@ -37,12 +36,25 @@ class CashierProductController extends Controller
                 $product->last_drop = $product->cashierStocks->max('created_at');
                 $product->category_name = $product->category->name ?? '-';
                 $product->cashier_remaining;
+
+                $product->uom_list = $product->uoms->map(function ($uom) {
+                    return [
+                        'id' => $uom->id,
+                        'name' => $uom->name,
+                        'allocated_quantity' => $uom->quantity_per_unit,
+                        'price' => (float) $uom->price,
+                        'is_default' => (bool) $uom->is_default,
+
+                    ];
+                })->values()->toArray();
+
                 return $product;
             });
 
         if ($request->ajax) {
             return response()->json(['products' => $products]);
         }
+
         $allProducts = Product::where('status', 'active')->orderBy('name')->get();
 
         $categories = Categories::whereHas('products', function ($q) use ($cashierId) {
@@ -59,5 +71,4 @@ class CashierProductController extends Controller
 
         return view('cashier.products', compact('products', 'summaryCards', 'categories', 'allProducts'));
     }
-  
 }

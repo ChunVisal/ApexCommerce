@@ -9,6 +9,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StockRequestController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
@@ -73,11 +74,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/users/bulk-delete', [UserController::class, 'bulkDestroy'])->name('admin.users.bulk-delete');
 
     Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
-    Route::get('/admin/reports/export', [ReportController::class, 'export'])->name('admin.reports.export');
+    Route::get('/reports/export', [ReportController::class, 'export'])->name('admin.reports.export');
 
-    Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
-
-    Route::get('/customers', [AdminController::class, 'customers'])->name('admin.customers');
     Route::get('/customers', [CustomerController::class, 'adminIndex'])->name('admin.customers');
     Route::get('/customers/{id}', [CustomerController::class, 'adminShow'])->name('admin.customers.show');
     Route::get('/customers/export/all', [CustomerController::class, 'adminExport'])->name('admin.customers.export');
@@ -86,6 +84,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('admin.activitylog');
     Route::post('/activitylog/clear', [ActivityLogController::class, 'clear'])->name('admin.activitylog.clear');
     Route::get('/activitylog/export', [ActivityLogController::class, 'export'])->name('admin.activitylog.export');
+
+    Route::get('/settings', [SettingController::class, 'index'])->name('admin.settings');
+    Route::post('/settings', [SettingController::class, 'save'])->name('admin.settings.save');
 });
 // Cashier Routes
 Route::middleware(['auth', 'role:cashier'])->group(function () {

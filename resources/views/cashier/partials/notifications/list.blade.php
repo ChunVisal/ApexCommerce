@@ -67,6 +67,9 @@
 
                                     <span class="text-xs font-semibold text-gray-800 dark:text-zinc-200 truncate">
                                         {{ $notif->product->name ?? ($notif->product_name ?? 'Unknown Product') }}
+                                        @if ($notif->product && $notif->product->base_unit_name)
+                                            <span class="text-gray-700 dark:text-zinc-400"> ({{ $notif->product->base_unit_name }})</span>
+                                        @endif
                                     </span>
                                 </div>
 

@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\Setting;
 use App\Models\Product;
 use App\Helpers\ActivityData;
 use Illuminate\Http\Request;
@@ -36,41 +37,29 @@ class CashierController extends Controller
                 });
         }])->get();
 
-        $products = Product::with('category')
+        $products = Product::with('category', 'uoms')
             ->where('status', 'active')
             ->whereHas('cashierStocks', function ($q) use ($cashierId) {
                 $q->where('cashier_id', $cashierId)
                     ->whereRaw('allocated_quantity > sold_quantity');
             })
-            ->when($request->search, function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('code', 'like', '%' . $request->search . '%')
-                    ->orWhereHas('category', fn($cat) => $cat->where('name', 'like', '%' . $request->search . '%'));
-            })
             ->get()
             ->map(function ($product) use ($cashierId) {
+                $product->uom_list = $product->uoms->map(function ($uom) {
+                    return [
+                        'id' => $uom->id,
+                        'name' => $uom->name,
+                        'conversion' => $uom->quantity_per_unit,
+                        'price' => (float) $uom->price,
+                    ];
+                })->values()->toArray();
                 $stocks = $product->cashierStocks()->where('cashier_id', $cashierId)->get();
                 $product->available_stock = $stocks->sum('allocated_quantity') - $stocks->sum('sold_quantity');
                 return $product;
             });
 
-        if ($request->ajax == '1') {
-            if ($products->isEmpty()) {
-                return ' <div class="bg-white dark:bg-zinc-900 col-span-full flex flex-col items-center justify-center py-16">
-                <div class="bg-gray-100 dark:bg-zinc-800 rounded-full text-gray-400 dark:text-zinc-500 mb-4 w-16 h-16 flex items-center justify-center">
-           <i class="fa-solid fa-cubes text-2xl text-gray-400 dark:text-zinc-500"></i>
-        </div>
-                <h3 class="text-md font-semibold text-gray-700 dark:text-zinc-300 mb-1">No products found</h3>
-                <p class="text-sn text-gray-400 dark:text-zinc-500">Try a different search term</p>
-            </div>';
-            }
-
-            $html = '';
-            foreach ($products as $product) {
-                $html .= view('cashier.partials.pos.table-rows', compact('product'))->render();
-            }
-
-            return $html;
+        if ($request->ajax) {
+            return response()->json(['product' => $products]);
         }
 
         $totalAllocated = $products->sum('available_stock');
@@ -137,8 +126,10 @@ class CashierController extends Controller
                 }
             }
 
+            $taxRate = Setting::get('tax_rate', 10) / 100;
+
             $totalDiscount = $discount + $vipDiscount;
-            $tax = ($subtotal - $totalDiscount) * 0.10;
+            $tax = ($subtotal - $totalDiscount) * $taxRate;
             $total = $subtotal - $totalDiscount  + $tax;
 
             $order = Order::create([
@@ -153,7 +144,13 @@ class CashierController extends Controller
                 'status' => 'completed',
             ]);
 
-            $cashierStock = CashierStock::where('cashier_id', Auth::id())->where('product_id', $item['id'])->first();
+            $cashierStock = CashierStock::where('cashier_id', Auth::id())
+                ->where('product_id', $item['id'])
+                ->first();
+
+            if ($cashierStock) {
+                $cashierStock->increment('sold_quantity', $item['qty']);
+            }
 
             // 4. Create order items + Update stock
             foreach ($request->items as $item) {
@@ -171,6 +168,7 @@ class CashierController extends Controller
                     'name' => $product->name,
                     'price' => $product->selling_price,
                     'quantity' => $item['qty'],
+                    'base_unit' => $item['base_unit'] ?? null,
                     'total' => $product->selling_price * $item['qty'],
                 ]);
 
