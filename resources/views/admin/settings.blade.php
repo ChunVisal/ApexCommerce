@@ -52,26 +52,37 @@
                     <!-- TAB 1: General Settings (Logo, Name, Address, Phone) -->
                     <div x-show="activeTab === 'general'" class="space-y-4">
                         <!-- Shop Logo -->
-                        <div>
-                            <label class="block text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5">Company
-                                Logo</label>
-                            <div class="flex items-center gap-4">
+                        <!-- Company Logo Upload -->
+                        <div class="w-full max-w-xs">
+                            <label class="block text-xs font-semibold text-gray-800 dark:text-zinc-300 mb-1.5">
+                                Company Logo
+                            </label>
+
+                            <div class="flex flex-col gap-2.5">
+                                <!-- Preview Container (Full Width of Form Column, Fixed Square Ratio) -->
                                 <div
-                                    class="w-12 h-12 rounded border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-800/40 flex items-center justify-center overflow-hidden shrink-0">
+                                    class="w-full h-20 rounded-xl border border-dashed border-gray-300 dark:border-zinc-700/80 bg-gray-50/80 dark:bg-zinc-900/60 flex items-center justify-center overflow-hidden transition hover:border-gray-400 dark:hover:border-zinc-600">
                                     <template x-if="logoPreview">
-                                        <img :src="logoPreview" class="w-full h-full object-contain p-0.5">
+                                        <img :src="logoPreview" class="w-full h-20 object-contain p-3">
                                     </template>
                                     <template x-if="!logoPreview">
-                                        <svg class="w-5 h-5 text-gray-400 dark:text-zinc-600" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
+                                        <div
+                                            class="flex flex-col items-center justify-center text-gray-500 dark:text-zinc-400 gap-2">
+                                            <svg class="w-8 h-8 text-gray-400 dark:text-zinc-500" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <span class="text-[11px] font-semibold text-gray-500 dark:text-zinc-400">No logo
+                                                uploaded</span>
+                                        </div>
                                     </template>
                                 </div>
+
+                                <!-- File Input Button -->
                                 <input type="file" name="logo" accept="image/*"
                                     @change="const file = $event.target.files[0]; if(file) { logoPreview = URL.createObjectURL(file) }"
-                                    class="w-full text-xs text-gray-500 dark:text-zinc-400 border border-gray-300 dark:border-zinc-800 rounded-md px-3 py-1.5 dark:bg-zinc-800/50">
+                                    class="w-full text-xs font-medium text-gray-700 dark:text-zinc-300 border border-gray-300 dark:border-zinc-800 rounded-lg px-2.5 py-1.5 bg-white dark:bg-zinc-900 file:mr-2.5 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-gray-100 dark:file:bg-zinc-800 file:text-gray-800 dark:file:text-zinc-200 hover:file:bg-gray-200 dark:hover:file:bg-zinc-700 transition cursor-pointer">
                             </div>
                         </div>
 

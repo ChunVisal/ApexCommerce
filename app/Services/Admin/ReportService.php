@@ -7,7 +7,7 @@ use App\Models\OrderItem;
 use App\Models\Customer;
 use Carbon\Carbon;
 
-class ReportData
+class ReportService
 {
     public static function getSummaryCards($start = null, $end = null)
     {

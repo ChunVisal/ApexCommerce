@@ -1,10 +1,7 @@
 <nav
     class="bg-white dark:bg-black border-b border-gray-300 dark:border-zinc-800 px-4 py-2 flex items-center justify-between sticky top-0 z-40 transition-colors duration-200">
     <!-- Logo Section -->
-    <div class="flex items-center">
-        {{-- <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-[90px] dark:hidden shrink-0">
-        <img src="{{ asset('images/logodarkmode.png') }}" alt="Logo" class="w-[90px] hidden dark:block shrink-0"> --}}
-
+    <a href="{{ route('cashier.pos') }}" class="flex items-center">
         @php $logo = App\Models\Setting::get('logo'); @endphp
 
         @if ($logo)
@@ -15,7 +12,7 @@
             <img src="{{ asset('images/logodarkmode.png') }}"
                 class="h-[41px] w-auto max-w-[120px] object-contain shrink-0 hidden dark:block" />
         @endif
-    </div>
+    </a>
 
     <div class="flex items-center gap-3">
 

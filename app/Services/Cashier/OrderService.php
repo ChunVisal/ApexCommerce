@@ -5,7 +5,7 @@ namespace App\Helpers;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 
-class OrderData
+class OrderService
 {
     public static function getSummaryCards()
     {

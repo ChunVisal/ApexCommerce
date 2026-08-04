@@ -2,9 +2,7 @@
     class="bg-white dark:bg-black border-b border-gray-300 dark:border-zinc-800 px-4 py-2 flex items-center justify-between sticky top-0 z-40 transition-colors duration-200">
 
     <!-- Logo Section -->
-    <div class="flex items-center">
-        {{-- <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-[90px] dark:hidden shrink-0">
-        <img src="{{ asset('images/logodarkmode.png') }}" alt="Logo" class="w-[90px] hidden dark:block shrink-0"> --}}
+    <a href="{{ route('admin.dashboard') }}" class="flex items-center">
         @php $logo = App\Models\Setting::get('logo'); @endphp
 
         @if ($logo)
@@ -15,17 +13,10 @@
             <img src="{{ asset('images/logodarkmode.png') }}"
                 class="h-[41px] w-auto max-w-[120px] object-contain shrink-0 hidden dark:block" />
         @endif
-    </div>
+    </a>
 
     <!-- Center Section: Search & Actions  -->
     <div class="flex-1 flex items-center justify-end gap-4 min-w-0">
-
-        <!-- Search Bar (Hidden on small) -->
-        <div class="hidden md:flex relative flex-1 max-w-[400px]">
-            <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-zinc-400"></i>
-            <input type="search" placeholder="Quick search inventory, invoices... (Press '/' to search)"
-                class="w-full pl-9 py-1.5 border border-gray-400 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 rounded-full text-sm focus:ring-2 focus:ring-[#0F6E8C] outline-none transition-colors">
-        </div>
 
         <!-- Dark Mode Toggle -->
         <x-dark-mode-toggle />

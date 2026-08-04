@@ -159,7 +159,7 @@ class OrderController extends Controller
                         'product_id' => $item->product_id,
                         'type' => 'in',
                         'quantity' => $item->quantity,
-                        'balance' => Product::find($item->product_id)->stock_quantity,
+                        'balance' => $cashierStock->allocated_quantity - $cashierStock->sold_quantity,
                         'reference' => 'REF-' . $order_number,
                         'reason' => 'Refund: ' . $request->reason,
                         'user_id' => Auth::id(),
@@ -181,7 +181,7 @@ class OrderController extends Controller
                         'order_refunded',
                         "Order {$order_number} refunded - " . Auth::user()->name,
                         'Orders',
-                        'danger'
+                        'warning'
                     );
                 }
             }

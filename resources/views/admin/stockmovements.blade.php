@@ -47,7 +47,7 @@
 
                 {{-- Reason Dropdown --}}
                 <div x-show="reasonOpen && reasonResults.length > 0" @click.outside="reasonOpen = false" x-cloak
-                    class="tab-container absolute left-0 right-0 top-full mt-1 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-md shadow-lg z-20 max-h-[200px] overflow-y-auto">
+                    class="tab-container absolute left-0 right-0 top-full mt-1 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-md shadow-lg z-20 max-h-[250px] overflow-y-auto">
                     <template x-for="reason in reasonResults" :key="reason"">
                         <div @mousedown.prevent="searchQuery = reason === 'All Reasons' ? '' : reason; reasonOpen = false; applyFilters()"
                             class=" px-3 py-1.5 text-xs text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-700 cursor-pointer">

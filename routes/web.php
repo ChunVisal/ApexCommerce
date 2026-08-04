@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SchemaController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CashierController;
 use App\Http\Controllers\CashierProductController;
@@ -35,7 +36,9 @@ Route::post('/cashier/pin-login', [AuthenticatedSessionController::class, 'pinLo
 
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/database-schema', [SchemaController::class, 'index']);
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/dashboard/export', [DashboardController::class, 'exportDashboard'])->name('admin.dashboard.export');
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('admin.notifications');

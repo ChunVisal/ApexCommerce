@@ -20,9 +20,11 @@ class ReportController extends Controller
 
         $summaryCards = ReportData::getSummaryCards($request->start_date, $request->end_date);
 
+
         // Daily Sales
         $dailySales = Order::where('orders.status', '!=', 'refunded')
-            ->whereBetween('orders.created_at', [$start->startOfDay(), $end->endOfDay()])
+            ->whereDate('orders.created_at', '>=', $start)
+            ->whereDate('orders.created_at', '<=', $end)
             ->select(
                 DB::raw('DATE(orders.created_at) as date'),
                 DB::raw('COUNT(*) as orders'),
@@ -34,6 +36,28 @@ class ReportController extends Controller
             ->groupBy('date')
             ->orderBy('date')
             ->get();
+
+        // ✅ ADD THIS - Fill missing dates with zero
+        $allDates = [];
+        $current = $start->copy();
+        while ($current <= $end) {
+            $dateKey = $current->format('Y-m-d');
+            $allDates[$dateKey] = (object) [
+                'date' => $dateKey,
+                'orders' => 0,
+                'revenue' => 0,
+                'discount' => 0,
+                'vip_discount' => 0,
+                'tax' => 0,
+            ];
+            $current->addDay();
+        }
+
+        foreach ($dailySales as $sale) {
+            $allDates[$sale->date] = $sale;
+        }
+
+        $dailySales = collect(array_values($allDates));
 
         $topCashiers = Order::where('orders.status', '!=', 'refunded')
             ->whereBetween('orders.created_at', [$start, $end])

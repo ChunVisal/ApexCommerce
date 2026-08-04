@@ -6,7 +6,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-class UserData
+class UserService
 {
     public static function getSummaryCards()
     {

@@ -34,6 +34,7 @@ class UserController extends Controller
                 return $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%')
                         ->orWhere('email', 'like', '%' . $search . '%')
+                        ->orWhere('phone', 'like', '%' . $search . '%')
                         ->orWhere('role', 'like', '%' . $search . '%');
                 });
             })
@@ -46,7 +47,6 @@ class UserController extends Controller
 
         return view('admin.users', compact('users', 'summaryCards'));
     }
-
 
     private function uploadToCloudinary($file): string
     {

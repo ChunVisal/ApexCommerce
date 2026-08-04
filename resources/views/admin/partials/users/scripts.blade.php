@@ -1,30 +1,4 @@
 <script>
-    // searching filter 
-    $(document).ready(function() {
-        let searchTimer;
-
-        $('#search').on('input', function() {
-            clearTimeout(searchTimer);
-            const query = $(this).val();
-            $('#clearSearch').toggle(query.length > 0);
-
-            searchTimer = setTimeout(function() {
-                $.get('{{ route('admin.users') }}', {
-                    search: query,
-                    ajax: 1
-                }, function(data) {
-                    $('#usersTableBody').html(data.html);
-                });
-            }, 400);
-        });
-
-        $('#clearSearch').on('click', function() {
-            $('#search').val('').trigger('input');
-        });
-    });
-</script>
-
-<script>
     // OUTSIDE userPage() - at the top
     function deleteUser(id, button) {
         if (!confirm('Delete this user?')) return;
@@ -147,7 +121,8 @@
                     const q = this.searchQuery.toLowerCase();
                     result = result.filter(u =>
                         u.name.toLowerCase().includes(q) ||
-                        (u.email || '').toLowerCase().includes(q)
+                        (u.email || '').toLowerCase().includes(q) ||
+                        (u.phone || '').toLowerCase().includes(q)
                     );
                 }
 

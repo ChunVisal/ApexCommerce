@@ -8,7 +8,7 @@
     }
 }" x-init="$nextTick(() => ready = true)"
     :class="[
-        open ? 'w-[180px]' : 'w-14',
+        open ? 'w-[160px]' : 'w-14',
         ready ? 'transition-all duration-300' : ''
     ]"
     class="sticky top-[58px] h-[calc(100vh-58px)] flex flex-col bg-white dark:bg-black overflow-hidden z-40">
@@ -58,7 +58,7 @@
             class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ request()->routeIs('cashier.orders') ? 'bg-blue-50 dark:bg-zinc-900 text-p dark:text-zinc-100' : 'text-gray-700 dark:text-zinc-400 hover:bg-gray-200/30 dark:hover:bg-zinc-900/50' }}"
             :class="open ? '' : 'justify-center'">
             <x-heroicon-o-document-duplicate class="w-5 h-5 shrink-0" />
-            <span x-show="open" class="text-sm font-medium whitespace-nowrap">Orders & history</span>
+            <span x-show="open" class="text-sm font-medium whitespace-nowrap">Orders</span>
         </a>
 
         <a href="{{ route('cashier.products') }}"

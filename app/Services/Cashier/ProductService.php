@@ -5,7 +5,7 @@ namespace App\Helpers;
 use App\Models\CashierStock;
 use Illuminate\Support\Facades\Auth;
 
-class CashierProductData
+class ProductService
 {
     public static function getSummaryCards()
     {
@@ -23,7 +23,7 @@ class CashierProductData
         $totalSold = CashierStock::where('cashier_id', $cashierId)
             ->whereHas('product', fn($q) => $q->where('has_uom', false)->orWhereNull('has_uom'))
             ->sum('sold_quantity');
-            
+
         $totalRemaining = $totalAllocated - $totalSold;
         $totalProducts = CashierStock::where('cashier_id', $cashierId)
             ->distinct('product_id')

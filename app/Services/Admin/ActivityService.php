@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Services;
 
 use App\Models\ActivityLog;
 use Carbon\Carbon;
 
-class ActivityData
+class ActivityService
 {
     public static function log($action, $description, $page, $status = 'info', $metadata = null)
     {
@@ -42,6 +42,9 @@ class ActivityData
             ->whereDate('created_at', '>=', now()->subDays(7))
             ->count();
 
+        $danger = ActivityLog::where('status', 'danger')
+            ->whereDate('created_at', '>=', now()->subDays(7))
+            ->count();
         return [
             [
                 'title' => 'Today\'s Activities',
@@ -72,13 +75,14 @@ class ActivityData
                 'subtitle' => ($mostActive->count ?? 0) . ' actions this week',
             ],
             [
-                'title' => 'Warnings',
-                'value' => $warnings,
+                'title' => 'Danger',
+                'value' => $danger,
                 'icon' => 'fa-solid fa-triangle-exclamation',
-                'iconBg' => $warnings > 0 ? '#EF4444' : '#F59E0B',
-                'iconColor' => $warnings > 0 ? '#EF4444' : '#F59E0B',
-                'subtitle' => 'Recorded past week',
+                'iconBg' => $danger > 0 ? '#EF4444' : '#F59E0B',
+                'iconColor' => $danger > 0 ? '#EF4444' : '#F59E0B',
+                'subtitle' => 'Warnings (danger: ' . $warnings . ') recorded past week',
             ],
+
         ];
     }
 }

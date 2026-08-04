@@ -5,7 +5,7 @@ namespace App\Helpers;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Auth;
 
-class CustomerData
+class CustomerService
 {
     public static function getSummary()
     {

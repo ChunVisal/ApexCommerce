@@ -109,7 +109,8 @@
                     <span>-$<span x-text="(receiptData.vip_discount || 0).toFixed(2)"></span></span>
                 </div>
                 <div class="flex justify-between ">
-                    <span class="text-gray-500  dark:text-zinc-300">Tax (10%)</span>
+                    <span class="text-gray-500  dark:text-zinc-300">Tax
+                        {{ App\Models\Setting::get('tax_rate', '10') }}%</span>
                     <span class="dark:text-zinc-200">$<span
                             x-text="receiptData.tax?.toFixed(2) || '0.00'"></span></span>
                 </div>

@@ -6,7 +6,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use Illuminate\Support\Carbon;
 
-class InventoryData
+class InventoryService
 {
     public static function getSummaryCards()
     {
