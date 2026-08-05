@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Services\Admin;
 
 use App\Models\Product;
 use App\Models\StockMovement;
 use Illuminate\Support\Carbon;
+use Illuminate\Http\Request;
 
 class InventoryService
 {
@@ -69,6 +70,55 @@ class InventoryService
                 'percentage' => $totalStock . ' units',
                 'period' => 'Total value',
             ],
+        ];
+    }
+
+    public static function getMovementTrend(Request $request)
+    {
+        $start = $request->start_date
+            ? Carbon::parse($request->start_date)
+            : now()->subDays(14);
+        $end = $request->end_date
+            ? Carbon::parse($request->end_date)
+            : now();
+
+        $movements = StockMovement::whereBetween('created_at', [$start->startOfDay(), $end->endOfDay()])
+            ->whereHas('product', function ($q) {
+                $q->where('has_uom', false);
+            })
+            ->get()
+            ->groupBy(fn($m) => $m->created_at->format('M d'));
+
+        $labels = [];
+        $stockIn = [];
+        $stockOut = [];
+        $details = [];
+
+        $current = $start->copy();
+        while ($current <= $end) {
+            $key = $current->format('M d');
+            $labels[] = $key;
+
+            $dayMovements = isset($movements[$key]) ? collect($movements[$key])->flatten() : collect([]);
+
+            $stockIn[] = $dayMovements->where('type', 'in')->sum('quantity');
+            $stockOut[] = $dayMovements->where('type', 'out')->sum('quantity');
+
+            $dayDetails = $dayMovements->where('type', 'out')
+                ->take(10)
+                ->map(function ($m) {
+                    return "{$m->quantity}x {$m->product->name} → {$m->reason}";
+                })->join(', ');
+            $details[] = $dayDetails ?: '';
+            $current->addDay();
+        }
+
+
+        return [
+            'labels' => $labels,
+            'stock_in' => $stockIn,
+            'stock_out' => $stockOut,
+            'details' => $details,
         ];
     }
 }

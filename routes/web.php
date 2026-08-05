@@ -1,23 +1,25 @@
 <?php
 
-use App\Http\Controllers\SchemaController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\CashierController;
-use App\Http\Controllers\CashierProductController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\StockRequestController;
-use App\Http\Controllers\SettingController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ActivityLogController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\NotificationController;
+    
+use App\Http\Controllers\Admin\SchemaController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\SettingController;
+
+use App\Http\Controllers\Cashier\PosController;
+use App\Http\Controllers\Cashier\CustomerController as CashierCustomerController;
+use App\Http\Controllers\Cashier\OrderController;
+use App\Http\Controllers\Cashier\ProductController as CashierProductController;
+use App\Http\Controllers\Cashier\StockRequestController;
 
 // Root route - check if logged in first
 Route::get('/', function () {
@@ -48,18 +50,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markSingle']);
     Route::get('/admin/stock-requests', [StockRequestController::class, 'index'])->name('admin.stock-requests');
 
-    Route::get('/products', [ProductController::class, 'index'])->name('admin.products');
-    Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
-    Route::get('/products/by-category', [ProductController::class, 'byCategory'])
+    Route::get('/products', [AdminProductController::class, 'index'])->name('admin.products');
+    Route::post('/products', [AdminProductController::class, 'store'])->name('admin.products.store');
+    Route::get('/products/by-category', [AdminProductController::class, 'byCategory'])
         ->name('admin.products.byCategory');
-    Route::put('/products/{id}', [ProductController::class, 'update'])->name('admin.products.update');
-    Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
-    Route::post('/products/bulk-delete', [ProductController::class, 'bulkDestroy'])->name('products.bulk-delete');
+    Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('admin.products.update');
+    Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('admin.products.destroy');
+    Route::post('/products/bulk-delete', [AdminProductController::class, 'bulkDestroy'])->name('products.bulk-delete');
 
-    Route::get('/products/uoms', [ProductController::class, 'uoms'])->name('admin.products.uoms');
-    Route::post('/products/uoms', [ProductController::class, 'storeUom'])->name('admin.products.uoms.store');
-    Route::put('/products/{id}/uoms', [ProductController::class, 'updateUom'])->name('admin.products.uoms.update');
-    Route::delete('/products/uoms/{id}', [ProductController::class, 'deleteUom'])->name('admin.products.uoms.delete');
+    Route::get('/products/uoms', [AdminProductController::class, 'indexUoms'])->name('admin.products.uoms');
+    Route::post('/products/uoms', [AdminProductController::class, 'storeUom'])->name('admin.products.uoms.store');
+    Route::put('/products/{id}/uoms', [AdminProductController::class, 'updateUom'])->name('admin.products.uoms.update');
+    Route::delete('/products/uoms/{id}', [AdminProductController::class, 'destroyUom'])->name('admin.products.uoms.destroy');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('admin.inventory');
     Route::post('/inventory/adjust', [InventoryController::class, 'adjustStock'])->name('admin.inventory.adjust');
@@ -76,13 +78,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/users/bulk-deactivate', [UserController::class, 'bulkDeactivate'])->name('admin.users.bulk-deactivate');
     Route::post('/users/bulk-delete', [UserController::class, 'bulkDestroy'])->name('admin.users.bulk-delete');
 
+    Route::get('/customers', [AdminCustomerController::class, 'index'])->name('admin.customers');
+    Route::get('/customers/{id}', [AdminCustomerController::class, 'show'])->name('admin.customers.show');
+    Route::get('/customers/export/all', [AdminCustomerController::class, 'export'])->name('admin.customers.export');
+    Route::get('/customers/{customer}/order/{order}', [AdminCustomerController::class, 'getOrder']);
+
     Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
     Route::get('/reports/export', [ReportController::class, 'export'])->name('admin.reports.export');
-
-    Route::get('/customers', [CustomerController::class, 'adminIndex'])->name('admin.customers');
-    Route::get('/customers/{id}', [CustomerController::class, 'adminShow'])->name('admin.customers.show');
-    Route::get('/customers/export/all', [CustomerController::class, 'adminExport'])->name('admin.customers.export');
-    Route::get('/customers/{customer}/order/{order}', [CustomerController::class, 'getOrder']);
 
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('admin.activitylog');
     Route::post('/activitylog/clear', [ActivityLogController::class, 'clear'])->name('admin.activitylog.clear');
@@ -94,20 +96,20 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 // Cashier Routes
 Route::middleware(['auth', 'role:cashier'])->group(function () {
 
-    Route::get('/cashier/pos', [CashierController::class, 'pos'])->name('cashier.pos');
-    Route::post('/cashier/checkout', [CashierController::class, 'checkout'])->name('cashier.checkout');
+    Route::get('/cashier/pos', [PosController::class, 'pos'])->name('cashier.pos');
+    Route::post('/cashier/checkout', [PosController::class, 'checkout'])->name('cashier.checkout');
 
     Route::get('/cashier/notifications', [NotificationController::class, 'cashierIndex'])->name('cashier.notifications');
     Route::post('/cashier/notifications/mark-read', [NotificationController::class, 'markRead'])->name('cashier.notifications.markRead');
     Route::post('/cashier/notifications/{id}/mark-read', [NotificationController::class, 'markSingleRead'])->name('cashier.notifications.markSingleRead');
     Route::post('/cashier/stock-return', [NotificationController::class, 'returnStock']);
 
-    Route::get('/cashier/customers/search', [CustomerController::class, 'search']);
-    Route::post('/cashier/customers', [CustomerController::class, 'store']);
-    Route::get('/cashier/customers', [CustomerController::class, 'index'])->name('cashier.customers');
-    Route::get('/cashier/customers/export', [CustomerController::class, 'export'])->name('cashier.customers.export');
-    Route::put('/cashier/customers/{id}', [CustomerController::class, 'update']);
-    Route::get('/cashier/customers/{id}', [CustomerController::class, 'show'])->name('cashier.customers.show');
+    Route::get('/cashier/customers/search', [CashierCustomerController::class, 'search']);
+    Route::post('/cashier/customers', [CashierCustomerController::class, 'store']);
+    Route::get('/cashier/customers', [CashierCustomerController::class, 'index'])->name('cashier.customers');
+    Route::get('/cashier/customers/export', [CashierCustomerController::class, 'export'])->name('cashier.customers.export');
+    Route::put('/cashier/customers/{id}', [CashierCustomerController::class, 'update']);
+    Route::get('/cashier/customers/{id}', [CashierCustomerController::class, 'show'])->name('cashier.customers.show');
 
     Route::get('/cashier/products', [CashierProductController::class, 'index'])->name('cashier.products');
     Route::post('/cashier/stock-request', [StockRequestController::class, 'store']);

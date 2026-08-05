@@ -7,7 +7,8 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\StockRequest;
 use App\Models\User;
-use App\Helpers\ActivityData;
+use App\Models\Order;
+use App\Services\Admin\ActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -32,13 +33,17 @@ class NotificationController extends Controller
         $stockRequests = $stockRequests->slice(0, $perPage);
         $hasMore = $totalGroups > $perPage;
 
+        Order::where('status', 'pending_approval')
+            ->whereNull('admin_seen_at')
+            ->update(['admin_seen_at' => now()]);
+
         // Handle ajax request for loading more notification groups
         if ($request->ajax()) {
-            return view('admin.partials.notifications.list', compact('stockRequests', 'hasMore', 'perPage', 'totalGroups'))->render();
+            return view('admin.notifications.list-messages', compact('stockRequests', 'hasMore', 'perPage', 'totalGroups'))->render();
         }
 
         $pendingCount = StockRequest::whereIn('status', ['pending', 'loss_reported', 'refunded'])->whereNull('seen_at')->count();
-        return view('admin.notifications', compact('stockRequests', 'pendingCount', 'hasMore', 'perPage', 'totalGroups'));
+        return view('admin.notifications.index', compact('stockRequests', 'pendingCount', 'hasMore', 'perPage', 'totalGroups'));
     }
 
     public function cashierIndex(Request $request)
@@ -65,9 +70,9 @@ class NotificationController extends Controller
         $hasMore = $totalGroups > $perPage;
 
         if ($request->ajax) {
-            return view('cashier.partials.notifications.list', compact('notifications', 'hasMore', 'perPage', 'totalGroups'))->render();
+            return view('cashier.notifications.list-messages', compact('notifications', 'hasMore', 'perPage', 'totalGroups'))->render();
         }
-        return view('cashier.notifications', compact('notifications', 'perPage', 'hasMore', 'totalGroups'));
+        return view('cashier.notifications.index', compact('notifications', 'perPage', 'hasMore', 'totalGroups'));
     }
 
     public function approve(Request $request, $id)
@@ -140,7 +145,7 @@ class NotificationController extends Controller
                 'seen_at' => null,
             ]);
 
-            ActivityData::log(
+            ActivityService::log(
                 'request_approved',
                 "Approved {$quantity}x {$product->name} for " . $stockRequest->cashier->name,
                 'Notifications',
@@ -163,7 +168,7 @@ class NotificationController extends Controller
 
         $productName = $req->product->name ?? $req->product_name ?? 'Unknown';
 
-        ActivityData::log(
+        ActivityService::log(
             'request_rejected',
             "Rejected request for {$req->quantity_requested}x {$productName} - Reason: {$request->reason}",
             'Notifications',
@@ -175,15 +180,23 @@ class NotificationController extends Controller
 
     public function markAllRead()
     {
+        // Mark stock requests
         StockRequest::whereIn('status', ['pending', 'loss_reported'])
             ->whereNull('seen_at')
             ->update(['seen_at' => now()]);
+
+        // Mark orders
+        Order::where('status', 'pending_approval')
+            ->whereNull('admin_seen_at')
+            ->update(['admin_seen_at' => now()]);
 
         return response()->json(['success' => true]);
     }
 
     public function markSingle($id)
     {
+        Order::where('id', $id)->update(['admin_seen_at' => now()]);
+
         StockRequest::where('id', $id)->update(['seen_at' => now()]);
         return response()->json(['success' => true]);
     }

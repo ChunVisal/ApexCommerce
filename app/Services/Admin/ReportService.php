@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Services\Admin;
 
 use App\Models\Order;
 use App\Models\OrderItem;

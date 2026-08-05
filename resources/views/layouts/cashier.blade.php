@@ -28,7 +28,7 @@
 
 <body>
     {{-- Cashier Navbar --}}
-    @include('components.cashier-navbar')
+    <x-navbar role="cashier" />
 
     {{-- Cashier Sidebar + Content --}}
     <div class="flex">
@@ -38,7 +38,16 @@
             @yield('content')
         </main>
     </div>
-    @stack('head-scripts')
+    @stack('scripts')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('img').forEach(function(img) {
+                img.setAttribute('loading', 'lazy');
+                img.setAttribute('decoding', 'async');
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -31,7 +31,7 @@
 
 <body>
     <!-- Navbar - Full width, outside flex -->
-    @include('components.navbar')
+    <x-navbar role="admin" />
 
     <!-- Sidebar + Content - Below navbar -->
     <div class="flex">

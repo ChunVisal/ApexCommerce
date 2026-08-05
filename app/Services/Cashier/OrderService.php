@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Services\Cashier;
 
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
