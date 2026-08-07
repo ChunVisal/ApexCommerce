@@ -32,11 +32,7 @@ class NotificationController extends Controller
         $totalGroups = $stockRequests->count();
         $stockRequests = $stockRequests->slice(0, $perPage);
         $hasMore = $totalGroups > $perPage;
-
-        Order::where('status', 'pending_approval')
-            ->whereNull('admin_seen_at')
-            ->update(['admin_seen_at' => now()]);
-
+        
         // Handle ajax request for loading more notification groups
         if ($request->ajax()) {
             return view('admin.notifications.list-messages', compact('stockRequests', 'hasMore', 'perPage', 'totalGroups'))->render();
@@ -178,26 +174,35 @@ class NotificationController extends Controller
         return back()->with('success', 'Request rejected');
     }
 
-    public function markAllRead()
+    // Admin
+    public function adminMarkAllRead()
     {
-        // Mark stock requests
         StockRequest::whereIn('status', ['pending', 'loss_reported'])
             ->whereNull('seen_at')
             ->update(['seen_at' => now()]);
-
-        // Mark orders
-        Order::where('status', 'pending_approval')
-            ->whereNull('admin_seen_at')
-            ->update(['admin_seen_at' => now()]);
-
         return response()->json(['success' => true]);
     }
 
-    public function markSingle($id)
+    public function adminMarkSingleRead($id)
     {
-        Order::where('id', $id)->update(['admin_seen_at' => now()]);
-
         StockRequest::where('id', $id)->update(['seen_at' => now()]);
+        return response()->json(['success' => true]);
+    }
+
+    // Cashier
+    public function cashierMarkAllRead()
+    {
+        StockRequest::where('cashier_id', Auth::id())
+            ->whereNull('seen_at')
+            ->update(['seen_at' => now()]);
+        return response()->json(['success' => true]);
+    }
+
+    public function cashierMarkSingleRead($id)
+    {
+        StockRequest::where('id', $id)
+            ->where('cashier_id', Auth::id())
+            ->update(['seen_at' => now()]);
         return response()->json(['success' => true]);
     }
 
@@ -246,23 +251,5 @@ class NotificationController extends Controller
         ]);
 
         return response()->json(['message' => 'Loss reported']);
-    }
-
-    public function markSingleRead($id)
-    {
-        StockRequest::where('id', $id)
-            ->where('cashier_id', Auth::id()) // add this
-            ->update(['seen_at' => now()]);
-
-        return response()->json(['success' => true]);
-    }
-
-    public function markRead()
-    {
-        StockRequest::where('cashier_id', Auth::id())
-            ->whereNull('seen_at')
-            ->update(['seen_at' => now()]);
-
-        return response()->json(['success' => true]);
     }
 }

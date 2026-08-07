@@ -14,30 +14,15 @@
                 return $item;
             });
 
-        $orderNotifications = \App\Models\Order::with(['customer'])
-            ->where('status', 'pending_approval')
-            ->latest()
-            ->limit(6)
-            ->get()
-            ->map(function ($item) {
-                $item->notif_type = 'order';
-                return $item;
-            });
-
-        $notifications = $stockRequests
-            ->concat($orderNotifications)
-            ->sortByDesc(fn($item) => $item->created_at)
-            ->take(6);
+        $notifications = $stockRequests;
 
         $pendingStockCount = \App\Models\StockRequest::whereIn('status', ['pending', 'loss_reported'])
             ->whereNull('seen_at')
             ->count();
-        $pendingOrderCount = \App\Models\Order::where('status', 'pending_approval')
-            ->whereNull('admin_seen_at')
-            ->count();
-        $count = $pendingStockCount + $pendingOrderCount;
 
-        $markAllUrl = '/admin/notifications/mark-all-read';
+        $count = $pendingStockCount;
+
+        $urlPrefix = '/admin/notifications';
         $viewAllUrl = route('admin.notifications');
     } else {
         $notifications = \App\Models\StockRequest::with(['product', 'approver'])
@@ -70,73 +55,12 @@
             ->whereNull('seen_at')
             ->count();
 
-        $markAllUrl = '/cashier/notifications/mark-read';
+        $urlPrefix = '/cashier/notifications';
         $viewAllUrl = route('cashier.notifications');
     }
 @endphp
 
-<div class="relative" x-data="{
-    open: false,
-    async markAllRead() {
-        await fetch('{{ $markAllUrl }}', {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-        });
-        // Remove badge
-        const badge = document.querySelector('.bell-badge');
-        if (badge) badge.remove();
-
-        // Gray all dots and remove backgrounds
-        document.querySelectorAll('.notif-dot').forEach(dot => {
-            dot.classList.remove('bg-red-500', 'bg-blue-500');
-            dot.classList.add('bg-gray-300', 'dark:bg-zinc-700');
-        });
-
-        document.querySelectorAll('.notif-card').forEach(card => {
-            card.classList.remove(
-                'bg-blue-50', 'dark:bg-blue-950/20',
-                'bg-green-50', 'dark:bg-green-950/20',
-                'border-l-2', 'border-blue-500', 'border-green-500'
-            );
-        });
-    },
-    markSingleRead(idStr, el) {
-        let [type, id] = String(idStr).split(':');
-        let url = type === 'order' ?
-            '/admin/orders/' + id + '/mark-notif-read' :
-            ('{{ $isAdmin }}' ? '/admin/notifications/' + id + '/mark-read' : '/cashier/notifications/' + id + '/mark-read');
-
-        fetch(url, {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-        }).then(res => res.json()).then(data => {
-            if (!data.success) return;
-
-            // Gray the dot
-            if (el.classList.contains('notif-dot')) {
-                el.classList.remove('bg-red-500', 'bg-blue-500');
-                el.classList.add('bg-gray-300', 'dark:bg-zinc-700');
-            }
-
-            // Remove blue/green background from card
-            const card = el.closest('.notif-card');
-            if (card) {
-                card.classList.remove(
-                    'bg-blue-50', 'dark:bg-blue-950/20',
-                    'bg-green-50', 'dark:bg-green-950/20',
-                    'border-l-2', 'border-blue-500', 'border-green-500'
-                );
-            }
-
-            // Update badge count
-            const badge = document.querySelector('.bell-badge');
-            if (badge) {
-                const newCount = parseInt(badge.textContent) - 1;
-                newCount <= 0 ? badge.remove() : (badge.textContent = newCount);
-            }
-        });
-    }
-}">
+<div class="relative" x-data="notificationBell('{{ $urlPrefix }}')">
     <button @click="open = !open"
         class="relative p-2 text-gray-700 dark:text-zinc-300 hover:text-[#0F6E8C] dark:hover:text-[#138cb3] hover:bg-gray-100 dark:hover:bg-zinc-900 rounded-full transition-colors">
         <i class="fa-solid fa-bell text-xl"></i>
@@ -178,12 +102,11 @@
                 @if ($notif->notif_type === 'stock_request')
                     @php
                         $unread = $isAdmin ? empty($notif->seen_at) : empty($notif->seen_at);
-                        $refKey = "stock_request:{$notif->id}";
+                        $refKey = $notif->id;
                     @endphp
-                    <div class="notif-card flex items-start gap-3 px-4 py-3 transition-colors
+                    <div class="notif-card cursor-pointer flex items-start gap-3 px-4 py-3 transition-colors
                         {{ $unread ? 'bg-blue-50 dark:bg-blue-950/20 border-l-2 border-blue-500' : 'hover:bg-gray-50/60 dark:hover:bg-zinc-800/30' }}"
-                        data-notif-id="s{{ $notif->id }}" style="cursor:pointer"
-                        @click.stop="markSingleRead('{{ $refKey }}', $event.target)">
+                        @click="markSingleRead({{ $notif->id }}, $event.currentTarget)">
 
                         <div class="relative flex-shrink-0">
                             <div
@@ -235,7 +158,8 @@
                                     class="font-medium">{{ $notif->product->name ?? ($notif->product_name ?? 'Unknown') }}
                                     @if ($notif->product && $notif->product->base_unit_name)
                                         <span class="text-gray-700 dark:text-zinc-400">
-                                            ({{ $notif->product->base_unit_name }})</span>
+                                            ({{ $notif->product->base_unit_name }})
+                                        </span>
                                     @endif
                                 </span>
                             <div class="flex gap-1">
@@ -251,40 +175,9 @@
                             </div>
                         </div>
 
-                        <button @click.stop="markSingleRead('{{ $refKey }}', $event.target)"
+                        <button
                             class="notif-dot ml-2 w-2.5 h-2.5 rounded-full shrink-0
                                 {{ $notif->seen_at ? 'bg-gray-300 dark:bg-zinc-700' : 'bg-red-500' }}"
-                            title="Mark as read" type="button"></button>
-                    </div>
-                @elseif ($notif->notif_type === 'order')
-                    <div class="notif-card flex items-start gap-3 px-4 py-3 transition-colors
-                        {{ empty($notif->admin_seen_at) ? 'bg-green-50 dark:bg-green-950/20 border-l-2 border-green-500' : 'hover:bg-gray-50/60 dark:hover:bg-zinc-800/30' }}"
-                        data-notif-id="o{{ $notif->id }}" style="cursor:pointer"
-                        @click.stop="markSingleRead('order:{{ $notif->id }}', $event.target)">
-                        <div class="relative flex-shrink-0">
-                            <div
-                                class="w-11 h-11 rounded-md bg-green-100 dark:bg-green-950/40 border border-green-100 dark:border-green-950/30 flex items-center justify-center">
-                                <i class="fa fa-shopping-bag text-green-700 dark:text-green-300 text-xl"></i>
-                            </div>
-                            <div
-                                class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900 bg-green-500">
-                                <x-heroicon-s-arrow-up-tray class="w-3 h-3 text-white" />
-                            </div>
-                        </div>
-                        <div class="flex-1 min-w-0 space-y-0.5">
-                            <p class="text-xs text-gray-800 dark:text-zinc-200 leading-snug break-words">
-                                <span
-                                    class="font-bold text-green-900 dark:text-green-200">{{ $notif->customer->name ?? 'Customer' }}</span>
-                                <span class="text-green-600 dark:text-green-300">submitted order</span>
-                                <span class="font-medium">#{{ $notif->id }}</span>
-                            </p>
-                            <p class="text-[11px] text-gray-400 dark:text-zinc-500 font-medium pt-0.5">
-                                {{ $notif->created_at->diffForHumans() }}
-                            </p>
-                        </div>
-                        <button @click.stop="markSingleRead('order:{{ $notif->id }}', $event.target)"
-                            class="notif-dot ml-2 w-2.5 h-2.5 rounded-full shrink-0
-                                {{ $notif->admin_seen_at ? 'bg-gray-300 dark:bg-zinc-700' : 'bg-red-500' }}"
                             title="Mark as read" type="button"></button>
                     </div>
                 @endif
@@ -297,3 +190,58 @@
         </div>
     </div>
 </div>
+
+<script>
+    function notificationBell(urlPrefix) {
+        return {
+            open: false,
+
+            async markAllRead() {
+                await fetch(urlPrefix + '/mark-all-read', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
+                document.querySelector('.bell-badge')?.remove();
+
+                document.querySelectorAll('.notif-dot').forEach(dot => {
+                    dot.classList.remove('bg-red-500');
+                    dot.classList.add('bg-gray-300', 'dark:bg-zinc-700');
+                });
+
+                document.querySelectorAll('.notif-card').forEach(card => {
+                    card.classList.remove('bg-blue-50', 'dark:bg-blue-950/20', 'border-l-2',
+                        'border-blue-500');
+                });
+            },
+
+            markSingleRead(id, card) {
+                fetch(`${urlPrefix}/${id}/mark-read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                }).then(res => res.json()).then(data => {
+                    if (!data.success) return;
+
+                    const dot = card.querySelector('.notif-dot');
+                    if (dot) {
+                        dot.classList.remove('bg-red-500');
+                        dot.classList.add('bg-gray-300', 'dark:bg-zinc-700');
+                    }
+
+                    card.classList.remove('bg-blue-50', 'dark:bg-blue-950/20', 'border-l-2', 'border-blue-500');
+
+                    const badge = document.querySelector('.bell-badge');
+                    if (badge) {
+                        const count = parseInt(badge.textContent) - 1;
+                        count <= 0 ? badge.remove() : (badge.textContent = count);
+                    }
+
+                });
+            }
+        };
+    }
+</script>

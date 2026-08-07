@@ -46,8 +46,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
     Route::post('/admin/notifications/{id}/approve', [NotificationController::class, 'approve'])->name('admin.notifications.approve');
     Route::post('/admin/notifications/{id}/rejecot', [NotificationController::class, 'reject'])->name('admin.notifications.reject');
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
-    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markSingle']);
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'adminMarkAllRead']);
+    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'adminMarkSingleRead']);
     Route::get('/admin/stock-requests', [StockRequestController::class, 'index'])->name('admin.stock-requests');
 
     Route::get('/products', [AdminProductController::class, 'index'])->name('admin.products');
@@ -100,8 +100,8 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::post('/cashier/checkout', [PosController::class, 'checkout'])->name('cashier.checkout');
 
     Route::get('/cashier/notifications', [NotificationController::class, 'cashierIndex'])->name('cashier.notifications');
-    Route::post('/cashier/notifications/mark-read', [NotificationController::class, 'markRead'])->name('cashier.notifications.markRead');
-    Route::post('/cashier/notifications/{id}/mark-read', [NotificationController::class, 'markSingleRead'])->name('cashier.notifications.markSingleRead');
+    Route::post('/cashier/notifications/mark-read', [NotificationController::class, 'cashierMarkAllRead'])->name('cashier.notifications.markRead');
+    Route::post('/cashier/notifications/{id}/mark-read', [NotificationController::class, 'cashierMarkSingleRead'])->name('cashier.notifications.markSingleRead');
     Route::post('/cashier/stock-return', [NotificationController::class, 'returnStock']);
 
     Route::get('/cashier/customers/search', [CashierCustomerController::class, 'search']);

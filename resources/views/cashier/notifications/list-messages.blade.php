@@ -68,7 +68,9 @@
                                     <span class="text-xs font-semibold text-gray-800 dark:text-zinc-200 truncate">
                                         {{ $notif->product->name ?? ($notif->product_name ?? 'Unknown Product') }}
                                         @if ($notif->product && $notif->product->base_unit_name)
-                                            <span class="text-gray-700 dark:text-zinc-400"> ({{ $notif->product->base_unit_name }})</span>
+                                            <span class="text-gray-700 dark:text-zinc-400">
+                                                ({{ $notif->product->base_unit_name }})
+                                            </span>
                                         @endif
                                     </span>
                                 </div>
@@ -78,7 +80,8 @@
                                     @if ($isApproved)
                                         <span class="text-emerald-600 dark:text-emerald-400 font-bold">Approved</span>
                                         @if ($notif->quantity_approved)
-                                            <span class="text-[11px] text-gray-500">({{ $notif->quantity_approved }}
+                                            <span
+                                                class="text-[12px] dark:text-zinc-400 text-gray-600">({{ $notif->quantity_approved }}
                                                 received)</span>
                                         @endif
                                     @elseif ($isRejected)
@@ -91,11 +94,19 @@
                                     @endif
 
                                     <span>•</span>
-                                    <span class="text-[11px] text-gray-400 dark:text-zinc-500">
+                                    <span class="text-[12px] text-gray-500 dark:text-zinc-400">
                                         {{ $notif->created_at->format('g:i A') }}
                                         ({{ $notif->created_at->diffForHumans() }})
+                                        @if ($isApproved || $isRejected)
+                                            <span class="pl-1">
+                                                — Admin action:
+                                                {{ $notif->updated_at->format('g:i A') }}
+                                                ({{ $notif->updated_at->diffForHumans() }})
+                                            </span>
+                                        @endif
                                     </span>
                                 </div>
+
 
                                 {{-- Notes Section (With text wrap) --}}
                                 @if (!empty($notif->cashier_notes))

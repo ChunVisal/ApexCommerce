@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\Uom;
 
 class Product extends Model
 {
+     // Add for explicitly, doesn't matter if delete
     protected $table = 'products';
 
+    // tells Laravel which columns in table DB assigned 
     protected $fillable = [
         'code',
         'name',
@@ -27,6 +28,7 @@ class Product extends Model
         'base_unit_code',
     ];
 
+    // 
     public function uoms()
     {
         return $this->hasMany(ProductUom::class);
