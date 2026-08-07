@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Product extends Model
 {
-     // Add for explicitly, doesn't matter if delete
+    // Add for explicitly, doesn't matter if delete
     protected $table = 'products';
 
     // tells Laravel which columns in table DB assigned 
@@ -28,15 +28,14 @@ class Product extends Model
         'base_unit_code',
     ];
 
-    // 
     public function uoms()
     {
         return $this->hasMany(ProductUom::class);
     }
 
-    public function category(): BelongsTo
+    public function category()
     {
-        return $this->belongsTo(Categories::class, 'category_id');
+        return $this->belongsTo(Categories::class);
     }
 
     public function cashierStocks()

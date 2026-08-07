@@ -133,7 +133,6 @@
 
         return {
             viewMode: localStorage.getItem('productViewMode') || 'table',
-            categoryProducts: [],
             search: '',
             open: false,
             draftList: [],
@@ -147,10 +146,11 @@
 
             // search query
             products: @json($products ?? []),
+            categoryProducts: [],
             searchQuery: '',
             categoryFilter: '',
-            statusFilter: 'all',
-            stockFilter: 'all',
+            statusFilter: '',
+            stockFilter: '',
 
             get filteredProducts() {
                 let result = [...this.products];
@@ -453,7 +453,6 @@
             },
 
             submitForm() {
-
                 if (!this.editMode) {
                     const existsInDB = this.categoryProducts.find(p => p.name === this.form.name && p.id !== null);
                     if (existsInDB && this.draftEditIndex === null) {

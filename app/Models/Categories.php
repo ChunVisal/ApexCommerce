@@ -14,11 +14,9 @@ class Categories extends Model
         'svg',
         'name',
         'sort_order',
-        'tax_rate',
-        'discount_allowed',
     ];
 
-    public function products(): HasMany
+    public function products()
     {
         return $this->hasMany(Product::class, 'category_id');
     }

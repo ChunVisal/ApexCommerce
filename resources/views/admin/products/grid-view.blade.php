@@ -94,24 +94,5 @@
                 </div>
             </template>
         </div>
-
-        {{-- Empty State (Triggered automatically when array is empty) --}}
-        <div x-show="!filteredProducts || filteredProducts.length === 0"
-            class="flex flex-col items-center justify-center py-16 text-center">
-            <div
-                class="w-16 h-16 mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-inner">
-                <svg class="w-8 h-8 text-gray-400 dark:text-zinc-500" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-            </div>
-            <h3 class="text-sm font-semibold text-gray-800 dark:text-zinc-200 mb-1">No products found</h3>
-            <p class="text-xs text-gray-500 dark:text-zinc-400">Get started by adding your first product.</p>
-            <button @click="openAdd()"
-                class="mt-4 inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] hover:bg-[#0c5972] active:scale-[0.98] rounded-md shadow-xs transition-all">
-                <i class="fa-solid fa-plus text-[10px]"></i> Add Your First Product
-            </button>
-        </div>
     </div>
 </div>

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller; 
+use App\Http\Controllers\Controller;
 use App\Models\Categories;
 use App\Models\Product;
 use App\Models\ProductCatalog;
@@ -23,20 +23,14 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $categories = Categories::withCount([
-            'products as total_stock' => function ($q) {
-                $q->select(DB::raw('sum(stock_quantity)'));
-            },
-        ])->get();
+        $categories = Categories::withSum('products as total_stock', 'stock_quantity')->get();
 
         $products = Product::with('category')
-            ->where(function ($q) {
-                $q->where('has_uom', false)->orWhereNull('has_uom');
-            })
+            ->where('has_uom', false)
             ->get();
 
-        if ($request->ajax) {
-            return response()->json(['products' => $products]);
+        if ($request->ajax()) {
+            return response()->json($products);
         }
 
         return view('admin.products.index', compact('products', 'categories'));
@@ -44,17 +38,13 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $cacheKey = 'store_product_' . md5($request->name . $request->category_id . $request->ip());
-
-        if (Cache::has($cacheKey)) {
-            return response()->json(Cache::get($cacheKey));
-        }
-
         try {
             $prefix = 'PROD-' . strtoupper(substr($request->name, 0, 3));
             do {
                 $code = $prefix . '-' . rand(1000, 9999);
-            } while (Product::where('code', $code)->exists());
+            }
+            // check if product product code exist if it exist do loop again untill found 
+            while (Product::where('code', $code)->exists());
 
             do {
                 $barcode = str_pad(rand(0, 999999999999), 12, '0', STR_PAD_LEFT);
@@ -62,8 +52,10 @@ class ProductController extends Controller
 
             $imageUrl = null;
             if ($request->hasFile('image_file')) {
+                // Only runs if user actually uploaded something
                 $imageUrl = $this->uploadToCloudinary($request->file('image_file'));
             } elseif ($request->image_url) {
+                // User pasted a URL instead
                 $imageUrl = $request->image_url;
             }
 
@@ -97,12 +89,9 @@ class ProductController extends Controller
 
             ActivityService::log('product_created', ' created product: ' . $product->name, 'Products List', 'info');
 
-            Cache::put($cacheKey, $product, 5);
-
             return response()->json($product);
         } catch (\Exception $e) {
             Log::error('Store error: ' . $e->getMessage());
-
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
