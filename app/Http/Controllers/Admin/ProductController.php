@@ -132,12 +132,20 @@ class ProductController extends Controller
 
     public function destroy($id)
     {
+        // find product in table if not faild send error message
         $product = Product::findOrFail($id);
 
-        if ($product->orderItems()->exists() || $product->stockMovements()->exists()) {
-            return response()->json([
-                'message' => 'Cannot delete this product. It has existing orders/transactions or stock history.',
-            ], 422);
+        // likes orderItems() is relationship method from models
+        if ($product->orderItems()->exists()) {
+            return response()->json(['message' => 'Cannot delete: product has orders.'], 422);
+        }
+
+        if ($product->stockMovements()->where('reason', '!=', 'Initial stock')->exists()) {
+            return response()->json(['message' => 'Cannot delete: product has stock history.'], 422);
+        }
+
+        if ($product->cashierStocks()->exists()) {
+            return response()->json(['message' => 'Cannot delete: product is allocated to cashiers.'], 422);
         }
 
         ActivityService::log('product_deleted', ' deleted product: ' . $product->name, 'Products List', 'danger');
@@ -151,15 +159,17 @@ class ProductController extends Controller
     {
         $ids = $request->ids;
 
-        $withOrders = Product::whereIn('id', $ids)
-            ->whereHas('orderItems')
-            ->orWhereHas('stockMovements')
-            ->exists();
+        // whereIn find mutiple data Check if ANY of products 1,2,3 have orders 
+        if (Product::whereIn('id', $ids)->whereHas('orderItems')->exists()) {
+            return response()->json(['message' => 'Some products have orders and cannot be deleted.'], 422);
+        }
 
-        if ($withOrders) {
-            return response()->json([
-                'message' => 'Some products cannot be deleted. They have existing orders or stock history.',
-            ], 422);
+        if (Product::whereIn('id', $ids)->whereHas('stockMovements', fn($q) => $q->where('reason', '!=', 'Initial stock'))->exists()) {
+            return response()->json(['message' => 'Some products have stock history and cannot be deleted.'], 422);
+        }
+
+        if (Product::whereIn('id', $ids)->whereHas('cashierStocks')->exists()) {
+            return response()->json(['message' => 'Some products are allocated to cashiers.'], 422);
         }
 
         Product::whereIn('id', $ids)->delete();
