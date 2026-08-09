@@ -183,6 +183,7 @@ class ProductController extends Controller
 
     public function byCategory(Request $request)
     {
+        // Find category by code only one return for selecting filter 
         $category = Categories::select('id', 'code', 'name')->where('code', $request->category_code)->first();
 
         if (! $category) {
