@@ -14,7 +14,6 @@ use App\Services\Admin\InventoryService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class InventoryController extends Controller
 {
@@ -28,18 +27,14 @@ class InventoryController extends Controller
             ->with('category')
             ->get();
 
-        $categories = Categories::withCount([
-            'products as total_stock' => function ($q) {
-                $q->select(DB::raw('COALESCE(sum(stock_quantity), 0)'));
-            },
-        ])->get();
+        $categories = Categories::withSum('products as total_stock', 'stock_quantity')->get();
 
         $cashiers = User::where('role', 'cashier')->get();
         $summaryCards = InventoryService::getSummaryCards();
         $trend = InventoryService::getMovementTrend($request);
 
-        if ($request->ajax) {
-            return response()->json(['products' => $products]);
+        if ($request->ajax()) {
+            return response()->json($products);
         }
 
         return view('admin.inventory.index', compact('products', 'categories', 'summaryCards', 'trend', 'cashiers'));
@@ -59,7 +54,7 @@ class InventoryController extends Controller
             ->latest()
             ->get();
 
-        if ($request->ajax) {
+        if ($request->ajax()) {
             return response()->json([
                 'movements' => $movements,
             ]);
@@ -88,6 +83,7 @@ class InventoryController extends Controller
 
         $product = Product::where('code', $request->product_code)->firstOrFail();
 
+        // add referance number total count adjustment + date 
         $reference = match ($request->type) {
             'in' => 'STKIN-' . str_pad(StockMovement::where('type', 'in')->count() + 1, 5, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
             'out' => 'STKOUT-' . str_pad(StockMovement::where('type', 'out')->count() + 1, 5, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
@@ -135,6 +131,7 @@ class InventoryController extends Controller
 
         // Status only change (no quantity)
         if ($request->status && $request->quantity == 0) {
+            // update activity status
             $product->update(['status' => $request->status]);
 
             ActivityService::log(
@@ -172,24 +169,20 @@ class InventoryController extends Controller
         // Deduct from warehouse FIRST
         $product->decrement('stock_quantity', $request->quantity);
 
-        // Add to cashier (find existing or create new)
-        $cashierStock = CashierStock::where('cashier_id', $request->cashier_id)
-            ->where('product_id', $request->product_id)
-            ->first();
-
-        if ($cashierStock) {
-            $cashierStock->increment('allocated_quantity', $request->quantity);
-        } else {
-            CashierStock::create([
-                'product_id' => $request->product_id,
+        $cashierName = User::find($request->cashier_id)->name;
+        // check cashier already have some
+        $cashierStock = CashierStock::firstOrCreate(
+            [
                 'cashier_id' => $request->cashier_id,
-                'allocated_quantity' => $request->quantity,
+                'product_id' => $request->product_id,
+            ],
+            [
+                'allocated_quantity' => 0,
                 'sold_quantity' => 0,
                 'allocated_by' => Auth::id(),
-            ]);
-        }
-
-        $cashierName = User::find($request->cashier_id)->name;
+            ]
+        );
+        $cashierStock->increment('allocated_quantity', $request->quantity);
 
         // Create notification for cashier
         StockRequest::create([

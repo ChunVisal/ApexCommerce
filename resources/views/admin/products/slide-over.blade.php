@@ -138,8 +138,14 @@
                         <label
                             class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">Stock
                             *</label>
-                        <input type="number" x-model.number="form.stock" placeholder="0"
+                        <input type="number" x-model.number="form.stock" placeholder="0" 
+                            :disabled="editmode"
+                            :readonly="editMode"
+                            :class="editMode ? 'bg-gray-100 dark:bg-zinc-800 cursor-not-allowed' : 'bg-white dark:bg-zinc-800'"
                             class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
+                        <p x-show="editMode" class="text-[10px] text-yellow-600 dark:text-yellow-500 mt-1">Stock can
+                            only be adjusted in
+                            Inventory</p>
                     </div>
                 </div>
 

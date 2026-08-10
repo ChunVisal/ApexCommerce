@@ -4,7 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotificationController;
-    
+
 use App\Http\Controllers\Admin\SchemaController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -102,7 +102,6 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::get('/cashier/notifications', [NotificationController::class, 'cashierIndex'])->name('cashier.notifications');
     Route::post('/cashier/notifications/mark-read', [NotificationController::class, 'cashierMarkAllRead'])->name('cashier.notifications.markRead');
     Route::post('/cashier/notifications/{id}/mark-read', [NotificationController::class, 'cashierMarkSingleRead'])->name('cashier.notifications.markSingleRead');
-    Route::post('/cashier/stock-return', [NotificationController::class, 'returnStock']);
 
     Route::get('/cashier/customers/search', [CashierCustomerController::class, 'search']);
     Route::post('/cashier/customers', [CashierCustomerController::class, 'store']);
@@ -112,6 +111,7 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
     Route::get('/cashier/customers/{id}', [CashierCustomerController::class, 'show'])->name('cashier.customers.show');
 
     Route::get('/cashier/products', [CashierProductController::class, 'index'])->name('cashier.products');
+    Route::post('/cashier/stock-loss', [CashierProductController::class, 'reportLoss']);
     Route::post('/cashier/stock-request', [StockRequestController::class, 'store']);
     Route::post('/cashier/stock-request/bulk', [StockRequestController::class, 'bulkProductRequest']);
 

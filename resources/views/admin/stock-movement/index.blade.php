@@ -190,8 +190,7 @@
                                 {{-- Quantities Numeric Text Element --}}
                                 <td
                                     class="py-3 px-4 text-center font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
-                                    <span x-text="movement.dynamic_quantity_rendered ?? movement.quantity"></span>
-                                    <span
+                                    <span x-text="movement.dynamic_quantity_rendered ?? movement.quantity"></span><span
                                         class="text-xs font-bold text-gray-800 dark:text-zinc-200 whitespace-nowrap lowercase"
                                         x-show="movement.product?.has_uom" x-text="movement.product?.base_unit_name">
                                     </span>

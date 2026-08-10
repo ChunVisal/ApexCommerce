@@ -151,9 +151,15 @@
                                         class="text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5 block">Stock
                                         Qty</label>
                                     <input type="number" min="0" x-model="form.stock" min="1"
-                                        :max="form.stock || 1"
+                                        :max="form.stock || 1" :disabled="editmode" :readonly="editMode"
+                                        :class="editMode ? 'bg-gray-100 dark:bg-zinc-800 cursor-not-allowed' :
+                                            'bg-white dark:bg-zinc-800'"
                                         class="w-full text-sm border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500"
                                         placeholder="0">
+                                    <p x-show="editMode"
+                                        class="text-[10px] text-yellow-600 dark:text-yellow-500 mt-1">Stock can
+                                        only be adjusted in
+                                        Inventory</p>
                                 </div>
                             </div>
 

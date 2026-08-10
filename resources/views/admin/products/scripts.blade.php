@@ -1,132 +1,4 @@
 <script>
-    function deleteProduct(id, button) {
-        if (button.dataset.hasOrders === '1') {
-            alert('Cannot delete: This product has existing orders');
-            return;
-        }
-        if (button.dataset.hasStock === '1') {
-            alert('Cannot delete: This product has stock movement history');
-            return;
-        }
-
-        if (!confirm('Are you sure you want to delete this product')) return;
-
-        fetch('/admin/products/' + id, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => {
-                if (res.status === 422) {
-                    return res.json().then(data => {
-                        alert(data.message);
-                        return;
-                    });
-                }
-                window.location.reload();
-                if (!res.ok) throw new Error('Error');
-            })
-            .catch(err => alert('Error: ' + err.message));
-    }
-
-    // Toggle all checkboxes - NOW shows/hides checkboxes and trash
-    function toggleAllCheckboxes(source) {
-        const isBulkMode = source.checked;
-
-        // Show/hide checkboxes and trash buttons in each row
-        document.querySelectorAll('tbody tr').forEach(row => {
-            const trashBtn = row.querySelector('.trash-btn');
-            const checkbox = row.querySelector('.bulk-checkbox');
-
-            if (trashBtn) {
-                if (isBulkMode) {
-                    trashBtn.style.display = 'none'; // Hide trash
-                    checkbox.checked = true; // Check it
-                } else {
-                    trashBtn.style.display = ''; // Show trash
-                    checkbox.checked = false; // Uncheck it
-                }
-            }
-        });
-
-        updateBulkBar();
-    }
-
-    // Update bulk bar visibility
-    function updateBulkBar() {
-        const checkedBoxes = document.querySelectorAll('.bulk-checkbox:checked');
-        const count = checkedBoxes.length;
-        const bar = document.getElementById('bulkBar');
-        const countEl = document.getElementById('bulkCount');
-        const selectAll = document.getElementById('selectAll');
-
-        if (bar) {
-            bar.style.display = count > 0 ? 'flex' : 'none';
-        }
-        if (countEl) {
-            countEl.textContent = count;
-        }
-    }
-
-    // Cancel bulk mode - reset everything
-    function cancelBulkMode() {
-        // Uncheck select all
-        const selectAll = document.getElementById('selectAll');
-        document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
-        if (selectAll) selectAll.checked = false;
-
-        // Show trash, hide checkboxes
-        document.querySelectorAll('tbody tr').forEach(row => {
-            const trashBtn = row.querySelector('.trash-btn');
-
-            if (trashBtn) {
-                trashBtn.style.display = '';
-            }
-        });
-
-        updateBulkBar();
-    }
-
-    function bulkDelete() {
-        const checkedBoxes = document.querySelectorAll('.bulk-checkbox:checked');
-        const ids = Array.from(checkedBoxes).map(cb => cb.dataset.id);
-
-        if (!ids.length) {
-            alert('Select products first!');
-            return;
-        }
-
-        // Check if any selected products have relationships
-        for (let cb of checkedBoxes) {
-            if (cb.dataset.hasOrders === '1' || cb.dataset.hasStock === '1') {
-                alert('Some selected products have existing orders or stock history and cannot be deleted.');
-                return;
-            }
-        }
-
-        if (!confirm(`Delete ${ids.length} products?`)) return;
-
-        fetch('/admin/products/bulk-delete', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    ids: ids
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                alert(data.message);
-                window.location.reload();
-            })
-            .catch(err => alert('Error: ' + err.message));
-    }
-
     function productPage() {
 
         let _isSubmitting = false;
@@ -143,6 +15,20 @@
             selectedCategoryId: null,
             pendingName: '',
             selectedProductName: '',
+
+            form: {
+                id: null,
+                code: '',
+                name: '',
+                category_code: '',
+                barcode: '',
+                price: null,
+                stock: null,
+                status: 'active',
+                image_url: '',
+                image_file: null,
+                image_preview: '',
+            },
 
             // search query
             products: @json($products ?? []),
@@ -183,50 +69,6 @@
                 }
 
                 return result;
-            },
-
-            form: {
-                id: null,
-                code: '',
-                name: '',
-                category_code: '',
-                barcode: '',
-                price: null,
-                stock: null,
-                status: 'active',
-                image_url: '',
-                image_file: null,
-                image_preview: '',
-
-            },
-
-            emptyForm() {
-                return {
-                    id: null,
-                    code: '',
-                    name: '',
-                    selectedProductName: '',
-                    category_code: '',
-                    barcode: '',
-                    price: null,
-                    stock: null,
-                    status: 'active',
-                    image_url: '',
-                    image_file: null,
-                    image_preview: '',
-                };
-            },
-
-            handleImageFile(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                this.form.image_file = file;
-                this.form.image_preview = URL.createObjectURL(file);
-                this.form.image_url = '';
-            },
-
-            clearSearch() {
-                this.search = '';
             },
 
             openAdd() {
@@ -298,8 +140,134 @@
                 }
             },
 
-            addToDraft() {
+            deleteProduct(id, button) {
+                if (button.dataset.hasOrders === '1') {
+                    alert('Cannot delete: This product has existing orders');
+                    return;
+                }
+                if (!confirm('Are you sure you want to delete this product inlcude stockmovement inital')) return;
 
+                fetch('/admin/products/' + id, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(res => {
+                        if (res.status === 422) {
+                            return res.json().then(data => {
+                                alert(data.message);
+                            });
+                        }
+                        if (!res.ok) throw new Error('Error');
+                        window.location.reload();
+                    })
+                    .catch(err => alert('Error: ' + err.message));
+            },
+
+            emptyForm() {
+                return {
+                    id: null,
+                    code: '',
+                    name: '',
+                    selectedProductName: '',
+                    category_code: '',
+                    barcode: '',
+                    price: null,
+                    stock: null,
+                    status: 'active',
+                    image_url: '',
+                    image_file: null,
+                    image_preview: '',
+                };
+            },
+
+            handleImageFile(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                this.form.image_file = file;
+                this.form.image_preview = URL.createObjectURL(file);
+                this.form.image_url = '';
+            },
+
+            toggleAllCheckboxes(source) {
+                const isBulkMode = source.checked;
+
+                document.querySelectorAll('tbody tr').forEach(row => {
+                    const trashBtn = row.querySelector('.trash-btn');
+                    const checkbox = row.querySelector('.bulk-checkbox');
+
+                    if (trashBtn) {
+                        trashBtn.style.display = isBulkMode ? 'none' : '';
+                        checkbox.checked = isBulkMode;
+                    }
+                });
+
+                this.updateBulkBar();
+            },
+
+            updateBulkBar() {
+                const checkedBoxes = document.querySelectorAll('.bulk-checkbox:checked');
+                const count = checkedBoxes.length;
+                const bar = document.getElementById('bulkBar');
+                const countEl = document.getElementById('bulkCount');
+
+                if (bar) bar.style.display = count > 0 ? 'flex' : 'none';
+                if (countEl) countEl.textContent = count;
+            },
+
+            cancelBulkMode() {
+                const selectAll = document.getElementById('selectAll');
+                document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
+                if (selectAll) selectAll.checked = false;
+
+                document.querySelectorAll('tbody tr').forEach(row => {
+                    const trashBtn = row.querySelector('.trash-btn');
+                    if (trashBtn) trashBtn.style.display = '';
+                });
+
+                this.updateBulkBar();
+            },
+
+            bulkDelete() {
+                const checkedBoxes = document.querySelectorAll('.bulk-checkbox:checked');
+                const ids = Array.from(checkedBoxes).map(cb => cb.dataset.id);
+
+                if (!ids.length) {
+                    alert('Select products first!');
+                    return;
+                }
+
+                for (let cb of checkedBoxes) {
+                    if (cb.dataset.hasOrders === '1' || cb.dataset.hasStock === '1') {
+                        alert('Some selected products have existing orders or stock history and cannot be deleted.');
+                        return;
+                    }
+                }
+
+                if (!confirm(`Delete ${ids.length} products?`)) return;
+
+                fetch('/admin/products/bulk-delete', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            ids
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.message);
+                        window.location.reload();
+                    })
+                    .catch(err => alert('Error: ' + err.message));
+            },
+
+            addToDraft() {
                 console.log('addToDraft called, addingToDraft:', this.addingToDraft);
                 // ← ADD HERE
                 const existsInDB = this.categoryProducts.find(p => p.name === this.form.name && p.id !== null);
@@ -391,7 +359,6 @@
             closePanel() {
                 this.open = false;
             },
-
 
             loadProducts() {
                 this.form.name = '';

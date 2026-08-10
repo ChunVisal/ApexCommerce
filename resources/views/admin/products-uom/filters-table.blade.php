@@ -4,7 +4,7 @@
         <h2 class="text-lg font-bold tracking-tight text-gray-900 dark:text-zinc-100">UOM Product List</h2>
         <p class="text-xs text-gray-500 dark:text-zinc-400">Manage Unit of Measurement assignments for your products.</p>
     </div>
-    <button @click="openUomForm(null)"
+    <button @click="openUomForm()"
         class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md hover:bg-[#0c5972] transition leading-tight">
         <i class="fa-solid fa-plus"></i>
         <span>Add Product UOM</span>
@@ -17,58 +17,51 @@
     <div class="relative flex-1 min-w-[200px]">
         <i
             class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs"></i>
-        <input type="text" x-model="searchQuery" @input="filterProducts()"
-            placeholder="Search product name, category or code..."
+        <input type="text" x-model="searchQuery" placeholder="Search product name, category or code..."
             class="w-full pl-8 pr-8 py-1.5 text-xs border border-gray-300 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
-        <button x-show="searchQuery" @click="searchQuery = ''; filterProducts()"
+        <button x-show="searchQuery" @click="searchQuery = '';"
             class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 text-xs">✕</button>
     </div>
 
     {{-- UOM Type Filter --}}
     <div class="relative">
-        <select x-model="uomFilter" @change="filterProducts()"
+        <select x-model="uomFilter"
             class="text-xs border border-gray-300 dark:border-zinc-800 rounded-md px-3 pr-8 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
             <option value="">All UOM Types</option>
             @foreach ($uomCounts as $uomName => $count)
                 <option value="{{ $uomName }}">{{ $uomName }} ({{ $count }})</option>
             @endforeach
         </select>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor"
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-        </svg>
+        <x-heroicon-o-chevron-down
+            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none"
+            stroke-width="2" />
     </div>
 
     {{-- Status Filter --}}
     <div class="relative">
-        <select x-model="statusFilter" @change="filterProducts()"
+        <select x-model="statusFilter"
             class="text-xs border border-gray-300 dark:border-zinc-800 rounded-md px-3 pr-8 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
             <option value="">All Status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
         </select>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor"
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-        </svg>
+        <x-heroicon-o-chevron-down
+            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none"
+            stroke-width="2" />
     </div>
 
     {{-- Stock Filter --}}
     <div class="relative">
-        <select x-model="stockFilter" @change="filterProducts()"
+        <select x-model="stockFilter"
             class="text-xs border border-gray-300 dark:border-zinc-800 rounded-md px-3 pr-8 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
             <option value="">All Stock</option>
             <option value="out">Out of Stock</option>
             <option value="low">Low Stock</option>
             <option value="in">In Stock</option>
         </select>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor"
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-        </svg>
+        <x-heroicon-o-chevron-down
+            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none"
+            stroke-width="2" />
     </div>
 </div>
 
@@ -111,14 +104,13 @@
                                     <span
                                         class="text-xs text-gray-500 dark:text-zinc-400 truncate flex items-center gap-1">
 
-                                        <span x-text="product.category?.name || 'Unassigned'"></span>
+                                        <span x-text="product.category?.name"></span>
                                     </span>
                                     <span class="text-[12px] text-gray-400 dark:text-zinc-500 font-mono tracking-wide"
                                         x-text="product.code"></span>
                                 </div>
                             </div>
                         </td>
-
 
                         {{-- Base Unit --}}
                         <td class="py-3 px-4 text-center whitespace-nowrap">
@@ -138,9 +130,9 @@
                                 <template x-for="uom in product.uoms.filter(u => !u.is_default)" :key="uom.id">
                                     <span
                                         class="px-2 py-0.5 text-[12px] font-medium bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
-                                        <span x-text="uom.name || 'Unit'"></span>
+                                        <span x-text="uom.name"></span>
                                         (<span x-text="uom.quantity_per_unit"></span><span
-                                            x-text="product.base_unit_code || product.base_unit_name || 'Unit'"></span>)
+                                            x-text="product.base_unit_code"></span>)
                                         -
                                         $<span x-text="parseFloat(uom.price).toFixed(2)"></span>
                                     </span>
@@ -148,37 +140,34 @@
                                 {{-- Fallback: base unit only, no additional UOMs --}}
                                 <span x-show="!product.uoms || product.uoms.filter(u => !u.is_default).length === 0"
                                     class="px-2 py-0.5 text-[12px] font-medium  bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
-                                    1 <span x-text="product.base_unit_code || product.base_unit_name || 'unit'"></span>
+                                    1 <span x-text="product.base_unit_code"></span>
                                     -
                                     $<span x-text="Number(product.selling_price || 0).toFixed(2)"></span>
                                 </span>
                             </div>
                         </td>
 
-                        {{-- Stock Column --}}
-                        <td class="py-3 px-4 text-center">
-                            <span x-data="{
-                                isLow: Number(product.stock_quantity) > 0 && Number(product.stock_quantity) < Number(product.low_stock_threshold),
-                                isZero: Number(product.stock_quantity) <= 0,
-                                isOk: Number(product.stock_quantity) >= Number(product.low_stock_threshold)
-                            }" class="px-2 py-0.5 text-[13px] font-bold rounded-full"
-                                :class="isZero
-                                    ?
-                                    'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400' :
-                                    isLow ?
-                                    'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400' :
-                                    'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400'">
-                                <template x-if="isZero">
-                                    <span>Out of stock</span>
-                                </template>
-                                <template x-if="isLow">
-                                    <span x-text="product.stock_quantity + ' Low'"></span>
-                                </template>
-                                <template x-if="isOk">
+                        {{-- Stock Status Badge (Alpine Version) --}}
+                        <td class="py-3 px-3 text-center whitespace-nowrap">
+                            <template x-if="product.stock_quantity == 0">
+                                <span
+                                    class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
+                                    Out of stock
+                                </span>
+                            </template>
+                            <template
+                                x-if="product.stock_quantity > 0 && product.stock_quantity <= product.low_stock_threshold">
+                                <span
+                                    class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+                                    <span x-text="product.stock_quantity"></span> Low
+                                </span>
+                            </template>
+                            <template x-if="product.stock_quantity > product.low_stock_threshold">
+                                <span
+                                    class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400">
                                     <span x-text="product.stock_quantity"></span>
-                                </template>
-
-                            </span>
+                                </span>
+                            </template>
                         </td>
 
                         {{-- Timestamps --}}
@@ -213,16 +202,28 @@
         </table>
     </div>
 
+
+    {{-- Empty state for filter/searching --}}
+    <div x-show="!filteredUomProducts.length > 0 && filteredUomProducts.length === 0">
+        <div class=" flex flex-col items-center justify-center py-[80px]">
+            <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+                <x-heroicon-o-cube class="w-8 h-8 text-gray-400 dark:text-zinc-500" />
+            </div>
+            <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No results
+                Product UOM found
+            </h3>
+            <p class="text-xs text-gray-400 dark:text-zinc-500">Get started by adding your first
+                product.</p>
+        </div>
+    </div>
+
+
     {{-- Empty State --}}
-    <template x-if="!filteredUomProducts || filteredUomProducts.length === 0">
-        <div class="py-8 text-center">
+    <template x-if="products.length === 0">
+        <div class="py-[80px] text-center">
             <div
                 class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-                <svg class="w-8 h-8 text-gray-400 dark:text-zinc-500" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
+                <x-heroicon-o-cube class="w-8 h-8 text-gray-400 dark:text-zinc-500" />
             </div>
             <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No products yet</h3>
             <p class="text-xs text-gray-400 dark:text-zinc-500">Start by adding your first product UOM.</p>
@@ -233,29 +234,3 @@
         </div>
     </template>
 </div>
-
-<script>
-    function deleteUom(id, button) {
-        if (!confirm('Delete this UOM product? This cannot be undone.')) return;
-
-        fetch(`/admin/products/uoms/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(res => {
-                console.log('Status:', res.status);
-                return res.json();
-            })
-            .then(data => {
-                console.log('Response:', data);
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    window.location.reload();
-                }
-            })
-    }
-</script>

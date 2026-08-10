@@ -131,66 +131,6 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 
-        // ---------- AJAX search ----------
-        $(document).ready(function() {
-            let searchTimer;
-            $('#search').on('input', function() {
-                clearTimeout(searchTimer);
-                const query = $(this).val();
-                $('#clearSearch').toggle(query.length > 0);
-                searchTimer = setTimeout(function() {
-                    $.get('{{ route('admin.inventory') }}', {
-                        search: query,
-                        ajax: 1
-                    }, function(data) {
-                        $('#InventoryTable').html(data.table);
-                    });
-                }, 400);
-            });
-            $('#clearSearch').on('click', function() {
-                $('#search').val('').trigger('input');
-            });
-        });
-
-        // ---------- Filters ----------
-        var categoryFilter = document.getElementById('categoryFilter');
-        var stockFilter = document.getElementById('stockFilter');
-        var emptyRow = document.getElementById('noCategoryRow');
-
-        function filterTable() {
-            var categoryVal = categoryFilter ? categoryFilter.value : '';
-            var stockVal = stockFilter ? stockFilter.value : 'all';
-            var anyVisible = false;
-
-            document.querySelectorAll('tbody tr').forEach(function(row) {
-                if (row === emptyRow) return;
-                var cells = row.getElementsByTagName('td');
-                if (cells.length < 6) return;
-
-                var catText = cells[1].textContent.trim();
-                var stockText = cells[4].textContent.trim();
-
-                var categoryMatch = (categoryVal === '' || catText === categoryVal);
-                var stockMatch = true;
-                if (stockVal === 'out') stockMatch = stockText.includes('Out');
-                else if (stockVal === 'low') stockMatch = stockText.includes('Low');
-                else if (stockVal === 'normal') stockMatch = !stockText.includes('Out') && !stockText
-                    .includes('Low');
-
-                if (categoryMatch && stockMatch) {
-                    row.style.display = '';
-                    anyVisible = true;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            if (emptyRow) emptyRow.style.display = anyVisible ? 'none' : '';
-        }
-
-        if (categoryFilter) categoryFilter.addEventListener('change', filterTable);
-        if (stockFilter) stockFilter.addEventListener('change', filterTable);
-
         // ---------- Chart ----------
         const isDarkMode = document.documentElement.classList.contains('dark');
         const trendCanvas = document.getElementById('movementTrendChart');

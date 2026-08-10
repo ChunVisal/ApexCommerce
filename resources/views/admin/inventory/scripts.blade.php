@@ -10,6 +10,7 @@
             thresholdMap: {{ \Illuminate\Support\Js::from($products->pluck('low_stock_threshold', 'code')) }},
 
             stockDropOpen: false,
+            dropSubmitting: false,
             dropForm: {
                 product_id: null,
                 product_name: '',
@@ -17,13 +18,13 @@
                 cashier_id: '',
                 quantity: 1
             },
-            cashierStocks: @json($cashierStocks ?? []),
 
+            products: @json($products),
+            cashierStocks: @json($cashierStocks ?? []),
             searchQuery: '',
             categoryFilter: '',
             statusFilter: 'all',
             stockFilter: 'all',
-            products: @json($products),
 
             form: {
                 product_code: '',
@@ -40,7 +41,6 @@
             cashierOpen: false,
             selectedCashierName: '',
             cashiers: @json($cashiers ?? []),
-
 
             get filteredProducts() {
                 let result = [...this.products];
@@ -159,6 +159,7 @@
                             }
                             window.location.reload();
                         } else {
+                            this.dropSubmitting = false;
                             alert(data.message);
                         }
                     });

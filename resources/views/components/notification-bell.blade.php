@@ -138,7 +138,7 @@
                                 @if ($isAdmin)
                                     <span class="font-bold">{{ $notif->cashier->name }}</span>
                                     @if ($notif->status === 'loss_reported')
-                                        <span class="text-red-600 dark:text-red-400">reported loss of</span>
+                                        <span class="text-red-500 dark:text-red-400">reported loss of</span>
                                     @elseif ($notif->status === 'refunded')
                                         <span class="text-[#0F6E8C] dark:text-blue-400">restocked (refund)</span>
                                     @else
@@ -165,8 +165,8 @@
                             <div class="flex gap-1">
                                 <p
                                     class="text-xs font-normal tracking-normal
-                                    {{ $notif->status === 'approved' ? 'text-green-600' : ($notif->status === 'rejected' ? 'text-red-600' : 'text-amber-600') }}">
-                                    {{ $notif->status === 'approved' ? 'Approved' : ($notif->status === 'rejected' ? 'Rejected' : ($notif->status === 'on_hold' ? 'On Hold' : 'Pending')) }}
+    {{ $notif->status === 'approved' ? 'text-green-600' : ($notif->status === 'rejected' || $notif->status === 'loss_reported' ? 'text-red-500 dark:text-red-400' : ($notif->status === 'refunded' ? 'text-blue-600' : 'text-amber-600')) }}">
+                                    {{ $notif->status === 'approved' ? 'Approved' : ($notif->status === 'rejected' ? 'Rejected' : ($notif->status === 'on_hold' ? 'On Hold' : ($notif->status === 'loss_reported' ? 'Loss Reported' : ($notif->status === 'refunded' ? 'Refunded' : 'Pending')))) }}
                                 </p>
                                 </p>
                                 <p class="text-[11px] text-gray-400 dark:text-zinc-500 font-medium">

@@ -99,11 +99,11 @@
             <span id="bulkCount">0</span> selected
         </span>
         <div class="flex items-center">
-            <button onclick="bulkDelete()"
+            <button @click="bulkDelete()"
                 class="px-3 py-[4.5px] text-[12px] font-medium text-white bg-red-500 hover:bg-red-600 transition">
                 Delete Selected
             </button>
-            <button onclick="cancelBulkMode()"
+            <button @click="cancelBulkMode()"
                 class="px-3 py-[4.5px] text-[12px] font-medium text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-600 rounded-r-md">
                 Cancel
             </button>
@@ -167,7 +167,8 @@
                                         Out of stock
                                     </span>
                                 </template>
-                                <template x-if="product.stock_quantity <= product.low_stock_threshold">
+                                <template
+                                    x-if="product.stock_quantity > 0 && product.stock_quantity <= product.low_stock_threshold">
                                     <span
                                         class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
                                         <span x-text="product.stock_quantity"></span> Low

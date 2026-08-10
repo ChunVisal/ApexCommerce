@@ -28,7 +28,7 @@
             {{-- Cashier Selection --}}
             <div>
                 <label class="block text-xs text-gray-500 mb-1">Select Cashier</label>
-                
+
                 <select x-model="dropForm.cashier_id"
                     class="w-full text-sm border border-gray-300 dark:border-zinc-700 rounded-lg px-3 py-2 bg-white dark:bg-zinc-800 text-gray-800 dark:text-zinc-200">
                     <option value="">Choose cashier...</option>
@@ -54,9 +54,11 @@
         <div class="px-5 py-4 border-t border-gray-200 dark:border-zinc-800 flex gap-3">
             <button @click="stockDropOpen = false"
                 class="flex-1 py-2 text-xs border rounded-lg text-gray-600 dark:text-zinc-300">Cancel</button>
-            <button @click="submitDrop()" :disabled="!dropForm.cashier_id || !dropForm.quantity"
-                class="flex-[2] py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-lg hover:bg-[#0c5972] disabled:opacity-50">
-                Transfer Stock
+            <button @click="submitDrop(); dropSubmitting = true"
+                :disabled="!dropForm.cashier_id || !dropForm.quantity || dropSubmitting"
+                class="flex-[2] py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-lg hover:bg-[#0c5972] disabled:opacity-50 flex items-center justify-center gap-1">
+                <i x-show="dropSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+                <span x-text="dropSubmitting ? 'Transferring...' : 'Transfer Stock'"></span>
             </button>
         </div>
     </div>

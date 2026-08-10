@@ -148,7 +148,7 @@
                     return;
                 }
 
-                fetch('/cashier/stock-return', {
+                fetch('/cashier/stock-loss', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

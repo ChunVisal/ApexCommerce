@@ -1,18 +1,15 @@
 <script>
     function productUomPage() {
         return {
-            // search and filters
+            // Product uoms state
+            products: @json($products),
+            categories: @json($categories),
             searchQuery: '',
             uomFilter: '',
             statusFilter: '',
             stockFilter: '',
 
-            // Product list state
-            products: @json($products),
-            categories: @json($categories),
-
             // Slide-over visibility + mode
-            // uomFormOpen: true,
             uomFormOpen: false,
             editMode: false,
             submitting: false,
@@ -84,10 +81,6 @@
                 return result;
             },
 
-            filterProducts() {
-                // Just triggers re-render via getter
-            },
-
             get uomProducts() {
                 return this.products.filter(p => p.has_uom);
             },
@@ -114,8 +107,6 @@
                         stock: 0,
                         status: 'active',
                     };
-
-
                     this.uomFormList = [];
                 } else {
                     // Editing an existing product's UOMs
@@ -138,8 +129,31 @@
                     this.uomFormList = (product.uoms && product.uoms.length > 0) ?
                         JSON.parse(JSON.stringify(product.uoms)) : [];
                 }
-
                 this.uomFormOpen = true;
+            },
+
+            deleteUom(id, button) {
+                if (!confirm('Delete this UOM product? This cannot be undone.')) return;
+
+                fetch(`/admin/products/uoms/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        }
+                    })
+                    .then(res => {
+                        console.log('Status:', res.status);
+                        return res.json();
+                    })
+                    .then(data => {
+                        console.log('Response:', data);
+                        if (data.error) {
+                            alert(data.error);
+                        } else {
+                            window.location.reload();
+                        }
+                    })
             },
 
             closeUomPanel() {
