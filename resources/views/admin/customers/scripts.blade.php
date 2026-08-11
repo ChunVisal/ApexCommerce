@@ -122,16 +122,6 @@
                     });
             },
 
-            formatDateTime(date) {
-                return new Date(date).toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            },
-
             emptyForm() {
                 return {
                     id: null,
@@ -193,8 +183,6 @@
 
                 return result;
             },
-
-            filterCustomers() {},
 
             get totalPages() {
                 return Math.ceil(this.filteredCustomers.length / this.perPage);
@@ -295,13 +283,6 @@
                 this.viewOpen = false;
             },
 
-            deleteCustomer(customer) {
-                if (confirm(`Are you sure you want to delete ${customer.name}?`)) {
-                    console.log('Deleting customer:', customer);
-                    // Implement delete logic
-                }
-            },
-
             openCustomerDetail(customerId) {
                 fetch(`/admin/customers/${customerId}`, {
                         headers: {
@@ -314,11 +295,6 @@
                         this.customerOrders = data.orders;
                         this.customerDetailOpen = true;
                     });
-            },
-
-            submitForm() {
-                console.log('Submitting customer:', this.form);
-                this.closePanel();
             },
         }
     }

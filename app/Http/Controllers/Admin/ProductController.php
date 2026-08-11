@@ -9,6 +9,7 @@ use App\Models\ProductCatalog;
 use App\Models\ProductUom;
 use App\Models\StockMovement;
 use App\Services\Admin\ActivityService;
+use App\Traits\HandlesImageUploads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
+    use HandlesImageUploads;
     /* =========================================================================
      | 1. CORE PRODUCT CRUD METHODS
      | ========================================================================= */
@@ -46,14 +48,13 @@ class ProductController extends Controller
                 return response()->json(['error' => 'Category not found'], 422);
             }
 
-
             $code = $this->generateProductCode($request->name);
 
             do {
                 $barcode = str_pad(rand(0, 999999999999), 12, '0', STR_PAD_LEFT);
             } while (Product::where('barcode', $barcode)->exists());
 
-            $imageUrl = $this->handleImage($request);
+            $imageUrl = $this->handleProductImage($request);
 
             $product = Product::create([
                 'code' => $code,
@@ -96,8 +97,7 @@ class ProductController extends Controller
         try {
             $product = Product::findOrFail($id);
 
-
-            $imageUrl = $this->handleImage($request, $product->image);
+            $imageUrl = $this->handleProductImage($request, $product->image);
 
             $product->update([
                 'name' => $request->name,
@@ -231,8 +231,9 @@ class ProductController extends Controller
                 return response()->json(['error' => 'Category not found'], 422);
             }
 
-            $imageUrl = $this->handleImage($request);
             $code = $this->generateProductCode($request->name);
+
+            $imageUrl = $this->handleProductImage($request);
 
             $product = Product::create([
                 'name' => $request->name,
@@ -284,7 +285,7 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        $imageUrl = $this->handleImage($request, $product->image);
+        $imageUrl = $this->handleProductImage($request, $product->image);
 
         $product->update([
             'category_id' => $request->category_id,
@@ -333,55 +334,6 @@ class ProductController extends Controller
     /* =========================================================================
      | 4. HELPER METHODS
      | ========================================================================= */
-
-    private function uploadToCloudinary(Request $file): string
-    {
-        $cloudName = config('cloudinary.cloud_name');
-        $apiKey = config('cloudinary.api_key');
-        $apiSecret = config('cloudinary.api_secret');
-        $timestamp = time();
-        $signature = sha1("folder=pos/products&timestamp={$timestamp}{$apiSecret}");
-
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_POSTFIELDS => [
-                'file' => new \CURLFile($file->getRealPath(), $file->getMimeType(), $file->getClientOriginalName()),
-                'api_key' => $apiKey,
-                'timestamp' => $timestamp,
-                'signature' => $signature,
-                'folder' => 'pos/products',
-            ],
-        ]);
-
-        $response = curl_exec($ch);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error) {
-            throw new \Exception("Cloudinary upload failed: {$error}");
-        }
-
-        $data = json_decode($response, true);
-
-        if (! isset($data['secure_url'])) {
-            throw new \Exception('Cloudinary error: ' . ($data['error']['message'] ?? 'Unknown error'));
-        }
-
-        return $data['secure_url'];
-    }
-
-    private function handleImage(Request $request, $existing = null)
-    {
-        if ($request->hasFile('image_file')) {
-            return $this->uploadToCloudinary($request->file('image_file'));
-        }
-        return $request->image_url ?? $existing;
-    }
 
     private function generateProductCode(String $name)
     {

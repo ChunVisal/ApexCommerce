@@ -29,28 +29,28 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-zinc-800/50">
-                @forelse($dailySales as $day)
+                @forelse($dailySales as $sale)
                     <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition">
                         <td class="py-3 pl-4 font-medium text-gray-800 dark:text-zinc-200">
-                            {{ Carbon\Carbon::parse($day->date)->format('D, M d, Y') }}
+                            {{ Carbon\Carbon::parse($sale->date)->format('D, M d, Y') }}
                         </td>
                         <td class="py-3 px-4 text-center text-gray-700 dark:text-zinc-200">
-                            {{ $day->orders }}
+                            {{ $sale->orders }}
                         </td>
                         <td class="py-3 px-4 text-right font-bold text-gray-800 dark:text-zinc-200">
-                            ${{ number_format($day->revenue, 2) }}
+                            ${{ number_format($sale->revenue, 2) }}
                         </td>
                         <td class="py-3 px-4 text-right font-semibold text-red-500">
-                            -${{ number_format($day->discount, 2) }}
+                            -${{ number_format($sale->discount, 2) }}
                         </td>
                         <td class="py-3 px-4 text-right font-semibold text-yellow-600">
-                            -${{ number_format($day->vip_discount, 2) }}
+                            -${{ number_format($sale->vip_discount, 2) }}
                         </td>
                         <td class="py-3 px-4 text-right text-gray-600 dark:text-zinc-300">
-                            ${{ number_format($day->tax, 2) }}
+                            ${{ number_format($sale->tax, 2) }}
                         </td>
                         <td class="py-3 pr-7 text-right font-bold text-[#0F6E8C]">
-                            ${{ number_format($day->revenue - $day->discount, 2) }}
+                            ${{ number_format($sale->revenue - $sale->discount - $sale->vip_discount - $sale->tax, 2) }}
                         </td>
                     </tr>
                 @empty

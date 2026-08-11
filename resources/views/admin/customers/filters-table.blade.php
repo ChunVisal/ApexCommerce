@@ -84,19 +84,29 @@
                                     <p class="text-xs text-gray-400 truncate" x-text="customer.phone"></p>
                                 </div>
                             </div>
-
-                        </td>
-                        <td class="py-3 px-4">
-                            <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full shadow-sm transition-colors"
-                                :class="(customer.total_orders >= 6 || customer.total_spent >= 5000) ?
-                                'bg-yellow-200/70 text-yellow-900 dark:bg-yellow-500/20 dark:text-yellow-300' :
-                                (customer.total_orders >= 3 || customer.total_spent >= 2000) ?
-                                'bg-blue-200/60 text-blue-900 dark:bg-blue-600/20 dark:text-blue-400' :
-                                'bg-green-200/70 text-green-800 dark:bg-green-700/30 dark:text-green-400'"
-                                x-text="(customer.total_orders >= 6 || customer.total_spent >= 5000) ? 'VIP' : 
-                                   (customer.total_orders >= 3 || customer.total_spent >= 2000) ? 'REGULAR' : 'NEW'"></span>
                         </td>
 
+                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                            <template x-if="customer.total_orders >= 6 || customer.total_spent >= 5000">
+                                <span
+                                    class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-yellow-50 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-300">
+                                    VIP
+                                </span>
+                            </template>
+                            <template
+                                x-if="(customer.total_orders >= 3 || customer.total_spent >= 2000) && (customer.total_orders < 6 && customer.total_spent < 5000)">
+                                <span
+                                    class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300">
+                                    Regular
+                                </span>
+                            </template>
+                            <template x-if="customer.total_orders < 3 && customer.total_spent < 2000">
+                                <span
+                                    class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300">
+                                    New
+                                </span>
+                            </template>
+                        </td>
 
                         <td class="py-3 px-2 text-center font-medium text-gray-700 dark:text-zinc-300"
                             x-text="customer.total_orders"></td>
@@ -113,18 +123,42 @@
                         </td>
                     </tr>
                 </template>
-                <tr x-show="filteredCustomers.length === 0">
+                {{-- Empty state for filter/searching --}}
+                <tr x-show="customers.length > 0 && filteredCustomers.length === 0">
                     <td colspan="6" class="text-center py-16">
                         <div class="flex flex-col items-center justify-center">
                             <div
                                 class="w-14 h-14 mb-3 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
                                 <i class="fa-solid fa-users text-xl text-gray-400"></i>
                             </div>
-                            <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300">No customers found</h3>
-                            <p class="text-xs text-gray-400 mt-1">Try adjusting your filters</p>
+                            <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No results Customer
+                                found</h3>
+                            <p class="text-xs text-gray-400 dark:text-zinc-500">Get started by adding your first
+                                customer.</p>
                         </div>
                     </td>
                 </tr>
+
+                {{-- Empty State if no customers exist yet --}}
+                <tr x-show="customers.length === 0">
+                    <td colspan="6" class="text-center py-16">
+                        <div class="flex flex-col items-center justify-center">
+                            <div
+                                class="w-14 h-14 mb-3 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-users text-xl text-gray-400"></i>
+                            </div>
+                            <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No customers exist
+                                yet</h3>
+                            <p class="text-xs text-gray-400 dark:text-zinc-500">Get started by adding your first
+                                customer.</p>
+                            <button @click="openAdd()"
+                                class="mt-4 inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md hover:bg-[#0c5972] transition">
+                                <i class="fa-solid fa-plus text-[10px]"></i> Add Your First Customer
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
             </tbody>
         </table>
     </div>

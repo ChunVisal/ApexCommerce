@@ -13,8 +13,8 @@
                 <h3 class="text-[15px] font-semibold text-gray-800 dark:text-zinc-100">Sales Overview</h3>
                 <p class="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">
                     Total: <span
-                        class="font-semibold text-[#0F6E8C] dark:text-[#1389af] ">${{ number_format($totalRevenue, 2) }}</span>
-                    · {{ count($salesChart) }} days
+                        class="font-semibold text-[#0F6E8C] dark:text-[#1389af] ">${{ $salesChart['total_revenue'] }}</span>
+                    · {{ count($salesChart['chart']) }} days
                 </p>
             </div>
             <button type="button" class="text-gray-500 dark:text-zinc-400 hover:text-gray-600 dark:hover:text-zinc-300">
@@ -81,9 +81,9 @@
         gradient.addColorStop(0, 'rgba(249, 115, 22, 0.25)');
         gradient.addColorStop(1, 'rgba(249, 115, 22, 0)');
 
-        const labels = @json(array_column($salesChart, 'label_short'));
-        const fullLabels = @json(array_column($salesChart, 'label_full'));
-        const data = @json(array_column($salesChart, 'total'));
+        const labels = @json(array_column($salesChart['chart'], 'label_short'));
+        const fullLabels = @json(array_column($salesChart['chart'], 'label_full'));
+        const data = @json(array_column($salesChart['chart'], 'total'));
 
         new Chart(salesCtx, {
             type: 'line',

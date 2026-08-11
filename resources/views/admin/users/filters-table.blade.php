@@ -17,11 +17,9 @@
             <option value="admin" class="bg-white dark:bg-zinc-900">Admin</option>
             <option value="cashier" class="bg-white dark:bg-zinc-900">Cashier</option>
         </select>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor"
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-        </svg>
+        <x-heroicon-o-chevron-down
+            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none"
+            stroke-width="2" />
     </div>
     <div class="relative">
         <select x-model="statusFilter"
@@ -30,11 +28,9 @@
             <option value="active" class="bg-white dark:bg-zinc-900">Active</option>
             <option value="inactive" class="bg-white dark:bg-zinc-900">Inactive</option>
         </select>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor"
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-        </svg>
+        <x-heroicon-o-chevron-down
+            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none"
+            stroke-width="2" />
     </div>
     {{-- Bulk Action Bar --}}
     <div id="bulkBar" style="display:none;"
@@ -43,15 +39,15 @@
             <span id="bulkCount">0</span> selected
         </span>
         <div class="flex items-center ">
-            <button onclick="bulkDeactivate()"
+            <button @click="bulkDeactivate()"
                 class="px-3 py-[4.5px] text-[12px] font-medium text-white bg-amber-500 hover:bg-amber-600 transition">
                 Deactivate
             </button>
-            <button onclick="bulkDelete()"
+            <button @click="bulkDelete()"
                 class="px-3 py-[4.5px] text-[12px] font-medium text-white bg-red-500 hover:bg-red-600 transition">
                 Delete Selected
             </button>
-            <button onclick="cancelBulkMode()"
+            <button @click="cancelBulkMode()"
                 class="px-3 py-[4.5px] text-[12px] font-medium text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-600 rounded-r-md">
                 Cancel
             </button>
@@ -74,7 +70,7 @@
                     <th class="pb-2 px-4 font-medium">Online</th>
                     <th class="pb-2 pl-4 font-medium text-right">Actions</th>
                     <th class="pb-2 px-2 font-medium">
-                        <input type="checkbox" id="selectAll" onchange="toggleAllCheckboxes(this)"
+                        <input type="checkbox" @change="toggleAllCheckboxes($el)"
                             class="rounded border-gray-300 dark:border-zinc-600 cursor-pointer">
                     </th>
                 </tr>
@@ -177,46 +173,44 @@
                     </tr>
                 </template>
 
-                {{-- Empty State --}}
-                <tr x-show="!filteredUsers || filteredUsers.length === 0">
+                {{-- Empty State for filter/searching --}}
+                <tr x-show="users.length > 0 && filteredUsers.length === 0">
                     <td colspan="7" class="text-center py-16">
                         <div class="flex flex-col items-center justify-center">
                             <div
                                 class="w-16 h-16 mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-gray-400 dark:text-zinc-500" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-                                </svg>
+                                <x-heroicon-o-user-group class="w-8 h-8 text-gray-400 dark:text-zinc-500" />
                             </div>
                             <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No users found</h3>
-                            <p class="text-xs text-gray-400 dark:text-zinc-500">Try adjusting your filters</p>
+                            <p class="text-xs text-gray-400 dark:text-zinc-500">Try adjusting your filters or search.
+                            </p>
                         </div>
                     </td>
                 </tr>
 
-            </tbody>
-
-            {{-- Empty state row - add this at the end of <tbody> --}}
-            <tr id="noUsersRow" style="display: none;">
-                <td colspan="6" class="text-center py-16">
-                    <div class="flex flex-col items-center justify-center">
-                        <div
-                            class="w-16 h-16 mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-gray-400 dark:text-zinc-500" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d=" M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0
-        00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331
-        0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0
-        016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-                            </svg>
+                {{-- Empty State if no users exist at all --}}
+                <tr x-show="users.length === 0">
+                    <td colspan="7" class="text-center py-16">
+                        <div class="flex flex-col items-center justify-center">
+                            <div
+                                class="w-16 h-16 mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
+                                <x-heroicon-o-user-plus class="w-8 h-8 text-gray-400 dark:text-zinc-500" />
+                            </div>
+                            <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">
+                                No users exist yet
+                            </h3>
+                            <p class="text-xs text-gray-400 dark:text-zinc-500 mb-3">Get started by adding your first
+                                user.</p>
+                            <button
+                                @click="openAddUser && typeof openAddUser === 'function' ? openAddUser() : openAdd()"
+                                class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md hover:bg-[#0c5972] transition">
+                                <x-heroicon-m-plus class="w-4 h-4" />
+                                Add Your First User
+                            </button>
                         </div>
-                        <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No users found
-                        </h3>
-                        <p class="text-xs text-gray-400 dark:text-zinc-500">Try adjusting your filters</p>
-                    </div>
-                </td>
-            </tr>
+                    </td>
+                </tr>
+
         </table>
     </div>
 </div>

@@ -82,6 +82,7 @@ class InventoryService
             ? Carbon::parse($request->end_date)
             : now();
 
+        // only get movements that happened within your selected date range.
         $movements = StockMovement::whereBetween('created_at', [$start->startOfDay(), $end->endOfDay()])
             ->whereHas('product', function ($q) {
                 $q->where('has_uom', false);
@@ -96,10 +97,13 @@ class InventoryService
 
         $current = $start->copy();
         while ($current <= $end) {
+            // Fetch current weekdays and months
             $key = $current->format('M d');
             $labels[] = $key;
 
+            // If no movements happened that day → use an empty pile instead of crash
             $dayMovements = isset($movements[$key]) ? collect($movements[$key])->flatten() : collect([]);
+
 
             $stockIn[] = $dayMovements->where('type', 'in')->sum('quantity');
             $stockOut[] = $dayMovements->where('type', 'out')->sum('quantity');
@@ -109,6 +113,8 @@ class InventoryService
                 ->map(function ($m) {
                     return "{$m->quantity}x {$m->product->name} → {$m->reason}";
                 })->join(', ');
+
+            // Add that summary string to the list (or empty string if no "out" movements that day).
             $details[] = $dayDetails ?: '';
             $current->addDay();
         }

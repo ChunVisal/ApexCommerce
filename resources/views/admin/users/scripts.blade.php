@@ -1,76 +1,4 @@
 <script>
-    // OUTSIDE userPage() - at the top
-    function deleteUser(id, button) {
-        if (!confirm('Delete this user?')) return;
-        fetch(`/admin/users/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                }
-            })
-            .then(() => button.closest('tr').remove())
-            .catch(err => alert('Error: ' + err.message));
-    }
-
-    // Remove toggleAllCheckboxes function - no longer needed
-
-    function updateBulkBar() {
-        const count = document.querySelectorAll('.bulk-checkbox:checked').length;
-        const bar = document.getElementById('bulkBar');
-        const countEl = document.getElementById('bulkCount');
-        if (bar) bar.style.display = count > 0 ? 'flex' : 'none';
-        if (countEl) countEl.textContent = count;
-    }
-
-    function cancelBulkMode() {
-        document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
-        updateBulkBar();
-    }
-
-    function toggleAllCheckboxes(source) {
-        document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = source.checked);
-        updateBulkBar();
-    }
-
-    function bulkDeactivate() {
-        const ids = [...document.querySelectorAll('.bulk-checkbox:checked')].map(cb => cb.dataset.id);
-        if (!ids.length) return alert('Select users first!');
-        if (!confirm(`Deactivate ${ids.length} users?`)) return;
-        fetch('/admin/users/bulk-deactivate', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ids
-                })
-            })
-            .then(res => res.json())
-            .then(() => window.location.reload())
-            .catch(err => alert('Error: ' + err.message));
-    }
-
-    function bulkDelete() {
-        const ids = [...document.querySelectorAll('.bulk-checkbox:checked')].map(cb => cb.dataset.id);
-        if (!ids.length) return alert('Select users first!');
-        if (!confirm(`Delete ${ids.length} users permanently?`)) return;
-        fetch('/admin/users/bulk-delete', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ids
-                })
-            })
-            .then(res => res.json())
-            .then(() => window.location.reload())
-            .catch(err => alert('Error: ' + err.message));
-    }
-
     function userPage() {
         return {
             open: false,
@@ -104,6 +32,75 @@
             roleFilter: 'all',
             statusFilter: 'all',
 
+            deleteUser(id, button) {
+                if (!confirm('Delete this user?')) return;
+                fetch(`/admin/users/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        }
+                    })
+                    .then(() => button.closest('tr').remove())
+                    .catch(err => alert('Error: ' + err.message));
+            },
+
+            updateBulkBar() {
+                const count = document.querySelectorAll('.bulk-checkbox:checked').length;
+                const bar = document.getElementById('bulkBar');
+                const countEl = document.getElementById('bulkCount');
+                if (bar) bar.style.display = count > 0 ? 'flex' : 'none';
+                if (countEl) countEl.textContent = count;
+            },
+
+            cancelBulkMode() {
+                document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = false);
+                this.updateBulkBar();
+            },
+
+            toggleAllCheckboxes(source) {
+                document.querySelectorAll('.bulk-checkbox').forEach(cb => cb.checked = source.checked);
+                this.updateBulkBar();
+            },
+
+            bulkDeactivate() {
+                const ids = [...document.querySelectorAll('.bulk-checkbox:checked')].map(cb => cb.dataset.id);
+                if (!ids.length) return alert('Select users first!');
+                if (!confirm(`Deactivate ${ids.length} users?`)) return;
+                fetch('/admin/users/bulk-deactivate', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            ids
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(() => window.location.reload())
+                    .catch(err => alert('Error: ' + err.message));
+            },
+
+            bulkDelete() {
+                const ids = [...document.querySelectorAll('.bulk-checkbox:checked')].map(cb => cb.dataset.id);
+                if (!ids.length) return alert('Select users first!');
+                if (!confirm(`Delete ${ids.length} users permanently?`)) return;
+                fetch('/admin/users/bulk-delete', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            ids
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(() => window.location.reload())
+                    .catch(err => alert('Error: ' + err.message));
+            },
+            
             getInitials(name) {
                 if (!name) return '';
 

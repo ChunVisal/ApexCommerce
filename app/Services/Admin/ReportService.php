@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Customer;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ReportService
 {
@@ -32,7 +33,6 @@ class ReportService
 
         $prevRevenue = Order::where('status', '!=', 'refunded')
             ->whereBetween('created_at', [$prevStart, $prevEnd])->sum('total');
-
 
         $orderCount = Order::where('status', '!=', 'refunded')->count();
 
@@ -84,5 +84,90 @@ class ReportService
                 'period'     => 'Per transaction',
             ],
         ];
+    }
+
+    public static function getDailySales($start, $end)
+    {
+        $start = Carbon::parse($start);
+        $end = Carbon::parse($end);
+
+        $dailySales = Order::where('orders.status', '!=', 'refunded')
+            ->whereDate('orders.created_at', '>=', $start)
+            ->whereDate('orders.created_at', '<=', $end)
+            ->select(
+                DB::raw('DATE(orders.created_at) as date'),
+                DB::raw('COUNT(*) as orders'),
+                DB::raw('SUM(orders.total) as revenue'),
+                DB::raw('SUM(orders.discount) as discount'),
+                DB::raw('SUM(orders.vip_discount) as vip_discount'),
+                DB::raw('SUM(orders.tax) as tax')
+            )
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        // Fill missing dates with zero
+        $allDates = [];
+        $current = $start->copy();
+        while ($current <= $end) {
+            $dateKey = $current->format('Y-m-d');
+            $allDates[$dateKey] = (object) [
+                'date' => $dateKey,
+                'orders' => 0,
+                'revenue' => 0,
+                'discount' => 0,
+                'vip_discount' => 0,
+                'tax' => 0,
+            ];
+            $current->addDay();
+        }
+
+        foreach ($dailySales as $sale) {
+            $allDates[$sale->date] = $sale;
+        }
+
+        return collect(array_values($allDates));
+    }
+
+    public static function getTopCashiers($start, $end)
+    {
+        return Order::where('orders.status', '!=', 'refunded')
+            ->whereBetween('orders.created_at', [$start, $end])
+            ->join('users', 'orders.cashier_id', '=', 'users.id')
+            ->where('users.role', 'cashier')
+            ->select(
+                'users.id',
+                'users.name',
+                'users.avatar',
+                'users.employee_id',
+                'users.shift',
+                DB::raw('COUNT(*) as orders'),
+                DB::raw('SUM(orders.total) as revenue'),
+                DB::raw('SUM(orders.discount) + SUM(orders.vip_discount) + SUM(orders.tax) as discount')
+            )
+            ->groupBy(
+                'users.id',
+                'users.name',
+                'users.avatar',
+                'users.employee_id',
+                'users.shift'
+            )
+            ->orderByDesc('revenue')
+            ->get()
+            ->map(function ($cashier) {
+                $cashier->items_sold = OrderItem::whereHas('order', fn($q) => $q->where('cashier_id', $cashier->id)
+                    ->where('status', '!=', 'refunded'))
+                    ->sum('quantity');
+                $cashier->avg_order = $cashier->orders > 0 ? $cashier->revenue / $cashier->orders : 0;
+                return $cashier;
+            });
+    }
+
+    public static function getOrders($start, $end)
+    {
+        return Order::with(['cashier', 'customer', 'payment', 'items'])
+            ->whereBetween('orders.created_at', [$start, $end])
+            ->latest()
+            ->get();
     }
 }

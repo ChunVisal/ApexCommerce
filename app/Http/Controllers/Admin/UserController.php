@@ -11,12 +11,14 @@ use App\Models\StockRequest;
 use App\Models\User;
 use App\Services\Admin\ActivityService;
 use App\Services\Admin\UserService;
+use App\Traits\HandlesImageUploads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
+    use HandlesImageUploads;
     /* =========================================================================
      | 1. PAGE VIEWS
      | ========================================================================= */
@@ -24,9 +26,9 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $summaryCards = UserService::getSummaryCards();
-        $users = UserService::getUsers($request->search);
+        $users = UserService::getUsers();
 
-        if ($request->ajax) {
+        if ($request->ajax()) {
             return response()->json(['users' => $users]);
         }
 
@@ -39,9 +41,6 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        Log::info('Store called', $request->all());
-        Log::info('Has avatar_file: ' . ($request->hasFile('avatar_file') ? 'YES' : 'NO'));
-
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
@@ -57,25 +56,8 @@ class UserController extends Controller
             'salary' => 'nullable|numeric',
         ]);
 
-        $employeeId = null;
-        if ($request->role === 'cashier') {
-            $lastEmp = User::where('employee_id', 'like', 'EMP-%')
-                ->orderBy('employee_id', 'desc')
-                ->first();
-
-            $nextNum = $lastEmp
-                ? (intval(substr($lastEmp->employee_id, 4)) + 1)
-                : 1;
-
-            $employeeId = 'EMP-' . str_pad($nextNum, 3, '0', STR_PAD_LEFT);
-        }
-
-        $imageUrl = null;
-        if ($request->hasFile('avatar_file')) {
-            $imageUrl = $this->uploadToCloudinary($request->file('avatar_file'), 'pos/avatars');
-        } elseif ($request->avatar_url) {
-            $imageUrl = $request->avatar_url;
-        }
+        $employeeId = $request->role === 'cashier' ? $this->generateEmployeeId() : null;
+        $imageUrl = $this->handleAvatarImage($request);
 
         User::create([
             'name' => $request->name,
@@ -103,13 +85,14 @@ class UserController extends Controller
         return response()->json(['success' => true, 'message' => 'User created']);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         try {
             $user = User::findOrFail($id);
 
             $request->validate([
                 'name' => 'required|string|max:255',
+                // add email, id to verify if user edit themeself keep same eamil skip, if change emial must different from others 
                 'email' => 'required|email|unique:users,email,' . $id,
                 'role' => 'required|in:admin,cashier',
                 'phone' => 'nullable|string',
@@ -120,32 +103,23 @@ class UserController extends Controller
                 'salary' => 'nullable|numeric',
             ]);
 
-            $imageUrl = $user->avatar;
-            if ($request->hasFile('avatar_file')) {
-                $imageUrl = $this->uploadToCloudinary($request->file('avatar_file'), 'pos/avatars');
-            } elseif ($request->avatar_url) {
-                $imageUrl = $request->avatar_url;
-            }
+            $imageUrl = $this->handleAvatarImage($request, $user->avatar, 'avatar_file', 'avatar_url');
 
-            $data = $request->only([
-                'name',
-                'email',
-                'role',
-                'status',
-                'phone',
-                'address',
-                'shift',
-                'pin',
-                'hire_date',
-                'salary',
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'role' => $request->role,
+                'status' => $request->status,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'shift' => $request->shift,
+                'pin' => $request->pin,
+                'hire_date' => $request->hire_date,
+                'salary' => $request->salary,
+                'avatar' => $imageUrl,
+                // if ? change pass make new hash else : current pass
+                'password' => $request->password ? Hash::make($request->password) : $user->password,
             ]);
-            $data['avatar'] = $imageUrl;
-
-            if ($request->password) {
-                $data['password'] = Hash::make($request->password);
-            }
-
-            $user->update($data);
 
             ActivityService::log(
                 'user_updated',
@@ -163,6 +137,7 @@ class UserController extends Controller
     public function toggleStatus($id)
     {
         $user = User::findOrFail($id);
+        // if current ? active set to inactive if already inactive : active
         $user->status = $user->status === 'active' ? 'inactive' : 'active';
         $user->save();
 
@@ -235,48 +210,16 @@ class UserController extends Controller
         return response()->json(['message' => 'Users deleted']);
     }
 
-    /* =========================================================================
-     | 4. PRIVATE HELPERS
-     | ========================================================================= */
-
-    private function uploadToCloudinary($file, string $folder = 'pos/avatars'): string
+    private function generateEmployeeId(): string
     {
-        $cloudName = config('cloudinary.cloud_name');
-        $apiKey = config('cloudinary.api_key');
-        $apiSecret = config('cloudinary.api_secret');
-        $timestamp = time();
-        $signature = sha1("folder={$folder}&timestamp={$timestamp}{$apiSecret}");
+        $lastEmp = User::where('employee_id', 'like', 'EMP-%')
+            ->orderBy('employee_id', 'desc')
+            ->first();
 
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_POSTFIELDS => [
-                'file' => new \CURLFile($file->getRealPath(), $file->getMimeType(), $file->getClientOriginalName()),
-                'api_key' => $apiKey,
-                'timestamp' => $timestamp,
-                'signature' => $signature,
-                'folder' => $folder,
-            ],
-        ]);
+        $nextNum = $lastEmp
+            ? (intval(substr($lastEmp->employee_id, 4)) + 1)
+            : 1;
 
-        $response = curl_exec($ch);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error) {
-            throw new \Exception("Cloudinary upload failed: {$error}");
-        }
-
-        $data = json_decode($response, true);
-
-        if (! isset($data['secure_url'])) {
-            throw new \Exception('Cloudinary error: ' . ($data['error']['message'] ?? 'Unknown error'));
-        }
-
-        return $data['secure_url'];
+        return 'EMP-' . str_pad($nextNum, 3, '0', STR_PAD_LEFT);
     }
 }

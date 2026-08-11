@@ -63,4 +63,38 @@ class CustomerService
             ],
         ];
     }
+
+    public static function determineSegment($orders, $spent)
+    {
+        if ($orders >= 6 || $spent >= 5000) {
+            return 'vip';
+        } elseif ($orders >= 3 || $spent >= 2000) {
+            return 'regular';
+        }
+        return 'new';
+    }
+
+    public static function getCustomersWithSegments()
+    {
+        $cashierId = Auth::id();
+
+        return Customer::whereHas('orders', function ($q) use ($cashierId) {
+            $q->where('cashier_id', $cashierId)
+                ->where('status', '!=', 'refunded');
+        })
+            ->withCount(['orders as total_orders' => function ($q) use ($cashierId) {
+                $q->where('cashier_id', $cashierId)
+                    ->where('status', '!=', 'refunded');
+            }])
+            ->withSum(['orders as total_spent' => function ($q) use ($cashierId) {
+                $q->where('cashier_id', $cashierId)
+                    ->where('status', '!=', 'refunded');
+            }], 'total')
+            ->orderBy('last_order_at', 'desc')
+            ->get()
+            ->map(function ($customer) {
+                $customer->segment = self::determineSegment($customer->total_orders ?? 0, $customer->total_spent ?? 0);
+                return $customer;
+            });
+    }
 }

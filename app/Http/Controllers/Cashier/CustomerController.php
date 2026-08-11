@@ -15,33 +15,7 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $customers = Customer::whereHas('orders', function ($q) {
-            $q->where('cashier_id', Auth::id())
-                ->where('status', '!=', 'refunded');
-        })
-            ->withCount(['orders as total_orders' => function ($q) {
-                $q->where('cashier_id', Auth::id())
-                    ->where('status', '!=', 'refunded');
-            }])
-            ->withSum(['orders as total_spent' => function ($q) {
-                $q->where('cashier_id', Auth::id())
-                    ->where('status', '!=', 'refunded');
-            }], 'total')
-            ->orderBy('last_order_at', 'desc')
-            ->get()
-            ->map(function ($customer) {
-                // Calculate segment per cashier
-                if ($customer->total_orders >= 6 || $customer->total_spent >= 5000) {
-                    $customer->segment = 'vip';
-                } elseif ($customer->total_orders >= 3 || $customer->total_spent >= 2000) {
-                    $customer->segment = 'regular';
-                } else {
-                    $customer->segment = 'new';
-                }
-
-                return $customer;
-            });
-
+        $customers = CustomerService::getCustomersWithSegments();
         $summaryCards = CustomerService::getSummaryCards();
 
         return view('cashier.customers.index', compact('customers', 'summaryCards'));
@@ -77,7 +51,6 @@ class CustomerController extends Controller
         return response()->json(['customer' => $customer]);
     }
 
-
     public function show($id)
     {
         $customer = Customer::findOrFail($id);
@@ -110,15 +83,7 @@ class CustomerController extends Controller
 
     public function export()
     {
-        $userId = Auth::id();
-
-        $customers = Customer::whereHas('orders', fn($q) => $q->where('cashier_id', $userId)->where('status', '!=', 'refunded'))
-            ->with(['orders' => function ($q) use ($userId) {
-                $q->where('cashier_id', $userId)
-                    ->where('status', '!=', 'refunded')
-                    ->with('items');
-            }])
-            ->get();
+        $customers = CustomerService::getCustomersWithSegments();
 
         $filename = 'customers_' . now()->format('Y_m_d') . '.csv';
 

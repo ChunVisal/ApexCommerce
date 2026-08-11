@@ -13,21 +13,13 @@ class DashboardService
 {
     public static function getSummaryCards($start = null, $end = null)
     {
-        if ($start && $end) {
-            $periodStart = Carbon::parse($start)->startOfDay();
-            $periodEnd = Carbon::parse($end)->endOfDay();
+        $today = Carbon::today();
+        $yesterday = Carbon::yesterday();
 
-            $todaySales = Order::where('status', '!=', 'refunded')->whereDate('created_at', today())->sum('total');
-            $yesterdaySales = Order::where('status', '!=', 'refunded')->whereDate('created_at', yesterday())->sum('total');
-            $todayOrders = Order::whereBetween('created_at', [$periodStart, $periodEnd])->count();
-        } else {
-            $today = Carbon::today();
-            $yesterday = Carbon::yesterday();
+        $todaySales = Order::where('status', '!=', 'refunded')->whereDate('created_at', $today)->sum('total');
+        $yesterdaySales = Order::where('status', '!=', 'refunded')->whereDate('created_at', $yesterday)->sum('total');
+        $todayOrders = Order::where('status', '!=', 'refunded')->whereDate('created_at', $today)->count();
 
-            $todaySales = Order::where('status', '!=', 'refunded')->whereDate('created_at', $today)->sum('total');
-            $yesterdaySales = Order::where('status', '!=', 'refunded')->whereDate('created_at', $yesterday)->sum('total');
-            $todayOrders = Order::where('status', '!=', 'refunded')->whereDate('created_at', $today)->count();
-        }
         // Percentage change from yesterday
         $salesChange = $yesterdaySales > 0
             ? round((($todaySales - $yesterdaySales) / $yesterdaySales) * 100, 1)
@@ -35,7 +27,7 @@ class DashboardService
 
         $totalOrders = Order::where('status', '!=', 'refunded')->count();
         $totalRevenue = Order::where('status', '!=', 'refunded')->sum('total');
-        $lowStock = Product::whereColumn('stock_quantity', '<', 'low_stock_threshold')
+        $lowStock = Product::whereColumn('stock_quantity', '<=', 'low_stock_threshold')
             ->where('stock_quantity', '>', 0)->count();
         $outOfStock = Product::where('stock_quantity', '<=', 0)->count();
 
@@ -68,12 +60,12 @@ class DashboardService
                 'iconBg' => '#8B5CF6',
                 'iconColor' => '#8B5CF6',
                 'trend' => 'up',
-                'percentage' => Order::whereDate('created_at', today())->count() . ' today',
+                'percentage' => $todayOrders . ' today',
                 'period' => 'All time',
             ],
             [
                 'title' => 'Low Stock Alert',
-                'value' => $lowStock + $outOfStock,
+                'value' => $lowStock,
                 'icon' => 'fa-solid fa-triangle-exclamation',
                 'iconBg' => '#EF4444',
                 'iconColor' => '#EF4444',
@@ -88,11 +80,15 @@ class DashboardService
     {
         $start = $start ? Carbon::parse($start) : now()->subDays(13);
         $end = $end ? Carbon::parse($end) : now();
+        $totalRevenue = Order::where('status', '!=', 'refunded')
+            ->whereBetween('created_at', [$start, $end])
+            ->sum('total');
 
         $data = [];
         $current = $start->copy();
         while ($current <= $end) {
             $data[] = [
+                // chart's X-axis
                 'label_short' => $current->format('M d'),
                 'label_full' => $current->format('D, M d, Y'),
                 'total' => Order::where('status', '!=', 'refunded')
@@ -101,8 +97,10 @@ class DashboardService
             ];
             $current->addDay();
         }
-
-        return $data;
+        return [
+            'chart' => $data,
+            'total_revenue' => $totalRevenue,
+        ];
     }
 
     public static function getPaymentBreakdown()

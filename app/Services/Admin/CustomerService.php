@@ -56,4 +56,29 @@ class CustomerService
             ],
         ];
     }
+
+    // is a small, focused, reusable rule
+    public static function determineSegment($orders, $spent)
+    {
+        if ($orders >= 6 || $spent >= 5000) {
+            return 'vip';
+        } elseif ($orders >= 3 || $spent >= 2000) {
+            return 'regular';
+        }
+        return 'new';
+    }
+
+    // is the bigger process that fetches data and applies that rule
+    public static function getCustomersWithSegments()
+    {
+        return Customer::query()
+            ->withCount(['orders as total_orders' => fn($q) => $q->where('status', '!=', 'refunded')])
+            ->withSum(['orders as total_spent' => fn($q) => $q->where('status', '!=', 'refunded')], 'total')
+            ->orderBy('last_order_at', 'desc')
+            ->get()
+            ->map(function ($customer) {
+                $customer->segment = self::determineSegment($customer->total_orders ?? 0, $customer->total_spent ?? 0);
+                return $customer;
+            });
+    }
 }

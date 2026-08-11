@@ -13,33 +13,15 @@ use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $customers = Customer::query()
-            ->withCount(['orders as total_orders' => fn($q) => $q->where('status', '!=', 'refunded')])
-            ->withSum(['orders as total_spent' => fn($q) => $q->where('status', '!=', 'refunded')], 'total')
-            ->orderBy('last_order_at', 'desc')
-            ->get()
-            ->map(function ($customer) {
-                $orders = $customer->total_orders ?? 0;
-                $spent = $customer->total_spent ?? 0;
-
-                if ($orders >= 6 || $spent >= 5000) {
-                    $customer->segment = 'vip';
-                } elseif ($orders >= 3 || $spent >= 2000) {
-                    $customer->segment = 'regular';
-                } else {
-                    $customer->segment = 'new';
-                }
-                return $customer;
-            });
-
+        $customers = CustomerService::getCustomersWithSegments();
         $summaryCards = CustomerService::getSummaryCards();
 
         return view('admin.customers.index', compact('customers', 'summaryCards'));
     }
 
-    public function show($id)
+    public function show(int $id)
     {
         $customer = Customer::findOrFail($id);
 
@@ -78,7 +60,7 @@ class CustomerController extends Controller
         ]);
     }
 
-    public function getOrder($customerId, $orderId)
+    public function getOrder(int $customerId, int $orderId)
     {
         $order = Order::with(['items', 'payment', 'customer'])
             ->where('customer_id', $customerId)
@@ -87,13 +69,9 @@ class CustomerController extends Controller
         return response()->json(['order' => $order]);
     }
 
-
     public function export()
     {
-        $customers = Customer::withCount(['orders as total_orders' => fn($q) => $q->where('status', '!=', 'refunded')])
-            ->withSum(['orders as total_spent' => fn($q) => $q->where('status', '!=', 'refunded')], 'total')
-            ->orderBy('last_order_at', 'desc')
-            ->get();
+        $customers = CustomerService::getCustomersWithSegments();
 
         $filename = 'all_customers_' . now()->format('Y_m_d') . '.csv';
 
@@ -114,14 +92,11 @@ class CustomerController extends Controller
                 $totalOrders = $c->total_orders ?? 0;
                 $totalSpent = $c->total_spent ?? 0;
 
-                $segment = $totalOrders >= 6 || $totalSpent >= 5000 ? 'VIP'
-                    : ($totalOrders >= 3 || $totalSpent >= 2000 ? 'Regular' : 'New');
-
                 fputcsv($file, [
                     $c->name,
                     $c->phone,
                     $c->email ?? '-',
-                    $segment,
+                    ucfirst($c->segment),
                     $totalOrders,
                     number_format($totalSpent, 2),
                     $c->last_order_at ? Carbon::parse($c->last_order_at)->format('Y-m-d') : '-',
@@ -129,10 +104,33 @@ class CustomerController extends Controller
                 ]);
             }
 
+            $customersWithOrders = Customer::whereHas('orders', fn($q) => $q->where('cashier_id', Auth::id())->where('status', '!=', 'refunded'))
+                ->with(['orders' => function ($q) {
+                    $q->where('cashier_id', Auth::id())
+                        ->where('status', '!=', 'refunded')
+                        ->with('items');
+                }])
+                ->get();
+
             fputcsv($file, []);
             fputcsv($file, ['Total Customers', $customers->count()]);
             fputcsv($file, ['Total Revenue', '$' . number_format($customers->sum('total_spent'), 2)]);
 
+            foreach ($customersWithOrders as $c) {
+                foreach ($c->orders as $order) {
+                    foreach ($order->items as $item) {
+                        fputcsv($file, [
+                            $c->name,
+                            $order->order_number,
+                            $order->created_at->format('Y-m-d H:i'),
+                            $item->name,
+                            $item->quantity,
+                            $item->price,
+                            $item->total,
+                        ]);
+                    }
+                }
+            }
             fclose($file);
         };
 

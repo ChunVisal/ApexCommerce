@@ -74,11 +74,9 @@
                 return result;
             },
 
-
             get currentStock() {
                 return this.form.product_code ? (this.stockMap[this.form.product_code] ?? null) : null;
             },
-
 
             get currentThreshold() {
                 return this.form.product_code ? (this.thresholdMap[this.form.product_code] ?? null) : null;
@@ -114,6 +112,7 @@
                 };
                 this.stockDropOpen = true;
             },
+            
             getCashierStock() {
                 const stock = this.cashierStocks.find(s => s.product_id === this.dropForm.product_id && s.cashier_id ===
                     this.dropForm.cashier_id);

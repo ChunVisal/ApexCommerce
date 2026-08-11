@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller; 
+use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\Admin\DashboardService;
 use App\Services\Admin\ActivityService;
@@ -13,23 +13,13 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $start = $request->start_date ?? now()->subDays(14)->format('Y-m-d');
-        $end = $request->end_date ?? now()->format('Y-m-d');
-
-        $totalRevenue = Order::where('status', '!=', 'refunded')
-            ->whereBetween('created_at', [$start, $end])
-            ->sum('total');
-
         $summaryCards = DashboardService::getSummaryCards();
         $topProducts = DashboardService::getTopProducts();
         $topCategories = DashboardService::getTopCategories();
-        $salesChart = DashboardService::getSalesChart($start, $end);
+        $salesChart = DashboardService::getSalesChart($request->start_date, $request->end_date);
         $paymentBreakdown = DashboardService::getPaymentBreakdown();
 
         return view('admin.dashboard.index', compact(
-            'start',
-            'end',
-            'totalRevenue',
             'summaryCards',
             'topProducts',
             'topCategories',
