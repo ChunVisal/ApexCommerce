@@ -93,6 +93,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/settings', [SettingController::class, 'index'])->name('admin.settings');
     Route::post('/settings', [SettingController::class, 'save'])->name('admin.settings.save');
 });
+
 // Cashier Routes
 Route::middleware(['auth', 'role:cashier'])->group(function () {
 
