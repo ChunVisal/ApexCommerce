@@ -73,6 +73,7 @@
                     <th class="py-3 px-2 font-medium text-center">Allocated</th>
                     <th class="py-3 px-2 font-medium text-center">Sold</th>
                     <th class="py-3 px-2 font-medium text-center">Remaining</th>
+                    <th class="py-3 px-2 font-medium text-center">Lost</th>
                     <th class="py-3 px-2 font-medium text-right">Price</th>
                     <th class="py-3 px-2 font-medium text-right">Revenue</th>
                     <th class="py-3 px-2 font-medium text-center">Last Drop</th>
@@ -88,7 +89,7 @@
                             <div class="flex items-center gap-3">
                                 <img :src="product.image ??
                                     'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
-                                    class="w-12 h-12 rounded-md object-cover bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-800 shrink-0">
+                                    class="w-14 h-14 rounded-xs object-cover bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-800 shrink-0">
                                 <div class="min-w-0">
                                     <p class="font-medium text-gray-800 dark:text-zinc-200 truncate max-w-[200px]"
                                         x-text="product.name"></p>
@@ -102,6 +103,7 @@
                             x-text="product.allocated"></td>
                         <td class="py-3 px-2 text-center text-red-500 font-medium" x-text="product.sold"></td>
                         <td class="py-3 px-2 text-center font-bold text-green-600" x-text="product.remaining"></td>
+                        <td class="py-3 px-2 text-center font-bold text-red-500" x-text="product.lost ?? 0"></td>
                         <td class="py-3 px-2 text-right font-semibold text-[#0F6E8C]"
                             x-text="'$' + Number(product.selling_price).toFixed(2)"></td>
                         <td class="py-3 px-2 text-right font-semibold text-purple-600 dark:text-purple-400"
@@ -138,8 +140,10 @@
                                     class="w-12 h-12 rounded-full bg-gray-50 dark:bg-zinc-800/40 border border-gray-150 dark:border-zinc-800 flex items-center justify-center mb-3">
                                     <svg class="w-5 h-5 text-gray-400 dark:text-zinc-500" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d=" M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0
+                            01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504
+                            1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0
+                            .621.504 1.125 1.125 1.125z" />
                                     </svg>
                                 </div>
                                 <p class="text-sm font-bold text-gray-900 dark:text-zinc-200 uppercase tracking-wider">

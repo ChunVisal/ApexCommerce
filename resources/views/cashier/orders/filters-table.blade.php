@@ -3,7 +3,8 @@
     <div class="flex items-center gap-3 mb-4">
         <div class="relative flex-1">
             <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-            <input type="text" x-model="searchQuery"" placeholder="Search order number or customer name"
+            <input type="text" x-model="searchQuery" @input.debounce.400ms="searchOrders()"
+                placeholder="Search order number or customer name"
                 class="text-gray-800 dark:text-zinc-100 w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-900">
             <button x-show="searchQuery" @click="searchQuery = ''; searchOrders()"
                 class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
@@ -14,7 +15,7 @@
         <div class="relative" x-data="{ open: false, selected: '{{ $selectedFilter }}' }">
             <button @click="open = !open"
                 class="flex items-center gap-2 px-3 py-1.5 text-xs border border-gray-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800  text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/60 transition-colors whitespace-nowrap">
-                <i class="fa-regular fa-calendar text-gray-600 dark:text-zinc-400"></i>
+                <i class="fa-regular fa-calendar text-[14px] text-gray-600 dark:text-zinc-400"></i>
                 <span x-text="selected"></span>
                 <i class="fa-solid fa-chevron-down text-gray-400 dark:text-zinc-500 text-[10px]"></i>
             </button>
@@ -46,16 +47,16 @@
                 <i class="fa-solid fa-chevron-down text-gray-400 dark:text-zinc-400 text-[10px]"></i>
             </button>
 
-            <div x-show="open" @click.outside="open = false" x-cloak
+            <div x-show="open"
                 class="absolute right-0 mt-1 w-36 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-md shadow-lg z-20 py-1">
-                <button @click="selected = 'All Payments'; paymentFilter = 'all'; open = false"
+                <button @click="filterPayment('all')"
                     class="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-700 transition">All
                     Payments</button>
-                <button @click="selected = 'Cash'; paymentFilter = 'cash'; open = false"
+                <button @click="filterPayment('cash')"
                     class="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-700 transition">Cash</button>
-                <button @click="selected = 'Card'; paymentFilter = 'card'; open = false"
+                <button @click="filterPayment('card')"
                     class="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-700 transition">Card</button>
-                <button @click="selected = 'KHQR'; paymentFilter = 'khqr'; open = false"
+                <button @click="filterPayment('khqr')"
                     class="block w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-700 transition">KHQR</button>
             </div>
         </div>
@@ -256,30 +257,22 @@
             },
 
             searchOrders() {
-                this.currentPage = 1;
-                fetch(`/cashier/orders?search=${encodeURIComponent(this.searchQuery)}&ajax=1`)
+                fetch(
+                        `/cashier/orders?search=${encodeURIComponent(this.searchQuery)}&payment=${this.paymentFilter}&ajax=1`
+                    )
                     .then(res => res.json())
                     .then(data => {
-                        this.orders = data.orders.data || data.orders || data;
-                    });
-            },
-
-            filterDate(range) {
-                this.currentPage = 1;
-                fetch(`/cashier/orders?range=${range}&ajax=1`)
-                    .then(res => res.json())
-                    .then(data => {
-                        this.orders = data.orders || data;
+                        this.orders = data.orders;
                     });
             },
 
             filterPayment(method) {
-                this.currentPage = 1;
-                let url = `/cashier/orders?payment=${method}&ajax=1`;
-                if (this.searchQuery) url += `&search=${encodeURIComponent(this.searchQuery)}`;
-                fetch(url)
+                this.paymentFilter = method;
+                fetch(`/cashier/orders?payment=${method}&search=${encodeURIComponent(this.searchQuery)}&ajax=1`)
                     .then(res => res.json())
-                    .then(data => this.orders = data.orders || data);
+                    .then(data => {
+                        this.orders = data.orders;
+                    });
             },
         };
     }

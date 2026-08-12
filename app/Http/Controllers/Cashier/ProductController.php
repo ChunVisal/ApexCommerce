@@ -18,88 +18,51 @@ class ProductController extends Controller
     {
         $cashierId = Auth::id();
 
-        $products = Product::with(['category', 'uoms', 'cashierStocks' => function ($q) use ($cashierId) {
-            $q->where('cashier_id', $cashierId);
-        }])
-            ->where('status', 'active')
-            ->whereHas('cashierStocks', function ($q) use ($cashierId) {
-                $q->where('cashier_id', $cashierId);
-            })
-            ->get()
-            ->map(function ($product) {
-                $product->allocated = $product->cashierStocks->sum('allocated_quantity');
-                $product->sold = $product->cashierStocks->sum('sold_quantity');
-                $product->remaining = $product->allocated - $product->sold;
-                $product->revenue = $product->sold * $product->selling_price;
-                $product->last_drop = $product->cashierStocks->max('created_at');
-                $product->category_name = $product->category->name ?? '-';
-                $product->cashier_remaining;
+        $products = ProductService::getCashierProducts($cashierId);
 
-                $product->uom_list = $product->uoms->map(function ($uom) {
-                    return [
-                        'id' => $uom->id,
-                        'name' => $uom->name,
-                        'allocated_quantity' => $uom->quantity_per_unit,
-                        'price' => (float) $uom->price,
-                        'is_default' => (bool) $uom->is_default,
-
-                    ];
-                })->values()->toArray();
-
-                return $product;
-            });
-
-        if ($request->ajax) {
+        if ($request->ajax()) {
             return response()->json(['products' => $products]);
         }
 
-        $allProducts = Product::where('status', 'active')->orderBy('name')->get();
+        // request all products from warehouse show only active by name
+        $allProducts = Product::where('status', 'active')->orderBy('name', 'asc')->get();
 
-        $categories = Categories::whereHas('products', function ($q) use ($cashierId) {
-            $q->whereHas('cashierStocks', fn($sq) => $sq->where('cashier_id', $cashierId));
-        })->get();
-
-        foreach ($categories as $category) {
-            $category->cashier_remaining = CashierStock::where('cashier_id', $cashierId)
-                ->whereHas('product', fn($q) => $q->where('category_id', $category->id))
-                ->sum('allocated_quantity');
-        }
+        $categories = ProductService::getCashierCategories($cashierId);
 
         $summaryCards = ProductService::getSummaryCards();
 
         return view('cashier.products.index', compact('products', 'summaryCards', 'categories', 'allProducts'));
     }
 
-
     public function reportLoss(Request $request)
     {
+        // return one items only not a list
         $cashierStock = CashierStock::where('cashier_id', Auth::id())
             ->where('product_id', $request->product_id)
             ->first();
 
+        // prevent Double-submission, user Direct API tampering bypasses
         if (!$cashierStock) {
             return response()->json(['message' => 'No cashier stock found for this product.'], 422);
         }
 
-        // Only use cashier's own allocated stock for returning/loss
+        // Only use cashier's own allocated stock for loss
         $remaining = $cashierStock->allocated_quantity - $cashierStock->sold_quantity;
         if ($request->quantity > $remaining) {
             return response()->json(['message' => 'Cannot report more than available in your allocated stock'], 422);
         }
 
-        $remaining_before = $cashierStock->allocated_quantity - $cashierStock->sold_quantity;
-
+        // total of cashierStock - ( remaining = allocated_quantity - sold_sty ) 
         $cashierStock->decrement('allocated_quantity', $request->quantity);
 
-        // Refresh from database to get updated value
-        $cashierStock->refresh();
-        $new_remaining = $remaining_before - $request->quantity;
+        // then total of cashierStock = remaning qty - quantity 
+        $newRemaining = $remaining - $request->quantity;
 
         StockMovement::create([
             'product_id' => $request->product_id,
             'type' => 'out',
             'quantity' => $request->quantity,
-            'balance' => $new_remaining,
+            'balance' => $newRemaining,
             'reason' => 'Loss: ' . $request->reason . ' - ' . Auth::user()->name,
             'reference' => 'LOSS-' . str_pad(StockMovement::where('type', 'out')->where('reason', 'like', 'Loss:%')->count() + 1, 5, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
             'user_id' => Auth::id(),

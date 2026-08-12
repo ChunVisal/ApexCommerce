@@ -3,6 +3,7 @@
 namespace App\Services\Cashier;
 
 use App\Models\Order;
+use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 
 class OrderService
@@ -68,5 +69,31 @@ class OrderService
                 'subtitle' => 'Completed sales',
             ],
         ];
+    }
+    public static function getCashierOrders($cashierId, $payment = null, $search = null, $filter = null)
+    {
+        return Order::with(['items', 'payment', 'customer'])
+            ->where('cashier_id', $cashierId)
+            ->when($payment && $payment !== 'all', function ($q) use ($payment) {
+                $q->whereHas('payment', fn($p) => $p->where('method', $payment));
+            })
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query->where('order_number', 'like', "%{$search}%")
+                        ->orWhereHas('customer', fn($c) => $c->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('items', fn($i) => $i->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->when($filter && $filter !== 'all_time', function ($q) use ($filter) {
+                match ($filter) {
+                    'today' => $q->whereDate('created_at', today()),
+                    'yesterday' => $q->whereDate('created_at', now()->subDay()->toDateString()),
+                    'last_7_days' => $q->where('created_at', '>=', now()->subDays(7)),
+                    'last_30_days' => $q->where('created_at', '>=', now()->subDays(30)),
+                    default => null,
+                };
+            })
+            ->latest()
+            ->get();
     }
 }

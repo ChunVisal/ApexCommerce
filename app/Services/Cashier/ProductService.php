@@ -2,7 +2,9 @@
 
 namespace App\Services\Cashier;
 
+use App\Models\Product;
 use App\Models\CashierStock;
+use App\Models\Categories;
 use Illuminate\Support\Facades\Auth;
 
 class ProductService
@@ -84,5 +86,59 @@ class ProductService
                 'subtitle' => $outOfStock . ' out of stock',
             ],
         ];
+    }
+
+    public static function getCashierProducts($cashierId)
+    {
+        return Product::with(['category', 'uoms', 'cashierStocks' => function ($q) use ($cashierId) {
+            // find products belong by cashier id
+            $q->where('cashier_id', $cashierId);
+        }])
+            // Filters WHICH products appear at all
+            ->whereHas('cashierStocks', function ($q) use ($cashierId) {
+                $q->where('cashier_id', $cashierId);
+            })
+            ->get()
+            ->map(function ($product) {
+                $product->allocated = $product->cashierStocks->sum('allocated_quantity');
+                $product->sold = $product->cashierStocks->sum('sold_quantity');
+                $product->remaining = $product->allocated - $product->sold - $product->lost;
+                $product->lost = $product->cashierStocks->sum('lost_quantity');
+                $product->revenue = $product->sold * $product->selling_price;
+                $product->last_drop = $product->cashierStocks->max('created_at');
+                $product->category_name = $product->category->name ?? '-';
+
+                $product->uom_list = $product->uoms->map(function ($uom) {
+                    return [
+                        'id' => $uom->id,
+                        'name' => $uom->name,
+                        'allocated_quantity' => $uom->quantity_per_unit,
+                        'price' => (float) $uom->price,
+                        'is_default' => (bool) $uom->is_default,
+                    ];
+                })->values()->toArray();
+
+                return $product;
+            })
+            // Option A: keep inactive products visible if cashier still has remaining stock to sell through
+            ->filter(fn($product) => $product->status === 'active' || $product->remaining > 0)
+            ->values();
+    }
+
+    public static function getCashierCategories($cashierId)
+    {
+        // display categories on dropdown only if at least one product in stock
+        $categories = Categories::whereHas('products', function ($q) use ($cashierId) {
+            $q->whereHas('cashierStocks', fn($sq) => $sq->where('cashier_id', $cashierId));
+        })->get();
+
+        foreach ($categories as $category) {
+            // show each total products qty of categories
+            $category->cashier_remaining = CashierStock::where('cashier_id', $cashierId)
+                ->whereHas('product', fn($q) => $q->where('category_id', $category->id))
+                ->sum('allocated_quantity');
+        }
+
+        return $categories;
     }
 }

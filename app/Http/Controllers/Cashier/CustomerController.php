@@ -46,7 +46,9 @@ class CustomerController extends Controller
     public function update(Request $request, $id)
     {
         $customer = Customer::findOrFail($id);
-        $customer->update($request->all());
+
+        $request->validate(['name' => 'required', 'phone' => 'required|unique:customers']);
+        $customer->update($request->all(['name', 'phone', 'emial']));
 
         return response()->json(['customer' => $customer]);
     }
