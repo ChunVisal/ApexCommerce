@@ -80,7 +80,7 @@ class ActivityService
                 'icon' => 'fa-solid fa-triangle-exclamation',
                 'iconBg' => $danger > 0 ? '#EF4444' : '#F59E0B',
                 'iconColor' => $danger > 0 ? '#EF4444' : '#F59E0B',
-                'subtitle' => 'Warnings (danger: ' . $warnings . ') recorded past week',
+                'subtitle' => 'Warnings: ' . $warnings . ' recorded past week',
             ],
 
         ];

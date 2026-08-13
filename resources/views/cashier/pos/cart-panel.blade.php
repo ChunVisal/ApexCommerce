@@ -84,7 +84,7 @@
                 <i class="fa-solid fa-pause mr-1"></i> Hold Cart
             </button>
             <button @click="openCheckout()" :disabled="cartItems.length === 0"
-                class="flex-1  py-2.5 text-sm font-semibold text-white bg-[#0F6E8C] rounded-lg hover:bg-[#0c5972] disabled:opacity-50 disabled:cursor-not-allowed transition">
+                class="flexp-1  py-2.5 text-sm font-semibold text-white bg-[#0F6E8C] rounded-lg hover:bg-[#0c5972] disabled:opacity-50 disabled:cursor-not-allowed transition">
                 Checkout
             </button>
         </div>

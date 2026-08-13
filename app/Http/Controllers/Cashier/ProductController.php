@@ -47,13 +47,13 @@ class ProductController extends Controller
         }
 
         // Only use cashier's own allocated stock for loss
-        $remaining = $cashierStock->allocated_quantity - $cashierStock->sold_quantity;
+        $remaining = $cashierStock->allocated_quantity - $cashierStock->sold_quantity - $cashierStock->lost_quantity;
         if ($request->quantity > $remaining) {
             return response()->json(['message' => 'Cannot report more than available in your allocated stock'], 422);
         }
 
-        // total of cashierStock - ( remaining = allocated_quantity - sold_sty ) 
-        $cashierStock->decrement('allocated_quantity', $request->quantity);
+        // lost_quantity goes up — allocated_quantity is never touched, it stays admin's original record
+        $cashierStock->increment('lost_quantity', $request->quantity);
 
         // then total of cashierStock = remaning qty - quantity 
         $newRemaining = $remaining - $request->quantity;

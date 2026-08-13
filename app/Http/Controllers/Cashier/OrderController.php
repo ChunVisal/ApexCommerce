@@ -14,6 +14,7 @@ use App\Services\Cashier\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -61,7 +62,8 @@ class OrderController extends Controller
         }
 
         // groups multiple database changes together, so they either all succeed or all fail if one fail reset all
-        DB::transaction(function () use ($order, $request, $order_number) {
+        try {
+            DB::beginTransaction();
             // Mark order as refunded
             $order->update([
                 'status' => 'refunded',
@@ -78,30 +80,21 @@ class OrderController extends Controller
                     ->where('product_id', $item->product_id)
                     ->first();
 
-                if ($request->restock) {
+                if ($cashierStock) {
                     // if restock increase stock qty
-                    Product::find($item->product_id)->increment('stock_quantity', $item->quantity);
+                    $cashierStock->decrement('sold_quantity', $item->quantity);
 
                     // prevent maybe someone edits the database by hand, some new feature bug
-                    if ($cashierStock) {
-                        $cashierStock->decrement('sold_quantity', $item->quantity);
-                    }
-
-                    $movementType = 'in';
-                    $movementReason = 'Refund (restocked): ' . $request->reason;
-                } else {
-                    // ---- Item is broken/lost, does NOT go back to sellable stock ----
-
-                    if ($cashierStock) {
-                        // sale is reversed either way
-                        $cashierStock->decrement('sold_quantity', $item->quantity);
-                        // but the item itself is gone, so it's tracked as lost
+                    if (!$request->restock) {
+                        // Item is broken/lost — track it separately, allocated stays the same
                         $cashierStock->increment('lost_quantity', $item->quantity);
                     }
-
-                    $movementType = 'out';
-                    $movementReason = 'Refund (lost/broken): ' . $request->reason;
                 }
+
+                $movementType = $request->restock ? 'in' : 'out';
+                $movementReason = $request->restock
+                    ? 'Refund (restocked): ' . $request->reason
+                    : 'Refund (lost/broken): ' . $request->reason;
 
                 // refresh so allocated/sold/lost reflect the increment/decrement above
                 $cashierStock?->refresh();
@@ -117,7 +110,6 @@ class OrderController extends Controller
                     'reason' => $movementReason,
                     'user_id' => Auth::id(),
                 ]);
-
 
                 // After refund StockMovement, create StockRequest to notify cashier of refund restock
                 StockRequest::create([
@@ -138,9 +130,15 @@ class OrderController extends Controller
                     'warning'
                 );
             }
-        });
+            return response()->json(['message' => 'Order refunded successfully', 'order_number' => $order_number]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Refund error: ' . $e->getMessage());
 
-        return response()->json(['message' => 'Order refunded successfully', 'order_number' => $order_number]);
+            return response()->json([
+                'message' => 'Refund failed: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function export(Request $request)

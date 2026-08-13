@@ -19,33 +19,40 @@ use Illuminate\Support\Facades\Log;
 
 class PosController extends Controller
 {
+    // loads the main POS screen categories, products available to sell
     public function pos(Request $request)
     {
+        $cashierId = Auth::id();
 
         $cashierId = Auth::id();
 
-        $categories = Categories::whereHas('products', function ($q) use ($cashierId) {
+        // checks a PRODUCT — is it active, and does the cashier still have stock of it?
+        $sellableFilter = function ($q) use ($cashierId) {
             $q->where('status', 'active')
                 ->whereHas('cashierStocks', function ($sq) use ($cashierId) {
-                    $sq->where('cashier_id', $cashierId)
-                        ->whereRaw('allocated_quantity > sold_quantity');
+                    $sq->where('cashier_id', $cashierId)->whereRaw('allocated_quantity > sold_quantity');
                 });
-        })->withCount(['products as products_count' => function ($q) use ($cashierId) {
-            $q->where('status', 'active')
-                ->whereHas('cashierStocks', function ($sq) use ($cashierId) {
-                    $sq->where('cashier_id', $cashierId)
-                        ->whereRaw('allocated_quantity > sold_quantity');
-                });
-        }])->get();
+        };
 
-        $products = Product::with('category', 'uoms')
+        // this checks a CASHIER_STOCKS row directly — does IT belong to this cashier and have stock left?
+        $hasStockFilter = function ($sq) use ($cashierId) {
+            $sq->where('cashier_id', $cashierId)->whereRaw('allocated_quantity > sold_quantity');
+        };
+
+        // load categories but only if at least one product that cashier still has stock left to sell
+        $categories = Categories::whereHas('products', $sellableFilter)
+            ->withCount(['products as products_count' => $sellableFilter])
+            ->get();
+
+        // load products with uoms and stock, only active ones this cashier can still sell
+        $products = Product::with(['category', 'uoms', 'cashierStocks' => function ($q) use ($cashierId) {
+            $q->where('cashier_id', $cashierId);
+        }])
             ->where('status', 'active')
-            ->whereHas('cashierStocks', function ($q) use ($cashierId) {
-                $q->where('cashier_id', $cashierId)
-                    ->whereRaw('allocated_quantity > sold_quantity');
-            })
+            ->whereHas('cashierStocks', $hasStockFilter)  // use RULE 2 here, not RULE 1
             ->get()
-            ->map(function ($product) use ($cashierId) {
+            ->map(function ($product) {
+                // clean up this product's uom list into a simple array
                 $product->uom_list = $product->uoms->map(function ($uom) {
                     return [
                         'id' => $uom->id,
@@ -54,22 +61,21 @@ class PosController extends Controller
                         'price' => (float) $uom->price,
                     ];
                 })->values()->toArray();
-                $stocks = $product->cashierStocks()->where('cashier_id', $cashierId)->get();
+
+                // stock rows were already loaded above (with cashierStocks), just read them, no new query
+                $stocks = $product->cashierStocks;
                 $product->available_stock = $stocks->sum('allocated_quantity') - $stocks->sum('sold_quantity');
                 return $product;
             });
+
+        $totalAllocated = $products->sum('available_stock');
 
         if ($request->ajax) {
             return response()->json(['product' => $products]);
         }
 
-        $totalAllocated = $products->sum('available_stock');
-        $categoryCounts = [];
-        foreach ($categories as $cat) {
-            $categoryCounts[$cat->id] = $cat->products_count;
-        }
 
-        return view('cashier.pos.index', compact('categories', 'products', 'categoryCounts', 'totalAllocated'));
+        return view('cashier.pos.index', compact('categories', 'products', 'totalAllocated'));
     }
 
     public function checkout(Request $request)
@@ -89,7 +95,9 @@ class PosController extends Controller
 
             // Handle customer - create/find only during payment
             $customerId = null;
+            // check if customer have info inlcude this 3 if not create or skip 
             if ($request->customer && $request->customer['name'] && $request->customer['phone']) {
+                // create new customer or find exist by phone number identity 
                 $customer = Customer::firstOrCreate(
                     ['phone' => $request->customer['phone']],
                     [
@@ -98,38 +106,48 @@ class PosController extends Controller
                         'segment' => 'new',
                     ]
                 );
+                // grab data existing or newly created and store it
                 $customerId = $customer->id;
             }
 
-            // 1. Generate order number
+            // # Generate order number exp: INV-00042
+            // sort all orders by newest first, grab the most recent one
             $lastOrder = Order::latest()->first();
+            // strip "INV-" and get just the digits, +1 to count up; if no previous order exists, start at 1
             $nextNumber = $lastOrder ? intval(substr($lastOrder->order_number, 4)) + 1 : 1;
+            // move '0' to front (STR_PAD_LEFT) $nextNumber with '0' until 5 character long  
             $orderNumber = 'INV-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 
-            $isVip = false;
-
-
             $subtotal = 0;
+            // loop through every item in the cart, one at a time
             foreach ($request->items as $item) {
+                // find this item's real product record (to get its trusted price from DB)
                 $product = Product::find($item['id']);
+                // item price * qty, equl and plus mutiple time each items into the $subtotal total
                 $subtotal += $product->selling_price * $item['qty'];
             }
 
+            $isVip = false;
             $discount = $request->discount ?? 0;
             $vipDiscount = 0;
+            // since set if $customerId = null; skip entire
             if ($customerId) {
+                // fetch the full customer record using the id saved earlier
                 $customer = Customer::find($customerId);
+                // safety check ($customer exists, not null) col had deleted, bypass or glitch proceeds without a VIP discount and if segement is vip 
                 if ($customer && $customer->segment === 'vip') {
                     $isVip = true;
                     $vipDiscount = $subtotal * 0.05;
                 }
             }
 
+            // get tax number from setting if never change default to 10 then / 100
             $taxRate = Setting::get('tax_rate', 10) / 100;
 
             $totalDiscount = $discount + $vipDiscount;
+            // total discount subtract the discount num from the subtotal first and times $tax
             $tax = ($subtotal - $totalDiscount) * $taxRate;
-            $total = $subtotal - $totalDiscount  + $tax;
+            $total = $subtotal - $totalDiscount + $tax;
 
             $order = Order::create([
                 'order_number' => $orderNumber,
@@ -142,14 +160,6 @@ class PosController extends Controller
                 'total' => $total,
                 'status' => 'completed',
             ]);
-
-            $cashierStock = CashierStock::where('cashier_id', Auth::id())
-                ->where('product_id', $item['id'])
-                ->first();
-
-            if ($cashierStock) {
-                $cashierStock->increment('sold_quantity', $item['qty']);
-            }
 
             // 4. Create order items + Update stock
             foreach ($request->items as $item) {
@@ -173,6 +183,16 @@ class PosController extends Controller
 
                 // Decrease stock
                 $product->decrement('stock_quantity', $item['qty']);
+
+                // get selling $item via id
+                $cashierStock = CashierStock::where('cashier_id', Auth::id())
+                    ->where('product_id', $item['id'])
+                    ->first();
+
+                // safety check pattern if stock no null continuous
+                if ($cashierStock) {
+                    $cashierStock->increment('sold_quantity', $item['qty']);
+                }
             }
 
             // 5. Create payment
@@ -203,6 +223,7 @@ class PosController extends Controller
                 }
             }
 
+            // if everything in this draft is correct — save it all permanently it all here from DB:begin
             DB::commit();
 
             ActivityService::log(

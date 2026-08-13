@@ -7,6 +7,6 @@
         @include('cashier.products.filters-table')
         @include('cashier.products.request-stock')
         @include('cashier.products.request-new-product')
-        @include('cashier.notifications.return-stock-slideover')
+        @include('cashier.products.report-stock-slideover')
     </div>
 @endsection

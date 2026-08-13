@@ -164,13 +164,6 @@
                         window.location.reload();
                     });
             },
-
-            searchProducts() {
-                fetch(`/cashier/products?search=${encodeURIComponent(this.searchQuery)}&ajax=1`)
-                    .then(res => res.json())
-                    .then(data => this.products = data.products);
-            },
-
         }
     }
 </script>

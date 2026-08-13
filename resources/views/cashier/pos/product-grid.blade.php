@@ -104,47 +104,28 @@
             </div>
 
             {{-- Loop Through DB Categories --}}
-            @foreach ($categories as $category)
-                <div @click="selectedCategory = {{ $category->id }}"
-                    :class="selectedCategory === {{ $category->id }} ?
+            <template x-for="category in categories" :key="category.id">
+                <div @click="selectedCategory = category.id"
+                    :class="selectedCategory === category.id ?
                         'border-[#1063a2]/30 bg-blue-50/50 dark:bg-zinc-800' :
                         'border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900'"
                     class="w-32 h-32 p-3 border flex-shrink-0 hover:shadow-md transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between">
 
-                    {{-- SVG Icon Layout --}}
                     <div class="w-full flex items-center justify-center mt-2">
-                        <div class="rounded-sm p-1 text-gray-700 dark:text-zinc-300">
-                            {!! $category->svg !!}
-                        </div>
+                        <div class="rounded-sm p-1 text-gray-700 dark:text-zinc-300" x-html="category.svg"></div>
 
-                        {{-- Product Counter Badge --}}
                         <span
-                            class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-500 text-[11px] font-bold text-gray-700 dark:text-zinc-300">
-                            {{ $category->products_count }}
-                        </span>
+                            class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-zinc-500 text-[11px] font-bold text-gray-700 dark:text-zinc-300"
+                            x-text="category.products_count"></span>
                     </div>
 
                     <div class="items-center flex flex-col text-center">
-                        <p class="text-xs font-medium truncate w-full text-gray-800 dark:text-zinc-100">
-                            {{ $category->name }}
-                        </p>
-
+                        <p class="text-xs font-medium truncate w-full text-gray-800 dark:text-zinc-100"
+                            x-text="category.name"></p>
                     </div>
                 </div>
-            @endforeach
+            </template>
         </div>
-    </div>
-
-    {{-- DYNAMIC BEAUTIFUL EMPTY STATE DESIGN WITH BLADE HEROICONS --}}
-    <div x-show="!hasProducts()" x-cloak
-        class="mt-8 w-full py-16 flex flex-col items-center justify-center rounded-sm text-center p-6 transition-all">
-        <div class=" rounded-full text-gray-400 dark:text-zinc-500 mb-4 w-16 h-16 flex items-center justify-center">
-            <x-heroicon-o-cube-transparent class="w-8 h-8 text-gray-400 dark:text-zinc-500" />
-        </div>
-        <h3 class="text-base font-semibold text-gray-800 dark:text-zinc-200">No Products Found</h3>
-        <p class="text-xs text-gray-500 dark:text-zinc-400 max-w-xs mt-1">
-            This specific component category doesn't have any items registered in stock yet.
-        </p>
     </div>
 
     {{-- Products Grid Mapping Frame --}}
@@ -250,15 +231,28 @@
             </div>
         </template>
 
-        <div x-show="!filteredProducts || filteredProducts.length === 0"
-            class="bg-gray-200/50 dark:bg-zinc-900  col-span-full flex flex-col items-center justify-center py-12">
+        {{-- Empty state: Not Found via search --}}
+        <div x-show="products.length === 0 && searchQuery"
+            class="bg-gray-200/50 dark:bg-zinc-900 col-span-full flex flex-col items-center justify-center py-12">
+            <div class="rounded-full bg-gray-100 dark:bg-zinc-800 p-4 mb-4">
+                <x-heroicon-o-magnifying-glass class="w-10 h-10 text-gray-400 dark:text-zinc-600" />
+            </div>
+            <h4 class="text-base font-semibold text-gray-800 dark:text-zinc-200">No Results Found</h4>
+            <p class="text-xs text-center text-gray-500 dark:text-zinc-400 max-w-[240px] mt-1">
+                Sorry, we couldn't find any products matching your search.
+            </p>
+        </div>
+        {{-- Empty state: Category truly empty (no search) --}}
+        <div x-show="products.length === 0 && !searchQuery"
+            class="bg-gray-200/50 dark:bg-zinc-900 col-span-full flex flex-col items-center justify-center py-12">
             <div class="rounded-full bg-gray-100 dark:bg-zinc-800 p-4 mb-4">
                 <x-heroicon-o-shopping-bag class="w-10 h-10 text-gray-400 dark:text-zinc-600" />
             </div>
-            <h4 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Product Not Exist</h4>
-            <p class="text-xs text-center text-gray-500 dark:text-zinc-400 max-w-[200px] mt-1">
+            <h4 class="text-base font-semibold text-gray-800 dark:text-zinc-200">No Products Added Yet</h4>
+            <p class="text-xs text-center text-gray-500 dark:text-zinc-400 max-w-[240px] mt-1">
                 There are currently no products registered in this category.
             </p>
         </div>
+
     </div>
 </div>

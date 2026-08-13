@@ -14,6 +14,7 @@ class StockRequestController extends Controller
 {
     public function store(Request $request)
     {
+        // find product name to display -> product_name if it was sent directly, ?? look up the product by ID and grab its real name
         $productName = $request->product_name ?? Product::find($request->product_id)->name ?? 'Unknown';
 
         StockRequest::create([
@@ -37,10 +38,12 @@ class StockRequestController extends Controller
 
     public function bulkProductRequest(Request $request)
     {
+        // collect the items Collection name and qty combine into a string
         $names = collect($request->items)->map(function ($item) {
             return ($item['quantity'] ?? 1) . 'x ' . ($item['name'] ?? 'Product #' . $item['product_id']);
         })->join(', ');
 
+        // loop each items product had created 
         foreach ($request->items as $item) {
             StockRequest::create([
                 'cashier_id' => Auth::id(),

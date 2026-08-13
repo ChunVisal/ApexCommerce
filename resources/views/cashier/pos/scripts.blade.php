@@ -2,11 +2,10 @@
     function posPage() {
         return {
 
-            products: @json($products),
             searchQuery: '',
-
+            products: @json($products),
             selectedCategory: 'all',
-            categoryMap: @json($categoryCounts),
+            categories: @json($categories),
             cartItems: [],
             checkoutOpen: false,
             paymentMethod: 'cash',
@@ -252,11 +251,6 @@
 
             get requiresCustomer() {
                 return this.total >= 700;
-            },
-
-            hasProducts() {
-                if (this.selectedCategory === 'all') return true;
-                return (this.categoryMap[this.selectedCategory] || 0) > 0;
             },
 
             holdCart() {
