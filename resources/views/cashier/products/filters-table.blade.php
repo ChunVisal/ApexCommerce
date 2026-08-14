@@ -97,7 +97,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3 px-2 text-xs text-gray-500 dark:text-zinc-400" x-text="product.category_name">
+                        <td class="py-3 text-xs text-gray-500 dark:text-zinc-400" x-text="product.category_name">
                         </td>
                         <td class="py-3 px-2 text-center text-gray-700 dark:text-zinc-300 font-medium"
                             x-text="product.allocated"></td>
@@ -176,6 +176,7 @@
                     <th class="py-3.5 px-3 font-medium text-center whitespace-nowrap">Allocated</th>
                     <th class="py-3.5 px-3 font-medium text-center whitespace-nowrap">Sold</th>
                     <th class="py-3.5 px-3 font-medium text-center whitespace-nowrap">Remaining</th>
+                    <th class="py-3 px-2 font-medium text-center">Lost</th>
                     <th class="py-3.5 px-3 font-medium text-right whitespace-nowrap">Base Price</th>
                     <th class="py-3.5 px-3 font-medium text-right whitespace-nowrap">Revenue</th>
                     <th class="py-3.5 px-3 font-medium text-center whitespace-nowrap">Last Drop</th>
@@ -259,6 +260,7 @@
                             x-text="product.sold"></td>
                         <td class="py-3.5 px-3 text-center font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap"
                             x-text="product.remaining"></td>
+                        <td class="py-3 px-2 text-center font-bold text-red-500" x-text="product.lost ?? 0"></td>
                         <td class="py-3.5 px-3 text-right font-semibold text-[#0F6E8C] dark:text-cyan-400 whitespace-nowrap"
                             x-text="'$' + Number(product.selling_price).toFixed(2)"></td>
                         <td class="py-3.5 px-3 text-right font-semibold text-purple-600 dark:text-purple-400 whitespace-nowrap"

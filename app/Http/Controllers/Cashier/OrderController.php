@@ -129,6 +129,7 @@ class OrderController extends Controller
                     'Orders',
                     'warning'
                 );
+                DB::commit();
             }
             return response()->json(['message' => 'Order refunded successfully', 'order_number' => $order_number]);
         } catch (\Exception $e) {

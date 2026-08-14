@@ -140,7 +140,7 @@
                         @else
                             <div class="flex items-center gap-3 text-[11px] text-gray-500 dark:text-zinc-400 pt-0.5">
                                 <span>Warehouse Stock: <strong
-                                        class="text-gray-800 dark:text-zinc-200">{{ \App\Models\Product::find($req->product_id)->stock_quantity ?? 'None' }}</strong></span>
+                                        class="text-gray-800 dark:text-zinc-200">{{ \App\Models\Product::find($req->product_id)->stock_quantity ?? 'No Stock' }}</strong></span>
                                 <span>|</span>
                                 <span>Cashier Holds: <strong
                                         class="text-gray-800 dark:text-zinc-200">{{ $cashierRemaining }}</strong></span>

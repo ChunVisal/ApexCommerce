@@ -64,7 +64,7 @@ class PosController extends Controller
 
                 // stock rows were already loaded above (with cashierStocks), just read them, no new query
                 $stocks = $product->cashierStocks;
-                $product->available_stock = $stocks->sum('allocated_quantity') - $stocks->sum('sold_quantity');
+                $product->available_stock = $stocks->sum('allocated_quantity') - $stocks->sum('sold_quantity') - $stocks->sum('lost_quantity');
                 return $product;
             });
 
@@ -80,7 +80,7 @@ class PosController extends Controller
 
     public function checkout(Request $request)
     {
-        // Handle checkout logic
+        // 1. Validate request data
         $request->validate([
             'items' => 'required|array|min:1',
             'items.*.id' => 'required|exists:products,id',
@@ -93,8 +93,14 @@ class PosController extends Controller
         try {
             DB::beginTransaction();
 
-            // Handle customer - create/find only during payment
+            // 2. Handle customer - create/find only during payment
             $customerId = null;
+            $customer = null;
+
+            // fetch the  customer using the id saved earlier if record 
+            if ($customerId) {
+                $customer = Customer::find($customerId);
+            }
             // check if customer have info inlcude this 3 if not create or skip 
             if ($request->customer && $request->customer['name'] && $request->customer['phone']) {
                 // create new customer or find exist by phone number identity 
@@ -110,6 +116,7 @@ class PosController extends Controller
                 $customerId = $customer->id;
             }
 
+            // 3. Generate order number and calculate financial totals
             // # Generate order number exp: INV-00042
             // sort all orders by newest first, grab the most recent one
             $lastOrder = Order::latest()->first();
@@ -130,15 +137,11 @@ class PosController extends Controller
             $isVip = false;
             $discount = $request->discount ?? 0;
             $vipDiscount = 0;
-            // since set if $customerId = null; skip entire
-            if ($customerId) {
-                // fetch the full customer record using the id saved earlier
-                $customer = Customer::find($customerId);
-                // safety check ($customer exists, not null) col had deleted, bypass or glitch proceeds without a VIP discount and if segement is vip 
-                if ($customer && $customer->segment === 'vip') {
-                    $isVip = true;
-                    $vipDiscount = $subtotal * 0.05;
-                }
+
+            // safety check ($customer exists, not null) col had deleted, bypass or glitch proceeds without a VIP discount and if segement is vip 
+            if ($customer && $customer->segment === 'vip') {
+                $isVip = true;
+                $vipDiscount = $subtotal * 0.05;
             }
 
             // get tax number from setting if never change default to 10 then / 100
@@ -149,6 +152,7 @@ class PosController extends Controller
             $tax = ($subtotal - $totalDiscount) * $taxRate;
             $total = $subtotal - $totalDiscount + $tax;
 
+            // 4. Create main order record
             $order = Order::create([
                 'order_number' => $orderNumber,
                 'cashier_id' => Auth::id(),
@@ -161,16 +165,37 @@ class PosController extends Controller
                 'status' => 'completed',
             ]);
 
-            // 4. Create order items + Update stock
+            // 5. Create order items + database records and adjusting stock
             foreach ($request->items as $item) {
 
+                // prevent if cashier sale items at the same time, one to wait until the other finishes
                 $product = Product::lockForUpdate()->findOrFail($item['id']);
 
-                // Check stock
-                if ($product->stock_quantity < $item['qty']) {
+                // find this cashier's stock row for the product just sold
+                $cashierStock = CashierStock::where('cashier_id', Auth::id())
+                    ->where('product_id', $item['id'])
+                    ->first();
+
+                // calculate what THIS cashier actually has left to sell
+                $cashierRemaining = $cashierStock
+                    ? $cashierStock->allocated_quantity - $cashierStock->sold_quantity - $cashierStock->lost_quantity
+                    : 0;
+
+                // Prevent Stale data, Directly calling API, Hacker
+                if ($cashierRemaining < $item['qty']) {
                     throw new \Exception('Insufficient stock for: ' . $product->name);
                 }
 
+                // Decrease stock
+                $product->decrement('stock_quantity', $item['qty']);
+
+                // Update this cashier's sold_quantity for this product if there is a cashier stock record
+                // (sometimes there may not be, e.g. for a product newly added or not yet assigned to cashier)
+                if ($cashierStock) {
+                    $cashierStock->increment('sold_quantity', $item['qty']);
+                }
+
+                // create record order items
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
@@ -180,24 +205,14 @@ class PosController extends Controller
                     'base_unit' => $item['base_unit'] ?? null,
                     'total' => $product->selling_price * $item['qty'],
                 ]);
-
-                // Decrease stock
-                $product->decrement('stock_quantity', $item['qty']);
-
-                // get selling $item via id
-                $cashierStock = CashierStock::where('cashier_id', Auth::id())
-                    ->where('product_id', $item['id'])
-                    ->first();
-
-                // safety check pattern if stock no null continuous
-                if ($cashierStock) {
-                    $cashierStock->increment('sold_quantity', $item['qty']);
-                }
             }
 
-            // 5. Create payment
+            // 6. Handle payment processing and updates
+            // Create for if payment = cash get amount_received if not go total   
             $amountReceived = $request->payment_method === 'cash' ? $request->amount_received : $total;
+            // change only if payment = cash get amountReceived - total = change 
             $change = $request->payment_method === 'cash' ? max(0, $amountReceived - $total) : 0;
+            // max(0, never let this go below zero, default is 0
 
             Payment::create([
                 'order_id' => $order->id,
@@ -209,8 +224,7 @@ class PosController extends Controller
             ]);
 
             // Update customer stats
-            if ($customerId) {
-                $customer = Customer::find($customerId);
+            if ($customer) {
                 $customer->increment('total_orders');
                 $customer->increment('total_spent', $total);
                 $customer->update(['last_order_at' => now()]);
@@ -223,6 +237,7 @@ class PosController extends Controller
                 }
             }
 
+            // 7. Commit transaction and return response
             // if everything in this draft is correct — save it all permanently it all here from DB:begin
             DB::commit();
 

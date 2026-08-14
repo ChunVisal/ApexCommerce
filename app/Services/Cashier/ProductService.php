@@ -102,8 +102,8 @@ class ProductService
             ->map(function ($product) {
                 $product->allocated = $product->cashierStocks->sum('allocated_quantity');
                 $product->sold = $product->cashierStocks->sum('sold_quantity');
-                $product->remaining = $product->allocated - $product->sold - $product->lost;
                 $product->lost = $product->cashierStocks->sum('lost_quantity');
+                $product->remaining = $product->allocated - $product->sold - $product->lost;
                 $product->revenue = $product->sold * $product->selling_price;
                 $product->last_drop = $product->cashierStocks->max('created_at');
                 $product->category_name = $product->category->name ?? '-';

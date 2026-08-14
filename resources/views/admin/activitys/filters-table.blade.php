@@ -24,7 +24,7 @@
         <x-heroicon-m-chevron-down
             class="w-5 h-5 absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none" />
     </div>
-    <div class="relative" class="">
+    <div class="relative">
         <select x-model="filterType"
             class="w-[100px] appearance-none text-xs border border-gray-200 dark:border-zinc-900 rounded-md px-2 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
             <option value="">All Status</option>
@@ -39,7 +39,7 @@
     </div>
     <div class="relative">
         <select x-model="filterPage"
-            class="w-full appearance-none text-xs border border-gray-200 dark:border-zinc-900 rounded-md px-2 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
+            class="w-full pr-5 appearance-none text-xs border border-gray-200 dark:border-zinc-900 rounded-md px-2 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
             <option value="">All Modules</option>
             @foreach ($pages as $p)
                 <option value="{{ $p }}" {{ request('page') == $p ? 'selected' : '' }}>

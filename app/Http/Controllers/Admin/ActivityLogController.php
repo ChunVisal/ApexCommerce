@@ -16,7 +16,6 @@ class ActivityLogController extends Controller
             // search 
             ->when($request->start_date, fn($q) => $q->whereDate('created_at', '>=', $request->start_date))
             ->when($request->end_date, fn($q) => $q->whereDate('created_at', '<=', $request->end_date))
-
             ->when($request->user_id, fn($q) => $q->where('user_id', $request->user_id))
             ->when($request->action, fn($q) => $q->where('action', $request->action))
             ->when($request->page, fn($q) => $q->where('page', $request->page))
@@ -24,18 +23,19 @@ class ActivityLogController extends Controller
             ->get();
 
         $users = User::all();
-        $actions = ActivityLog::select('action')->distinct()->pluck('action');
+        // distinct() get only 1 COL removes those repeats, pluck() grabs just ONE column's values ignore if same name 
         $status = ActivityLog::select('status')->distinct()->pluck('status');
         $pages = ActivityLog::select('page')->distinct()->pluck('page');
         $summaryCards = ActivityService::getSummaryCards();
 
-        return view('admin.activitys.index', compact('activities', 'summaryCards', 'users', 'actions', 'pages', 'status'));
+        return view('admin.activitys.index', compact('activities', 'summaryCards', 'users', 'pages', 'status'));
     }
 
     public function clear(Request $request)
     {
         if ($request->days) {
-            // Delete older than X days
+            // calculate the cutoff date (today minus X days)
+            // delete every log created BEFORE that cutoff date, keep everything from cutoff date onward
             ActivityLog::where('created_at', '<', now()->subDays($request->days))->delete();
             $msg = "Logs older than {$request->days} days cleared";
         } else {
