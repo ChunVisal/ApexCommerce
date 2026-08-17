@@ -63,8 +63,8 @@
                 <tr
                     class="text-left text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-200 dark:border-zinc-800">
                     <th class="pb-2 pr-4 font-medium">User</th>
-                    <th class="pb-2 px-4 font-medium">Role</th>
                     <th class="pb-2 px-4 font-medium">Phone Number</th>
+                    <th class="pb-2 font-medium text-center">Role</th>
                     <th class="pb-2 px-4 font-medium text-center">Status</th>
                     <th class="pb-2 px-4 font-medium">Last Login</th>
                     <th class="pb-2 px-4 font-medium">Online</th>
@@ -114,7 +114,7 @@
                         </td>
 
                         {{-- Role --}}
-                        <td class="py-3 px-2 text-center">
+                        <td class="py-3 text-center">
                             <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full capitalize"
                                 :class="user.role === 'admin' ?
                                     'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' :

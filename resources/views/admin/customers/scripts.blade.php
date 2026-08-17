@@ -87,6 +87,7 @@
                                 base_unit: i.base_unit || '',
                             })),
                             subtotal: parseFloat(order.subtotal) || 0,
+                            net: parseFloat(order.net) || 0,
                             tax: parseFloat(order.tax) || 0,
                             total: parseFloat(order.total) || 0,
                             discount: parseFloat(order.discount) || 0,
@@ -177,8 +178,10 @@
                     result.sort((a, b) => (b.total_spent || 0) - (a.total_spent || 0));
                 } else if (this.sortBy === 'orders') {
                     result.sort((a, b) => b.total_orders - a.total_orders);
-                } else {
+                } else if (this.sortBy === 'recent') {
                     result.sort((a, b) => new Date(b.last_order_at || 0) - new Date(a.last_order_at || 0));
+                } else if (this.sortBy === 'code') {
+                    result.sort((a, b) => (a.code || '').localeCompare(b.code || ''));
                 }
 
                 return result;

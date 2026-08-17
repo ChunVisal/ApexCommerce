@@ -59,6 +59,7 @@
                             })),
                             subtotal: parseFloat(order.subtotal) || 0,
                             tax: parseFloat(order.tax) || 0,
+                            net: parseFloat(order.net) || 0,
                             total: parseFloat(order.total) || 0,
                             discount: parseFloat(order.discount) || 0,
                             vip_discount: parseFloat(order.vip_discount) || 0,

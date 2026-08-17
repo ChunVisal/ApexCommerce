@@ -80,11 +80,12 @@ class ProductService
                 'title' => 'Low Stock',
                 'value' => $lowStock,
                 'icon' => 'fa-solid fa-triangle-exclamation',
-                'iconBg' => $lowStock > 0 ? '#EF4444' : '#F59E0B',
-                'iconColor' => $lowStock > 0 ? '#EF4444' : '#F59E0B',
-                'dot' => $lowStock > 0 ? '#EF4444' : '#F59E0B',
+                'iconBg' => '#F59E0B',
+                'iconColor' => '#F59E0B',
+                'dot' => '#EF4444',
                 'subtitle' => $outOfStock . ' out of stock',
             ],
+
         ];
     }
 

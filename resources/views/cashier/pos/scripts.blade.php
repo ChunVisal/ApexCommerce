@@ -21,6 +21,7 @@
                 customer: null,
                 items: [],
                 subtotal: 0,
+                net: 0,
                 tax: this.tax,
                 is_vip: this.isVipCustomer,
                 vip_discount: this.vipDiscount,
@@ -122,6 +123,9 @@
             get totalDiscount() {
                 return this.vipDiscount + this.manualDiscount;
             },
+            get net() {
+                return Math.max(0, this.subtotal - this.totalDiscount);
+            },
             get total() {
                 return this.subtotal + this.tax - this.manualDiscount - this.vipDiscount;
             },
@@ -147,20 +151,32 @@
 
             addToCart(product) {
                 const existing = this.cartItems.find(i => i.id === product.id);
-                const currentQty = existing ? existing.qty : 0;
-                const maxStock = product.stock;
-
-                if (currentQty >= maxStock) {
-                    return;
-                }
+                const isUomSwitch = existing && existing.base_unit !== product.base_unit;
 
                 if (existing) {
+                    if (existing.qty >= existing.stock) return;
                     existing.qty++;
                 } else {
+                    if (product.stock <= 0) return;
                     this.cartItems.push({
                         ...product,
                         qty: 1
                     });
+                }
+            },
+
+            syncCartItem(product) {
+                const existing = this.cartItems.find(i => i.id === product.id);
+                if (!existing) return; // not in cart, nothing to sync
+
+                existing.price = product._uomPrice || product.selling_price;
+                existing.base_unit = product._uomName || product.base_unit_name || 'piece';
+                existing.stock = product._uomStock || product.available_stock;
+                existing.uom_id = product._uomId || null;
+
+                // keep qty valid if new stock limit is smaller than current qty
+                if (existing.qty > existing.stock) {
+                    existing.qty = existing.stock;
                 }
             },
 
@@ -218,7 +234,6 @@
                 this.customerResults = [];
                 this.customerSearch = '';
             },
-
 
             showAllCustomers() {
                 this.customerSearch = '';
@@ -310,10 +325,12 @@
                             items: this.cartItems.map(i => ({
                                 id: i.id,
                                 qty: i.qty,
+                                uom_id: i.uom_id || null,
                                 base_unit: i.base_unit || ''
                             })),
                             payment_method: this.paymentMethod,
                             total: this.total,
+                            tax: this.tax,
                             subtotal: this.subtotal,
                             tax: this.tax,
                             discount: this.manualDiscount,
@@ -347,6 +364,7 @@
                                     base_unit: i.base_unit || '',
                                 })),
                                 subtotal: this.subtotal,
+                                net: this.net,
                                 tax: this.tax,
                                 discount: this.manualDiscount,
                                 total: data.order.total,
@@ -409,6 +427,7 @@
                     this.calculateChange();
                 }
             },
+
             calculateChange() {
                 const received = parseFloat(this.amountReceived) || 0;
                 this.change = Math.max(0, received - this.total);

@@ -163,8 +163,14 @@
                         {{-- UOM Select --}}
                         <div x-show="product.uom_list && product.uom_list.length > 0">
                             <select
-                                class="w-full text-xs font-medium border rounded px-2 py-1.5 mb-1 bg-gray-200/30 text-gray-900 dark:bg-zinc-800 dark:text-zinc-100 border-gray-200  dark:border-zinc-700"
-                                @change="product._uomPrice = $event.target.selectedOptions[0].dataset.price; product._uomStock = $event.target.selectedOptions[0].dataset.stock">
+                                class="w-full text-xs font-medium border rounded px-2 py-1.5 mb-1 bg-gray-200/30 text-gray-900 dark:bg-zinc-800 dark:text-zinc-100 border-gray-200 dark:border-zinc-700"
+                                @change="
+                                product._uomPrice = $event.target.selectedOptions[0].dataset.price;
+                                product._uomStock = $event.target.selectedOptions[0].dataset.stock;
+                                product._uomName = $event.target.selectedOptions[0].text.split(' - ')[0]; 
+                                product._uomId = $event.target.value !== 'base' ? $event.target.value : null; 
+                                syncCartItem(product);
+                            ">
                                 <option value="base" :data-price="product.selling_price"
                                     :data-stock="product.available_stock"
                                     x-text="(product.base_unit_name || 'Piece') + ' - $' + Number(product.selling_price).toFixed(2)">
@@ -201,7 +207,8 @@
                             price: product._uomPrice || product.selling_price, 
                             image: product.image, 
                             stock: product._uomStock || product.available_stock,
-                            base_unit: product.base_unit_name || 'piece'
+                            uom_id: product._uomId || null,
+                            base_unit: product._uomName || product.base_unit_name || 'piece'
                         })"
                             x-show="!cartItems.find(i => i.id === product.id)"
                             class="w-full py-1.5 text-xs font-medium text-white bg-[#1063a2] rounded hover:bg-[#0c4f82] transition">
@@ -222,7 +229,8 @@
                                 price: product._uomPrice || product.selling_price, 
                                 image: product.image, 
                                 stock: product._uomStock || product.available_stock,
-                                base_unit: product.base_unit_name || 'piece'
+                                uom_id: product._uomId || null,    
+                                base_unit: product._uomName || product.base_unit_name || 'piece'
                             })"
                                 class="px-2.5 flex-1 py-1.5 bg-green-600 text-white rounded text-xs font-bold">+</button>
                         </div>

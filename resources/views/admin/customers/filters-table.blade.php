@@ -45,6 +45,7 @@
             <option value="recent">Most Recent</option>
             <option value="spent">Highest Spent</option>
             <option value="orders">Most Orders</option>
+            <option value="code">Code Range</option>
         </select>
         <i class="fa-solid fa-chevron-down text-[10px] absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
     </div>
@@ -57,8 +58,10 @@
             <thead class="sticky top-0 bg-white dark:bg-zinc-900">
                 <tr
                     class="text-left text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-200 dark:border-zinc-800">
-                    <th class="pb-2 pr-4 font-medium">Customer</th>
-                    <th class="pb-2 px-4 font-medium">Segment</th>
+                    <th class="pb-2 font-medium">Customer</th>
+                    <th class="pb-2 pr-2 font-medium">No.</th>
+                    <th class="pb-2 px-5 font-medium">Phone Number</th>
+                    <th class="pb-2 px-2 font-medium">Segment</th>
                     <th class="pb-2 px-4 font-medium text-center">Orders</th>
                     <th class="pb-2 px-4 font-medium">Total Spent</th>
                     <th class="pb-2 px-4 font-medium">Last Order</th>
@@ -68,7 +71,7 @@
             <tbody class="divide-y divide-gray-100 dark:divide-zinc-800/50">
                 <template x-for="customer in paginatedCustomers" :key="customer.id">
                     <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition">
-                        <td class="py-3 pl-4 pr-2">
+                        <td class="py-3">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
                                     :style="'background-color: ' + ['#0F6E8C', '#1a8aa8', '#2563EB', '#7C3AED', '#059669',
@@ -81,12 +84,16 @@
                                     <p class="font-medium text-gray-800 dark:text-zinc-200 truncate"
                                         x-text="customer.name"></p>
                                     <p class="text-xs text-gray-400 truncate" x-text="customer.email"></p>
-                                    <p class="text-xs text-gray-400 truncate" x-text="customer.phone"></p>
                                 </div>
                             </div>
                         </td>
 
-                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                        <td class="py-3 pr-4 text-md font-mono text-gray-700 dark:text-zinc-300"
+                            x-text="customer.code ?? '-'"></td>
+                        <td class="py-3 px-5 text-xs text-gray-500 dark:text-zinc-400 truncate" x-text="customer.phone">
+                        </td>
+
+                        <td class="py-3 px-4 text-left whitespace-nowrap">
                             <template x-if="customer.total_orders >= 6 || customer.total_spent >= 5000">
                                 <span
                                     class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-yellow-50 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-300">

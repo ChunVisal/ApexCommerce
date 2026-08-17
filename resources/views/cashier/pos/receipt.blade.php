@@ -108,6 +108,10 @@
                     <span>VIP Discount (5%)</span>
                     <span>-$<span x-text="(receiptData.vip_discount || 0).toFixed(2)"></span></span>
                 </div>
+                <div class="flex justify-between dark:text-zinc-300">
+                    <span class="text-gray-500 dark:text-zinc-300">Net</span>
+                    <span>$<span x-text="receiptData.net?.toFixed(2) || '0.00'"></span></span>
+                </div>
                 <div class="flex justify-between ">
                     <span class="text-gray-500  dark:text-zinc-300">Tax
                         {{ App\Models\Setting::get('tax_rate', '10') }}%</span>
@@ -140,7 +144,6 @@
                     </div>
                     <p>Thank you for your purchase!</p>
                 </div>
-
 
                 {{-- Barcode --}}
                 <div class="text-center mt-2">
