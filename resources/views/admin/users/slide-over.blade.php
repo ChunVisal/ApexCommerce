@@ -103,12 +103,21 @@
             <div class="space-y-3">
                 <p class="text-xs font-semibold text-gray-400 dark:text-zinc-500 uppercase">Security</p>
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
+                    <div x-data="{ showPassword: false }">
                         <label class="block text-xs text-gray-500 dark:text-zinc-400 mb-1">
                             Password <span x-show="editMode" class="text-gray-400 font-normal">(keep blank)</span>
                         </label>
-                        <input type="password" x-model="form.password" :required="!editMode" placeholder="••••••••"
-                            class="w-full text-sm bg-transparent border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] text-gray-800 dark:text-zinc-200 placeholder-gray-400">
+                        <div class="relative">
+                            <input :type="showPassword ? 'text' : 'password'" x-model="form.password"
+                                :required="!editMode" placeholder="••••••••"
+                                class="w-full text-sm bg-transparent border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] text-gray-800 dark:text-zinc-200 placeholder-gray-400">
+
+                            <button type="button" @click="showPassword = !showPassword"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 dark:text-zinc-500 text-gray-600 dark:hover:text-zinc-400">
+                                <x-heroicon-o-eye x-show="!showPassword" class="h-5 w-5" />
+                                <x-heroicon-o-eye-slash x-show="showPassword" class="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs text-gray-500 dark:text-zinc-400 mb-1">Confirm Password</label>

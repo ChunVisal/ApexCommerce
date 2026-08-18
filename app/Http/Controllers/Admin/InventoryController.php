@@ -7,7 +7,7 @@ use App\Models\CashierStock;
 use App\Models\Categories;
 use App\Models\Product;
 use App\Models\StockMovement;
-use App\Models\StockRequest;
+use App\Models\StockActivity;
 use App\Models\User;
 use App\Services\Admin\ActivityService;
 use App\Services\Admin\InventoryService;
@@ -185,7 +185,7 @@ class InventoryController extends Controller
         $cashierStock->increment('allocated_quantity', $request->quantity);
 
         // Create notification for cashier
-        StockRequest::create([
+        StockActivity::create([
             'cashier_id' => $request->cashier_id,
             'product_id' => $request->product_id,
             'quantity_requested' => $request->quantity,

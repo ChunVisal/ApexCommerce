@@ -7,7 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\CashierStock;
 use App\Models\Order;
 use App\Models\StockMovement;
-use App\Models\StockRequest;
+use App\Models\StockActivity;
 use App\Models\User;
 use App\Services\Admin\ActivityService;
 use App\Services\Admin\UserService;
@@ -165,7 +165,7 @@ class UserController extends Controller
             return response()->json(['error' => 'Cannot delete: user has stock allocations'], 422);
         }
 
-        if (StockRequest::where('cashier_id', $id)->exists()) {
+        if (StockActivity::where('cashier_id', $id)->exists()) {
             return response()->json(['error' => 'Cannot delete: user has stock requests'], 422);
         }
 

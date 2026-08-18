@@ -8,7 +8,7 @@ use App\Models\Categories;
 use App\Models\StockMovement;
 use App\Models\Product;
 use App\Models\CashierStock;
-use App\Models\StockRequest;
+use App\Models\StockActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -69,7 +69,7 @@ class ProductController extends Controller
         ]);
 
         // Notify admin
-        StockRequest::create([
+        StockActivity::create([
             'cashier_id' => Auth::id(),
             'product_id' => $request->product_id,
             'quantity_requested' => $request->quantity,

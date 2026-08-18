@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\Cashier;
 
 use App\Http\Controllers\Controller;
-use App\Models\StockRequest;
+use App\Models\StockActivity;
 use App\Models\Product;
 use App\Services\Admin\ActivityService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
-class StockRequestController extends Controller
+class StockActivityController extends Controller
 {
     public function store(Request $request)
     {
         // find product name to display -> product_name if it was sent directly, ?? look up the product by ID and grab its real name
         $productName = $request->product_name ?? Product::find($request->product_id)->name ?? 'Unknown';
 
-        StockRequest::create([
+        StockActivity::create([
             'cashier_id' => Auth::id(),
             'product_id' => $request->product_id ?: null,
             'product_name' => $request->product_name ?: null,
@@ -45,7 +45,7 @@ class StockRequestController extends Controller
 
         // loop each items product had created 
         foreach ($request->items as $item) {
-            StockRequest::create([
+            StockActivity::create([
                 'cashier_id' => Auth::id(),
                 'product_id' => $item['product_id'] ?: null,
                 'product_name' => $item['name'] ?? null,

@@ -4,7 +4,7 @@
     $isAdmin = $role === 'admin';
 
     if ($isAdmin) {
-        $stockRequests = \App\Models\StockRequest::with(['cashier', 'product'])
+        $stockRequests = \App\Models\StockActivity::with(['cashier', 'product'])
             ->whereIn('status', ['pending', 'loss_reported', 'refunded'])
             ->latest()
             ->limit(6)
@@ -16,7 +16,7 @@
 
         $notifications = $stockRequests;
 
-        $pendingStockCount = \App\Models\StockRequest::whereIn('status', ['pending', 'loss_reported'])
+        $pendingStockCount = \App\Models\StockActivity::whereIn('status', ['pending', 'loss_reported', 'refunded'])
             ->whereNull('seen_at')
             ->count();
 
@@ -25,7 +25,7 @@
         $urlPrefix = '/admin/notifications';
         $viewAllUrl = route('admin.notifications');
     } else {
-        $notifications = \App\Models\StockRequest::with(['product', 'approver'])
+        $notifications = \App\Models\StockActivity::with(['product', 'approver'])
             ->where('cashier_id', auth()->id())
             ->where('created_at', '>=', now()->subDays(30))
             ->whereIn('status', ['pending', 'approved', 'rejected', 'on_hold'])
@@ -49,7 +49,7 @@
                 return $item;
             });
 
-        $count = \App\Models\StockRequest::where('cashier_id', auth()->id())
+        $count = \App\Models\StockActivity::where('cashier_id', auth()->id())
             ->where('created_at', '>=', now()->subDays(15))
             ->whereIn('status', ['pending', 'approved', 'rejected', 'on_hold'])
             ->whereNull('seen_at')
@@ -140,7 +140,7 @@
                                     @if ($notif->status === 'loss_reported')
                                         <span class="text-red-500 dark:text-red-400">reported loss of</span>
                                     @elseif ($notif->status === 'refunded')
-                                        <span class="text-[#0F6E8C] dark:text-blue-400">restocked (refund)</span>
+                                        <span class="text-[#0F6E8C] dark:text-blue-400">broken (refund)</span>
                                     @else
                                         <span class="text-amber-600 dark:text-amber-400">requested</span>
                                     @endif

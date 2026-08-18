@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CashierStock;
 use App\Models\Product;
 use App\Models\StockMovement;
-use App\Models\StockRequest;
+use App\Models\StockActivity;
 use App\Models\User;
 use App\Models\Order;
 use App\Services\Admin\ActivityService;
@@ -22,7 +22,7 @@ class NotificationController extends Controller
 
         // fetch pending/loss/refund requests, preload cashier and product info
         $stockRequests = $this->groupByDate(
-            StockRequest::with(['cashier', 'product'])
+            StockActivity::with(['cashier', 'product'])
                 ->whereIn('status', ['pending', 'loss_reported', 'refunded'])
                 ->latest()
                 ->get()
@@ -40,7 +40,7 @@ class NotificationController extends Controller
         }
 
         // count unseen notifications (seen_at still null) — likely powers a badge/bell icon count
-        $pendingCount = StockRequest::whereIn('status', ['pending', 'loss_reported', 'refunded'])->whereNull('seen_at')->count();
+        $pendingCount = StockActivity::whereIn('status', ['pending', 'loss_reported', 'refunded'])->whereNull('seen_at')->count();
 
         // full page load — includes pendingCount for the notification badge
         return view('admin.notifications.index', compact('stockRequests', 'pendingCount', 'hasMore', 'perPage', 'totalGroups'));
@@ -50,12 +50,12 @@ class NotificationController extends Controller
     {
         $perPage = $request->per_page ?? 3;
         // Mark all as seen
-        StockRequest::where('cashier_id', Auth::id())
+        StockActivity::where('cashier_id', Auth::id())
             ->whereNull('seen_at')
             ->update(['seen_at' => now()]);
 
         $notifications = $notifications = $this->groupByDate(
-            StockRequest::with(['product', 'approver'])
+            StockActivity::with(['product', 'approver'])
                 ->where('cashier_id', Auth::id())
                 ->whereIn('status', ['pending', 'approved', 'rejected', 'on_hold'])
                 ->latest()
@@ -75,7 +75,7 @@ class NotificationController extends Controller
     public function approve(Request $request, $id)
     {
 
-        $stockRequest = StockRequest::with('product')->findOrFail($id);
+        $stockRequest = StockActivity::with('product')->findOrFail($id);
 
         // prevent old data, double-click
         if ($stockRequest->status !== 'pending') {
@@ -160,7 +160,7 @@ class NotificationController extends Controller
 
     public function reject(Request $request, $id)
     {
-        $req = StockRequest::findOrFail($id);
+        $req = StockActivity::findOrFail($id);
         $req->update([
             'status' => 'rejected',
             'approved_by' => Auth::id(),
@@ -184,7 +184,7 @@ class NotificationController extends Controller
     // Admin
     public function adminMarkAllRead()
     {
-        StockRequest::whereIn('status', ['pending', 'loss_reported', 'refunded'])
+        StockActivity::whereIn('status', ['pending', 'loss_reported', 'refunded'])
             ->whereNull('seen_at')
             ->update(['seen_at' => now()]);
         return response()->json(['success' => true]);
@@ -193,14 +193,14 @@ class NotificationController extends Controller
     public function adminMarkSingleRead($id)
     {
         // mark-read specific one via id
-        StockRequest::where('id', $id)->update(['seen_at' => now()]);
+        StockActivity::where('id', $id)->update(['seen_at' => now()]);
         return response()->json(['success' => true]);
     }
 
     // Cashier
     public function cashierMarkAllRead()
     {
-        StockRequest::where('cashier_id', Auth::id())
+        StockActivity::where('cashier_id', Auth::id())
             ->whereNull('seen_at')
             ->update(['seen_at' => now()]);
         return response()->json(['success' => true]);
@@ -208,7 +208,7 @@ class NotificationController extends Controller
 
     public function cashierMarkSingleRead($id)
     {
-        StockRequest::where('id', $id)
+        StockActivity::where('id', $id)
             ->where('cashier_id', Auth::id())
             ->update(['seen_at' => now()]);
         return response()->json(['success' => true]);

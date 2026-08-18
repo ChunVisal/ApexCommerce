@@ -43,7 +43,7 @@ class AuthenticatedSessionController extends Controller
         return redirect('/cashier/pos');
     }
 
-    public function authenticated(Request $request, $user)
+    public function authenticated($user)
     {
         $user->update([
             'is_online' => true,

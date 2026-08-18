@@ -32,18 +32,29 @@
                             placeholder="admin@blue.com" required autofocus>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Password</label>
-                        <input type="password" name="password"
-                            class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#0F6E8C] text-sm"
-                            placeholder="••••••••" required>
+                    <div class="mb-4" x-data="{ showPassword: false }">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">
+                            Password
+                        </label>
+
+                        <div class="relative">
+                            <input :type="showPassword ? 'text' : 'password'" name="password"
+                                class="w-full px-4 py-2 pr-10 border border-gray-300 rounded focus:outline-none focus:border-[#0F6E8C] text-sm"
+                                placeholder="••••••••" required>
+
+                            <button type="button" @click="showPassword = !showPassword"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-700">
+                                <x-heroicon-o-eye x-show="!showPassword" class="h-5 w-5" />
+                                <x-heroicon-o-eye-slash x-show="showPassword" class="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
 
                     <div class="flex items-center justify-between text-sm mb-5">
                         <label class="flex items-center text-gray-500">
                             <input type="checkbox" name="remember" class="mr-2 border-2 border-gray-400"> Remember
                         </label>
-                        <a href="#" class="text-p text-sm">Forgot?</a>
+                        <a href="{{ route('forget-password') }}" class="text-p text-sm">Forgot password?</a>
                     </div>
 
                     <div class="flex gap-2" x-data="{ open: false, pin: '' }" x-cloak>

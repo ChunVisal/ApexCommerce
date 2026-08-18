@@ -48,7 +48,6 @@ $groupedNotifications =
             @endphp
 
             @include('cashier.notifications.scripts')
-            @include('cashier.notifications.return-stock-slideover')
 
             <div class="space-y-8">
                 <div id="notificationGroups">

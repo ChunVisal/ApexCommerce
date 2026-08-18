@@ -26,6 +26,9 @@ use Illuminate\Support\Facades\Cache;
     'avatar',
     'hire_date',
     'salary',
+
+    'otp_code',
+    'otp_expires_at',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable

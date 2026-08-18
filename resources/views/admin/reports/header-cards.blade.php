@@ -2,7 +2,7 @@
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
     <div>
         <h1 class="text-xl font-bold text-gray-800 dark:text-zinc-100">Reports</h1>
-        <p class="text-xs text-gray-500 dark:text-zinc-400">Sales, inventory, and staff performance insights</p>
+        <p class="text-xs text-gray-500 dark:text-zinc-400">Sales, Analyze, and staff performance insights</p>
     </div>
     <div class="flex items-center gap-2 mt-3 sm:mt-0">
         <a href="{{ route('admin.reports') }}"

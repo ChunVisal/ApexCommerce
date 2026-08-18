@@ -144,7 +144,6 @@ class PosController extends Controller
                 } else {
                     $itemPrice = $product->selling_price;
                 }
-
                 $subtotal += $itemPrice * $item['qty'];
             }
 
@@ -199,14 +198,6 @@ class PosController extends Controller
                     $itemUnitName = $product->base_unit_name ?? 'piece';
                 }
 
-                // TEMPORARY DEBUG
-                Log::info('UOM debug', [
-                    'sent_uom_id' => $item['uom_id'] ?? 'NOT SENT',
-                    'uom_found' => $uom ?? 'NOT FOUND',
-                    'itemConversion' => $itemConversion,
-                    'item_qty' => $item['qty'],
-                ]);
-
                 // stock check now needs to account for conversion (1 Tube = 10 grams of actual stock)
                 $actualQtyNeeded = $item['qty'] * $itemConversion;
 
@@ -224,9 +215,6 @@ class PosController extends Controller
                 if ($cashierRemaining < $actualQtyNeeded) {
                     throw new \Exception('Insufficient stock for: ' . $product->name);
                 }
-
-                // Decrease stock
-                $product->decrement('stock_quantity', $actualQtyNeeded);
 
                 // Update this cashier's sold_quantity for this product if there is a cashier stock record
                 // (sometimes there may not be, e.g. for a product newly added or not yet assigned to cashier)

@@ -100,7 +100,7 @@
                     .then(() => window.location.reload())
                     .catch(err => alert('Error: ' + err.message));
             },
-            
+
             getInitials(name) {
                 if (!name) return '';
 

@@ -8,7 +8,7 @@ use App\Models\Payment;
 use App\Models\StockMovement;
 use App\Models\CashierStock;
 use App\Models\Product;
-use App\Models\StockRequest;
+use App\Models\StockActivity;
 use App\Services\Admin\ActivityService;
 use App\Services\Cashier\OrderService;
 use Illuminate\Http\Request;
@@ -112,16 +112,18 @@ class OrderController extends Controller
                 ]);
 
                 // After refund StockMovement, create StockRequest to notify cashier of refund restock
-                StockRequest::create([
-                    'cashier_id' => $order->cashier_id,
-                    'product_id' => $item->product_id,
-                    'quantity_requested' => $item->quantity,
-                    'quantity_approved' => $item->quantity,
-                    'status' => 'refunded',
-                    'cashier_notes' => 'Order ' . $order->order_number . ' refunded: ' . $request->reason,
-                    'approved_by' => Auth::id(),
-                    'seen_at' => null,
-                ]);
+                if (!$request->restock) {
+                    StockActivity::create([
+                        'cashier_id' => $order->cashier_id,
+                        'product_id' => $item->product_id,
+                        'quantity_requested' => $item->quantity,
+                        'quantity_approved' => $item->quantity,
+                        'status' => 'refunded',
+                        'cashier_notes' => 'Order ' . $order->order_number . ' refunded: ' . $request->reason,
+                        'approved_by' => Auth::id(),
+                        'seen_at' => null,
+                    ]);
+                }
 
                 ActivityService::log(
                     'order_refunded',

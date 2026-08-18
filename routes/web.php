@@ -1,8 +1,10 @@
 <?php
-// just for streak
+
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\NotificationController;
 
 use App\Http\Controllers\Admin\SchemaController;
@@ -16,10 +18,10 @@ use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\SettingController;
 
 use App\Http\Controllers\Cashier\PosController;
-use App\Http\Controllers\Cashier\CustomerController as CashierCustomerController;
 use App\Http\Controllers\Cashier\OrderController;
 use App\Http\Controllers\Cashier\ProductController as CashierProductController;
-use App\Http\Controllers\Cashier\StockRequestController;
+use App\Http\Controllers\Cashier\CustomerController as CashierCustomerController;
+use App\Http\Controllers\Cashier\StockActivityController;
 
 // Root route - check if logged in first
 Route::get('/', function () {
@@ -27,14 +29,21 @@ Route::get('/', function () {
         if (Auth::user()->role === 'admin') {
             return redirect('/admin/dashboard');
         }
-
         return redirect('/cashier/pos');
     }
-
     return redirect('/login');
 });
+Route::get('/forgot-password', [PasswordResetController::class, 'showPhoneForm'])->name('forget-password');
+Route::post('/forgot-password/send-otp', [PasswordResetController::class, 'sendOtp'])->name('password.send-otp');
+Route::get('/forgot-password/verify-otp', [PasswordResetController::class, 'showOtpForm'])->name('password.verify-otp');
+Route::post('/forgot-password/verify-otp', [PasswordResetController::class, 'verifyOtp'])->name('password.verify-otp.submit');
 
 Route::post('/cashier/pin-login', [AuthenticatedSessionController::class, 'pinLogin'])->name('cashier.pin-login');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/forgot-password/reset-or-skip', [PasswordResetController::class, 'showResetForm'])->name('password.reset-or-skip');
+    Route::post('/forgot-password/reset', [PasswordResetController::class, 'resetPassword'])->name('password.reset.submit');
+});
 
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
@@ -48,12 +57,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/admin/notifications/{id}/rejecot', [NotificationController::class, 'reject'])->name('admin.notifications.reject');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'adminMarkAllRead']);
     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'adminMarkSingleRead']);
-    Route::get('/admin/stock-requests', [StockRequestController::class, 'index'])->name('admin.stock-requests');
+    Route::get('/admin/stock-requests', [StockActivityController::class, 'index'])->name('admin.stock-requests');
 
     Route::get('/products', [AdminProductController::class, 'index'])->name('admin.products');
     Route::post('/products', [AdminProductController::class, 'store'])->name('admin.products.store');
-    Route::get('/products/by-category', [AdminProductController::class, 'byCategory'])
-        ->name('admin.products.byCategory');
+    Route::get('/products/by-category', [AdminProductController::class, 'byCategory'])->name('admin.products.byCategory');
     Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('admin.products.update');
     Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('admin.products.destroy');
     Route::post('/products/bulk-delete', [AdminProductController::class, 'bulkDestroy'])->name('products.bulk-delete');
@@ -113,8 +121,8 @@ Route::middleware(['auth', 'role:cashier'])->group(function () {
 
     Route::get('/cashier/products', [CashierProductController::class, 'index'])->name('cashier.products');
     Route::post('/cashier/stock-loss', [CashierProductController::class, 'reportLoss']);
-    Route::post('/cashier/stock-request', [StockRequestController::class, 'store']);
-    Route::post('/cashier/stock-request/bulk', [StockRequestController::class, 'bulkProductRequest']);
+    Route::post('/cashier/stock-request', [StockActivityController::class, 'store']);
+    Route::post('/cashier/stock-request/bulk', [StockActivityController::class, 'bulkProductRequest']);
 
     Route::get('/cashier/orders/export', [OrderController::class, 'export'])->name('cashier.orders.export');
     Route::get('/cashier/orders', [OrderController::class, 'index'])->name('cashier.orders');
