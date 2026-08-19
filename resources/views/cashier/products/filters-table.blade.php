@@ -3,17 +3,7 @@
 {{-- Filter Bar --}}
 <div class="flex flex-wrap items-center gap-3 mb-4">
     {{-- Search --}}
-    <div class="relative flex-1 min-w-[200px]">
-        <i
-            class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs"></i>
-        <input id="search" type="text" x-model="searchQuery" value="{{ request('search') }}"
-            placeholder="Search by name, categories, code, or barcode..."
-            class="w-full pl-8 pr-8 py-1.5 text-xs bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md focus:outline-none focus:ring-1 focus:ring-p placeholder-gray-400 dark:placeholder-zinc-500">
-        <button type="button" id="clearSearch" style="display:none;"
-            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 z-10">
-            ✕
-        </button>
-    </div>
+    <x-search-input placeholder="Search by name, categories, code, or barcode..." />
 
     {{-- Category --}}
     <div class="relative">
@@ -33,25 +23,16 @@
         </svg>
     </div>
 
-    {{-- Stock --}}
-    <div class="relative">
-        <select x-model="filterStock"
-            class="bg-white dark:bg-zinc-900 appearance-none text-xs text-gray-800 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-p cursor-pointer">
-            <option value="all">All Stock</option>
-            <option value="out">Out of Stock</option>
-            <option value="low">Low Stock</option>
-            <option value="in">In Stock</option>
-        </select>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor"
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-        </svg>
-    </div>
+    <x-filter-select model="filterStock">
+        <option value="all">All Stock</option>
+        <option value="out">Out of Stock</option>
+        <option value="low">Low Stock</option>
+        <option value="in">In Stock</option>
+    </x-filter-select>
 
     {{-- View Toggle --}}
     <div class="min-w-[120px] relative">
-        <button @click="viewMode = viewMode === 'list' ? 'uom' : 'list'"
+        <button @click="viewMode = viewMode === 'list' ? 'uom' : 'list'; localStorage.setItem('viewMode', viewMode)"
             class="w-full bg-p px-3 py-1.5 text-xs text-gray-200 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md font-medium hover:opacity-90 transition">
             <span x-text="viewMode === 'list' ? 'Switch to UOM' : 'Switch to List'"></span>
         </button>
@@ -194,10 +175,10 @@
                             <div class="flex items-center gap-3 relative">
                                 <img :src="product.image ??
                                     'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
-                                    class="w-12 h-12 rounded-md object-cover bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-800 shrink-0">
+                                    class="w-14 h-14 rounded-sm object-cover bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-800 shrink-0">
                                 <!-- Stock status circle -->
                                 <span
-                                    class="absolute -top-1 left-10 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-zinc-900"
+                                    class="absolute -top-1 left-12 w-4 h-4 rounded-full border-2 border-white dark:border-zinc-900"
                                     :class="product.remaining > product.low_stock_threshold ?
                                         'bg-emerald-400' :
                                         (product.remaining > 0 ?

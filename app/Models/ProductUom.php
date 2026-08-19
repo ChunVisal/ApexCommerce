@@ -12,6 +12,7 @@ class ProductUom extends Model
         'code',
         'quantity_per_unit',
         'price',
+        'description',
         'is_default',
         'has_uom' => 'boolean',
     ];

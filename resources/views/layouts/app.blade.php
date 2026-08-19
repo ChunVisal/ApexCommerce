@@ -35,7 +35,7 @@
 
     <!-- Sidebar + Content - Below navbar -->
     <div class="flex">
-        @include('components.sidebar')
+        @include('layouts.sidebar')
 
         <main
             class="tab-container bg-gray-100 dark:bg-black transition-colors duration-300 flex-1 min-w-0  min-h-screen">

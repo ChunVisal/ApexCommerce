@@ -1,15 +1,7 @@
 <!-- Filters (Kept exactly to your design layout) -->
 <div class="flex flex-wrap items-center gap-3 mb-4">
-    <div class="relative flex-1 id="searchSection" class="min-w-[200px]">
-        <i
-            class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs"></i>
-        <input x-model="searchQuery" type="text" placeholder="Search by name, categories or code..."
-            class="w-full pl-8 pr-8 py-1.5 text-xs bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md focus:outline-none focus:ring-1 focus:ring-p placeholder-gray-400 dark:placeholder-zinc-500">
-        <button type="button" x-show="searchQuery" @click="searchQuery = ''; filterProducts()"
-            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 z-10">
-            ✕
-        </button>
-    </div>
+    <x-search-input placeholder="Search by name, categories, code, or barcode..." />
+
     <div class="relative">
         <select x-model="categoryFilter"
             class="bg-white dark:bg-zinc-900 appearance-none text-xs text-gray-800 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
@@ -22,31 +14,18 @@
         <x-heroicon-o-chevron-down
             class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none" />
     </div>
-    {{-- Status --}}
-    <div class="relative">
-        <select x-model="statusFilter"
-            class="bg-white dark:bg-zinc-900 appearance-none text-xs text-gray-800 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-p cursor-pointer">
-            <option value="all">All Status</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-        </select>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor"
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-        </svg>
-    </div>
-    <div class="relative">
-        <select x-model="stockFilter"
-            class="bg-white dark:bg-zinc-900 appearance-none text-xs text-gray-800 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
-            <option value="all">All Stock</option>
-            <option value="low">Low Stock</option>
-            <option value="out">Out of Stock</option>
-            <option value="normal">In Stock</option>
-        </select>
-        <x-heroicon-o-chevron-down
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none" />
-    </div>
+    <x-filter-select model="statusFilter">
+        <option value="all">All Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+    </x-filter-select>
+
+    <x-filter-select model="stockFilter">
+        <option value="all">All Stock</option>
+        <option value="low">Low Stock</option>
+        <option value="out">Out of Stock</option>
+        <option value="in">In Stock</option>
+    </x-filter-select>
     <button @click="openAdjust()"
         class="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-medium text-white bg-[#0F6E8C] rounded-md hover:bg-[#0c5972] transition">
         <i class="fa-solid fa-plus"></i> Stock Adjustment

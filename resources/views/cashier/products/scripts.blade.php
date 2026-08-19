@@ -7,7 +7,7 @@
             filterStock: '',
             products: @json($products),
 
-            viewMode: 'list',
+            viewMode: localStorage.getItem('viewMode') || 'list',
 
             // new product request
             requestNewProduct: false,
@@ -52,10 +52,12 @@
                 if (this.filterCategory) {
                     result = result.filter(p => p.category_name === this.filterCategory);
                 }
-                if (this.filterStock === 'in') result = result.filter(p => p.remaining > 5);
-                else if (this.filterStock === 'low') result = result.filter(p => p.remaining > 0 && p.remaining <=
-                    5);
+                if (this.filterStock === 'in') result = result.filter(p => p.remaining > (p.low_stock_threshold ||
+                    5));
+                else if (this.filterStock === 'low') result = result.filter(p => p.remaining > 0 && p.remaining <= (
+                    p.low_stock_threshold || 5));
                 else if (this.filterStock === 'out') result = result.filter(p => p.remaining <= 0);
+
                 return result;
             },
 

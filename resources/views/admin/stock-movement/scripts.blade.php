@@ -8,6 +8,12 @@
             currentPage: 1,
             perPage: 20,
 
+            reasonOpen: false,
+            reasonResults: [],
+            allReasons: ['All Reasons', 'Restock', 'Customer Return', 'Damaged', 'Stock Count Correction', 'Transfer',
+                'Initial Stock', 'Lost or Stolen', 'Loss: Theft', 'Accident', 'Other'
+            ],
+
             get filteredMovements() {
                 let result = [...this.movements];
                 if (this.filterType) result = result.filter(m => m.type === this.filterType);

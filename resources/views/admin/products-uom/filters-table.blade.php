@@ -14,14 +14,7 @@
 <div class="flex flex-wrap items-center gap-3 mb-4">
 
     {{-- Search --}}
-    <div class="relative flex-1 min-w-[200px]">
-        <i
-            class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs"></i>
-        <input type="text" x-model="searchQuery" placeholder="Search product name, category or code..."
-            class="w-full pl-8 pr-8 py-1.5 text-xs border border-gray-300 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
-        <button x-show="searchQuery" @click="searchQuery = '';"
-            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 text-xs">✕</button>
-    </div>
+    <x-search-input placeholder="Search product name, category or code..." />
 
     {{-- UOM Type Filter --}}
     <div class="relative">
@@ -38,31 +31,19 @@
     </div>
 
     {{-- Status Filter --}}
-    <div class="relative">
-        <select x-model="statusFilter"
-            class="text-xs border border-gray-300 dark:border-zinc-800 rounded-md px-3 pr-8 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
-            <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-        </select>
-        <x-heroicon-o-chevron-down
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none"
-            stroke-width="2" />
-    </div>
+    <x-filter-select model="statusFilter">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+    </x-filter-select>
 
     {{-- Stock Filter --}}
-    <div class="relative">
-        <select x-model="stockFilter"
-            class="text-xs border border-gray-300 dark:border-zinc-800 rounded-md px-3 pr-8 py-1.5 bg-white dark:bg-zinc-900 text-gray-800 dark:text-zinc-200 focus:outline-none focus:border-gray-400 dark:focus:border-zinc-600 transition">
-            <option value="">All Stock</option>
-            <option value="out">Out of Stock</option>
-            <option value="low">Low Stock</option>
-            <option value="in">In Stock</option>
-        </select>
-        <x-heroicon-o-chevron-down
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none"
-            stroke-width="2" />
-    </div>
+    <x-filter-select model="stockFilter">
+        <option value="">All Stock</option>
+        <option value="out">Out of Stock</option>
+        <option value="low">Low Stock</option>
+        <option value="in">In Stock</option>
+    </x-filter-select>
 </div>
 
 {{-- UOM Table --}}
@@ -128,14 +109,25 @@
                         <td class="py-3 px-4 text-center">
                             <div class="flex items-center justify-center gap-1 flex-wrap">
                                 <template x-for="uom in product.uoms.filter(u => !u.is_default)" :key="uom.id">
-                                    <span
-                                        class="px-2 py-0.5 text-[12px] font-medium bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
-                                        <span x-text="uom.name"></span>
-                                        (<span x-text="uom.quantity_per_unit"></span><span
-                                            x-text="product.base_unit_code"></span>)
-                                        -
-                                        $<span x-text="parseFloat(uom.price).toFixed(2)"></span>
-                                    </span>
+                                    <div class="relative group">
+                                        <span :title="uom.description || 'No description'"
+                                            class="cursor-pointer px-2 py-0.5 text-[12px] font-medium bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
+                                            <span x-text="uom.name"></span>
+                                            (<span x-text="uom.quantity_per_unit"></span><span
+                                                x-text="product.base_unit_code"></span>)
+                                            -
+                                            $<span x-text="parseFloat(uom.price).toFixed(2)"></span>
+                                        </span>
+                                        {{-- Custom tooltip --}}
+                                        <div
+                                            class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block whitespace-nowrap px-2 py-1 text-[11px] font-medium text-white bg-gray-900 dark:bg-zinc-700 rounded shadow-lg z-10">
+                                            <span x-text="uom.description || 'No description'"></span>
+                                            {{-- little arrow pointing down --}}
+                                            <div
+                                                class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-zinc-700">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </template>
                                 {{-- Fallback: base unit only, no additional UOMs --}}
                                 <span x-show="!product.uoms || product.uoms.filter(u => !u.is_default).length === 0"

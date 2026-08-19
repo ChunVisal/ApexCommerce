@@ -147,11 +147,6 @@
 
                  return result;
              },
-
-             filterCustomers() {},
-             viewOrders(customer) {
-                 alert('Orders for ' + customer.name + '\nTotal: ' + customer.total_orders + ' orders');
-             }
          };
      }
  </script>

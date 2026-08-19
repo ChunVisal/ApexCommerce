@@ -73,7 +73,7 @@ class DashboardController extends Controller
             // Sales Data
             fputcsv($file, ['DAILY SALES']);
             fputcsv($file, ['Date', 'Revenue']);
-            foreach (DashboardService::getSalesChart($start, $end) as $day) {
+            foreach (DashboardService::getSalesChart($start, $end)['chart'] as $day) {
                 fputcsv($file, [$day['label_full'], $day['total']]);
             }
 

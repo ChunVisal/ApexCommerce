@@ -32,12 +32,8 @@
 
 {{-- Search & Sort --}}
 <div class="flex flex-wrap items-center gap-3 mb-4">
-    <div class="relative flex-1 min-w-[200px]">
-        <i
-            class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs"></i>
-        <input type="text" x-model="searchQuery" @input="filterCustomers()" placeholder="Search by name, email or phone..."
-            class="bg-white dark:bg-zinc-900 w-full pl-8 pr-3 py-1.5 text-xs bg-transparent border border-gray-300 dark:border-zinc-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] text-gray-800 dark:text-zinc-200">
-    </div>
+    <x-search-input placeholder="Search by name, email or phone..." />
+    
     <div class="relative">
         <select x-model="sortBy" @change="filterCustomers()"
             class="bg-white dark:bg-zinc-900 appearance-none text-xs bg-transparent border border-gray-300 dark:border-zinc-700 rounded-md pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] text-gray-800 dark:text-zinc-200">

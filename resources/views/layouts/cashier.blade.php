@@ -32,7 +32,7 @@
 
     {{-- Cashier Sidebar + Content --}}
     <div class="flex">
-        @include('components.cashier-sidebar')
+        @include('layouts.cashier-sidebar')
 
         <main class="bg-gray-100 dark:bg-black transition-colors duration-300 flex-1 min-w-0 min-h-screen">
             @yield('content')

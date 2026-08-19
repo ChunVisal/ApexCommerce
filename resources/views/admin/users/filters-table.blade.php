@@ -1,37 +1,19 @@
 <!-- Filters -->
 <div class="flex flex-wrap items-center gap-3 mb-4">
-    <div class="relative flex-1 min-w-[200px]">
-        <i
-            class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs"></i>
-        <input type="text" x-model="searchQuery" placeholder="Search by name, email or role..."
-            class="bg-white dark:bg-zinc-900 w-full pl-8 pr-3 py-1.5 text-xs bg-transparent border border-gray-300 dark:border-zinc-700 rounded-md focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] text-gray-800 dark:text-zinc-200 placeholder-gray-400 dark:placeholder-zinc-500">
-        <button type="button" x-show="searchQuery" @click="searchQuery = ''; filterUsers()"
-            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 z-10">
-            ✕
-        </button>
-    </div>
-    <div class="relative">
-        <select x-model="roleFilter"
-            class="bg-white dark:bg-zinc-900 appearance-none text-xs bg-transparent border border-gray-300 dark:border-zinc-700 rounded-md pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] text-gray-800 dark:text-zinc-200">
-            <option value="all" class="bg-white dark:bg-zinc-900">All Roles</option>
-            <option value="admin" class="bg-white dark:bg-zinc-900">Admin</option>
-            <option value="cashier" class="bg-white dark:bg-zinc-900">Cashier</option>
-        </select>
-        <x-heroicon-o-chevron-down
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none"
-            stroke-width="2" />
-    </div>
-    <div class="relative">
-        <select x-model="statusFilter"
-            class="bg-white dark:bg-zinc-900 appearance-none text-xs bg-transparent border border-gray-300 dark:border-zinc-700 rounded-md pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] text-gray-800 dark:text-zinc-200">
-            <option value="all" class="bg-white dark:bg-zinc-900">All Status</option>
-            <option value="active" class="bg-white dark:bg-zinc-900">Active</option>
-            <option value="inactive" class="bg-white dark:bg-zinc-900">Inactive</option>
-        </select>
-        <x-heroicon-o-chevron-down
-            class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none"
-            stroke-width="2" />
-    </div>
+    <x-search-input placeholder="Search by name, email or role..." />
+
+    <x-filter-select model="roleFilter">
+        <option value="all">All Roles</option>
+        <option value="admin">Admin</option>
+        <option value="cashier">Cashier</option>
+    </x-filter-select>
+
+    <x-filter-select model="statusFilter">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+    </x-filter-select>
+    
     {{-- Bulk Action Bar --}}
     <div id="bulkBar" style="display:none;"
         class="flex items-center justify-between pl-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 rounded-md">

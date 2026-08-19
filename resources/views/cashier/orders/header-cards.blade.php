@@ -3,10 +3,7 @@
         <h1 class="text-xl font-bold text-gray-800 dark:text-zinc-100">Orders & History</h1>
         <p class="text-xs text-gray-500 dark:text-zinc-400">View and manage your past transactions</p>
     </div>
-    <a href="{{ route('cashier.orders.export') }}"
-        class="px-3 py-1.5 text-xs border border-gray-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800 transition whitespace-nowrap">
-        <i class="fa-solid fa-download mr-1"></i> Export
-    </a>
+    <x-export-button :route="route('cashier.orders.export')" />
 </div>
 {{--  Summary Cards --}}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-5">

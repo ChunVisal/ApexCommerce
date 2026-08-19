@@ -1,6 +1,15 @@
 @props(['role' => 'cashier'])
 
 @php
+    $statusStyles = [
+        'approved' => ['color' => 'green', 'label' => 'Approved', 'icon' => 'check'],
+        'rejected' => ['color' => 'red', 'label' => 'Rejected', 'icon' => 'x-mark'],
+        'loss_reported' => ['color' => 'red', 'label' => 'Loss Reported', 'icon' => 'x-mark'],
+        'refunded' => ['color' => 'red', 'label' => 'Broken (Refund)', 'icon' => 'arrow-uturn-left'],
+        'on_hold' => ['color' => 'amber', 'label' => 'On Hold', 'icon' => 'clock'],
+        'pending' => ['color' => 'amber', 'label' => 'Pending', 'icon' => 'clock'],
+    ];
+
     $isAdmin = $role === 'admin';
 
     if ($isAdmin) {
@@ -103,6 +112,11 @@
                     @php
                         $unread = $isAdmin ? empty($notif->seen_at) : empty($notif->seen_at);
                         $refKey = $notif->id;
+                        $style = $statusStyles[$notif->status] ?? [
+                            'color' => 'amber',
+                            'label' => ucfirst($notif->status),
+                            'icon' => 'clock',
+                        ];
                     @endphp
                     <div class="notif-card cursor-pointer flex items-start gap-3 px-4 py-3 transition-colors
                         {{ $unread ? 'bg-blue-50 dark:bg-blue-950/20 border-l-2 border-blue-500' : 'hover:bg-gray-50/60 dark:hover:bg-zinc-800/30' }}"
@@ -119,13 +133,12 @@
                                 @endif
                             </div>
                             <div
-                                class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900
-                                {{ $notif->status === 'approved' ? 'bg-green-500' : ($notif->status === 'rejected' || $notif->status === 'loss_reported' ? 'bg-red-500' : ($notif->status === 'refunded' ? 'bg-blue-500' : 'bg-amber-500')) }}">
-                                @if ($notif->status === 'approved')
+                                class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-900 bg-{{ $style['color'] }}-500">
+                                @if ($style['icon'] === 'check')
                                     <x-heroicon-s-check class="w-2.5 h-2.5 text-white" />
-                                @elseif (in_array($notif->status, ['rejected', 'loss_reported']))
+                                @elseif ($style['icon'] === 'x-mark')
                                     <x-heroicon-s-x-mark class="w-2.5 h-2.5 text-white" />
-                                @elseif ($notif->status === 'refunded')
+                                @elseif ($style['icon'] === 'arrow-uturn-left')
                                     <x-heroicon-s-arrow-uturn-left class="w-3 h-3 text-white" />
                                 @else
                                     <x-heroicon-s-clock class="w-2.5 h-2.5 text-white" />
@@ -140,7 +153,7 @@
                                     @if ($notif->status === 'loss_reported')
                                         <span class="text-red-500 dark:text-red-400">reported loss of</span>
                                     @elseif ($notif->status === 'refunded')
-                                        <span class="text-[#0F6E8C] dark:text-blue-400">broken (refund)</span>
+                                        <span class="text-red-500 dark:text-red-400">refunded</span>
                                     @else
                                         <span class="text-amber-600 dark:text-amber-400">requested</span>
                                     @endif
@@ -164,10 +177,8 @@
                                 </span>
                             <div class="flex gap-1">
                                 <p
-                                    class="text-xs font-normal tracking-normal
-    {{ $notif->status === 'approved' ? 'text-green-600' : ($notif->status === 'rejected' || $notif->status === 'loss_reported' ? 'text-red-500 dark:text-red-400' : ($notif->status === 'refunded' ? 'text-blue-600' : 'text-amber-600')) }}">
-                                    {{ $notif->status === 'approved' ? 'Approved' : ($notif->status === 'rejected' ? 'Rejected' : ($notif->status === 'on_hold' ? 'On Hold' : ($notif->status === 'loss_reported' ? 'Loss Reported' : ($notif->status === 'refunded' ? 'Refunded' : 'Pending')))) }}
-                                </p>
+                                    class="text-xs font-normal tracking-normal text-{{ $style['color'] }}-600 dark:text-{{ $style['color'] }}-400">
+                                    {{ $style['label'] }}
                                 </p>
                                 <p class="text-[11px] text-gray-400 dark:text-zinc-500 font-medium">
                                     {{ $notif->updated_at->diffForHumans() }}

@@ -4,11 +4,7 @@
         <h1 class="text-xl font-bold text-gray-800 dark:text-zinc-100">My Customers</h1>
         <p class="text-xs text-gray-500 dark:text-zinc-400">Customers who purchased from you</p>
     </div>
-    <a href="{{ route('cashier.customers.export') }}"
-        class="bg-white dark:bg-zinc-900 inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-800 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
-        <x-heroicon-o-arrow-down-tray class="w-4 h-4" />
-        Export
-    </a>
+    <x-export-button :route="route('cashier.customers.export')" />
 </div>
 
 {{-- Summary Cards --}}

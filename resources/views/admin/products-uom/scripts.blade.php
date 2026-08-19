@@ -41,6 +41,7 @@
                 code: '',
                 quantity_per_unit: 1,
                 price: 0,
+                description: '',
                 is_default: true
             }],
 
@@ -73,9 +74,10 @@
                 if (this.stockFilter === 'out') {
                     result = result.filter(p => p.stock_quantity <= 0);
                 } else if (this.stockFilter === 'low') {
-                    result = result.filter(p => p.stock_quantity > 0 && p.stock_quantity <= 10);
+                    result = result.filter(p => p.stock_quantity > 0 && p.stock_quantity <= (p
+                        .low_stock_threshold || 5));
                 } else if (this.stockFilter === 'in') {
-                    result = result.filter(p => p.stock_quantity > 10);
+                    result = result.filter(p => p.stock_quantity > (p.low_stock_threshold || 5));
                 }
 
                 return result;
@@ -105,6 +107,7 @@
                         base_unit_code: '',
                         price: 0,
                         stock: 0,
+                        description: '',
                         status: 'active',
                     };
                     this.uomFormList = [];
@@ -123,6 +126,7 @@
                         base_unit_code: product.base_unit_code || '',
                         price: product.selling_price || 0,
                         stock: product.stock_quantity || 0,
+                        description: product.description || '',
                         status: product.status || 'active',
                     };
 
@@ -176,6 +180,7 @@
                     base_unit_name: '',
                     base_unit_code: '',
                     price: 0,
+                    description: '',
                     status: 'active',
                 };
 
@@ -185,6 +190,7 @@
                     code: '',
                     quantity_per_unit: 1,
                     price: 0,
+                    description: '',
                     is_default: true
                 }];
 
@@ -246,6 +252,7 @@
                 payload.append('base_unit_code', this.form.base_unit_code);
                 payload.append('stock', this.form.stock);
                 payload.append('price', this.form.price);
+                payload.append('description', this.form.description);
                 payload.append('status', this.form.status);
                 payload.append('has_uom', 1);
                 payload.append('uoms', JSON.stringify(this.uomFormList));

@@ -285,10 +285,16 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
+        $category = Categories::where('code', $request->category_code)->first();
+
+        if (!$category) {
+            return response()->json(['error' => 'Category not found'], 422);
+        }
+
         $imageUrl = $this->handleProductImage($request, $product->image);
 
         $product->update([
-            'category_id' => $request->category_id,
+            'category_id' => $category->id,
             'name' => $request->name,
             'selling_price' => $request->price,
             'stock_quantity' => $request->stock ?? $product->stock_quantity,

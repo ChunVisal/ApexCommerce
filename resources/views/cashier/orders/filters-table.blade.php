@@ -1,16 +1,8 @@
 {{-- Search + Date Filter --}}
 <div x-data="orderSearch()">
     <div class="flex items-center gap-3 mb-4">
-        <div class="relative flex-1">
-            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-            <input type="text" x-model="searchQuery" @input.debounce.400ms="searchOrders()"
-                placeholder="Search order number or customer name"
-                class="text-gray-800 dark:text-zinc-100 w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-900">
-            <button x-show="searchQuery" @click="searchQuery = ''; searchOrders()"
-                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
-                <i class="fa-solid fa-xmark text-xs"></i>
-            </button>
-        </div>
+        <x-search-input placeholder="Search order number or customer name..." />
+  
         {{-- Date Filter --}}
         <div class="relative" x-data="{ open: false, selected: '{{ $selectedFilter }}' }">
             <button @click="open = !open"

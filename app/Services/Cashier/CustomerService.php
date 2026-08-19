@@ -26,8 +26,6 @@ class CustomerService
                 'icon' => 'fa-solid fa-users',
                 'iconBg' => '#0F6E8C',
                 'iconColor' => '#0F6E8C',
-                'trend' => '+12%',
-                'trendColor' => 'text-green-500',
                 'subtitle' => 'Your customers',
             ],
             [
@@ -36,9 +34,7 @@ class CustomerService
                 'icon' => 'fa-solid fa-crown',
                 'iconBg' => '#EAB308',
                 'iconColor' => '#EAB308',
-                'trend' => '+5%',
                 'badge' => '5% OFF',
-                'trendColor' => 'text-green-500',
                 'subtitle' => 'Spent over $5,000',
             ],
             [
@@ -47,8 +43,6 @@ class CustomerService
                 'icon' => 'fa-solid fa-repeat',
                 'iconBg' => '#2563EB',
                 'iconColor' => '#2563EB',
-                'trend' => '+8%',
-                'trendColor' => 'text-green-500',
                 'subtitle' => '3+ orders',
             ],
             [
@@ -57,10 +51,9 @@ class CustomerService
                 'icon' => 'fa-solid fa-walking',
                 'iconBg' => '#16A34A',
                 'iconColor' => '#16A34A',
-                'trend' => '+15%',
-                'trendColor' => 'text-green-500',
                 'subtitle' => '1-2 orders',
             ],
+
         ];
     }
 

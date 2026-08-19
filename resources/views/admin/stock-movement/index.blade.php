@@ -12,22 +12,14 @@
                     {{ \Carbon\Carbon::parse($end)->format('M d, Y') }}
                 </p>
             </div>
-            <a href="{{ route('admin.stockmovement.export') }}"
-                class="bg-white dark:bg-zinc-900 inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-800 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
-                <x-heroicon-o-arrow-down-tray class="w-4 h-4" />
-                Export
-            </a>
+            <x-export-button :route="route('admin.stockmovement.export')" />
         </div>
 
         {{-- Full-Width Responsive Search + Filter Toolbar Grid (Matching Sample Styles & Size) --}}
         <div class="flex flex-wrap items-center gap-3 mb-4">
 
             {{-- Search Input with Reason Dropdown --}}
-            <div class="relative flex-1" x-data="{
-                reasonOpen: false,
-                reasonResults: [],
-                allReasons: ['All Reasons', 'Restock', 'Customer Return', 'Damaged', 'Stock Count Correction', 'Transfer', 'Initial Stock', 'Lost or Stolen', 'Loss: Theft', 'Accident', 'Other']
-            }">
+            <div class="relative flex-1">
                 <i
                     class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs"></i>
                 <input type="text" x-model="searchQuery" @input="applyFilters(); toggleClearButton()"
@@ -58,55 +50,7 @@
                 </div>
             </div>
 
-            {{-- Date Range Dropdown Control Component --}}
-            <div class="relative" x-data="{ open: false }">
-                <button @click="open = !open"
-                    class="h-[30px] bg-white dark:bg-zinc-900 flex items-center text-xs gap-2 px-3 border border-gray-300 dark:border-zinc-800 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-800/60 text-gray-700 dark:text-zinc-300 transition-colors whitespace-nowrap">
-                    <i class="fa-regular fa-calendar text-gray-400 dark:text-zinc-500"></i>
-                    <span>
-                        {{ \Carbon\Carbon::parse(request('start_date', now()->subDays(14)))->format('M d, Y') }}
-                        -
-                        {{ \Carbon\Carbon::parse(request('end_date', now()))->format('M d, Y') }}
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-gray-400 dark:text-zinc-500 text-[10px]"></i>
-                </button>
-
-                <div x-show="open" @click.outside="open = false" x-cloak
-                    class="absolute right-0 mt-1.5 w-60 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-md shadow-lg dark:shadow-zinc-950/50 z-30 p-3">
-                    {{-- Action Dropdown Presets Mapping Elements --}}
-                    <div class="space-y-1 mb-3">
-                        <a href="{{ route('admin.inventory.movements', ['start_date' => now()->subDays(6)->format('Y-m-d'), 'end_date' => now()->format('Y-m-d')]) }}"
-                            class="block px-2 py-1.5 text-xs rounded text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/60 transition-colors">Last
-                            7 days</a>
-                        <a href="{{ route('admin.inventory.movements', ['start_date' => now()->subDays(14)->format('Y-m-d'), 'end_date' => now()->format('Y-m-d')]) }}"
-                            class="block px-2 py-1.5 text-xs rounded text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/60 transition-colors">Last
-                            15 days</a>
-                        <a href="{{ route('admin.inventory.movements', ['start_date' => now()->subDays(29)->format('Y-m-d'), 'end_date' => now()->format('Y-m-d')]) }}"
-                            class="block px-2 py-1.5 text-xs rounded text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/60 transition-colors">Last
-                            30 days</a>
-                        <a href="{{ route('admin.inventory.movements', ['start_date' => now()->subDays(89)->format('Y-m-d'), 'end_date' => now()->format('Y-m-d')]) }}"
-                            class="block px-2 py-1.5 text-xs rounded text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800/60 transition-colors">Last
-                            90 days</a>
-                    </div>
-
-                    <div class="border-t border-gray-200 dark:border-zinc-800 pt-3">
-                        <p class="text-[11px] font-semibold text-gray-500 dark:text-zinc-400 mb-2">Custom range</p>
-                        <form action="{{ route('admin.inventory.movements') }}" method="GET" class="space-y-2">
-                            <input type="hidden" name="search" value="{{ request('search') }}">
-                            <input type="hidden" name="type" value="{{ request('type') }}">
-                            <input type="hidden" name="product_id" value="{{ request('product_id') }}">
-                            <input type="date" name="start_date" value="{{ request('start_date') }}"
-                                class="[&::-webkit-calendar-picker-indicator]:dark:invert w-full text-xs border border-gray-300 dark:border-zinc-800 rounded-md px-2 py-1.5 bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 focus:outline-none focus:border-[#0F6E8C]">
-                            <input type="date" name="end_date" value="{{ request('end_date') }}"
-                                class="[&::-webkit-calendar-picker-indicator]:dark:invert w-full text-xs border border-gray-300 dark:border-zinc-800 rounded-md px-2 py-1.5 bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 focus:outline-none focus:border-[#0F6E8C]">
-                            <button type="submit"
-                                class="w-full px-3 py-1.5 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md hover:bg-[#0c5972] transition-colors">
-                                Apply
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            <x-date-range-picker route="admin.inventory.movements" />
 
             {{-- Category Filter Dropdown --}}
             <div class="relative">

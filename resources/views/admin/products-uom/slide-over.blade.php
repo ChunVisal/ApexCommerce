@@ -151,7 +151,7 @@
                                         class="text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5 block">Stock
                                         Qty</label>
                                     <input type="number" min="0" x-model="form.stock" min="1"
-                                        :max="form.stock || 1" :disabled="editmode" :readonly="editMode"
+                                        :max="form.stock || 1" :disabled="editMode" :readonly="editMode"
                                         :class="editMode ? 'bg-gray-100 dark:bg-zinc-800 cursor-not-allowed' :
                                             'bg-white dark:bg-zinc-800'"
                                         class="w-full text-sm border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500"
@@ -249,9 +249,9 @@
                                         <p x-show="Number(uom.quantity_per_unit) > Number(form.stock || 0)"
                                             class="text-[11px] text-red-500 mt-1 whitespace-nowrap">
                                             <x-heroicon-m-exclamation-triangle
-                                                class="inline w-4 h-4 text-yellow-500" /> Cannot exceed stock (max
+                                                class="inline w-4 h-4 text-yellow-500" />
+                                            cannot greater than current stock (max:
                                             <span x-text="form.stock"></span>)
-
                                         </p>
                                     </div>
 
@@ -263,14 +263,26 @@
                                         <input type="number" x-model="uom.price" step="0.01" placeholder="0.00"
                                             class="w-full text-sm text-right border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 font-bold placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500">
                                     </div>
+
+                                    <p class="text-xs text-gray-500 dark:text-zinc-400 italic">1 <span
+                                            class="text-gray-800 dark:text-zinc-200"
+                                            x-text="uom.name || 'unit'"></span> =
+                                        <strong class="text-p" x-text="uom.quantity_per_unit || 1">.</strong>
+                                        <span class="text-gray-800 dark:text-zinc-200"
+                                            x-text="form.base_unit_name"></span>
+                                    </p>
+
                                 </div>
 
-                                <p class="text-xs text-gray-500 dark:text-zinc-400 italic">1 <span
-                                        class="text-gray-800 dark:text-zinc-200" x-text="uom.name || 'unit'"></span> =
-                                    <strong class="text-p" x-text="uom.quantity_per_unit || 1">.</strong>
-                                    <span class="text-gray-800 dark:text-zinc-200"
-                                        x-text="form.base_unit_name"></span>
-                                </p>
+                                {{-- Description --}}
+                                <div>
+                                    <label
+                                        class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">
+                                        Description
+                                    </label>
+                                    <textarea x-model="uom.description" placeholder="Additional details or notes" rows="2"
+                                        class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] resize-none"></textarea>
+                                </div>
                             </div>
                         </template>
 
@@ -305,8 +317,7 @@
                     class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-700 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-800">
                     Cancel
                 </button>
-                <button type="submit"
-                    :disabled="submitting || uomFormList.some(u => parseInt(u.quantity_per_unit) > parseInt(form.stock))"
+                <button type="submit" :disabled="submitting"
                     class="px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md
                      hover:bg-[#0c5972] disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1">
                     <i x-show="submitting" class="fa-solid fa-spinner fa-spin"></i>

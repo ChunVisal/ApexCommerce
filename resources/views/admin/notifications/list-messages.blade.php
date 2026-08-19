@@ -12,6 +12,7 @@
     </div>
     @foreach ($requests as $req)
         @php
+
             $cashierStock = \App\Models\CashierStock::where('cashier_id', $req->cashier_id)
                 ->where('product_id', $req->product_id)
                 ->first();
@@ -58,8 +59,8 @@
                                 </span>
                             @elseif ($isRefund)
                                 <span
-                                    class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
-                                    Refund Restock
+                                    class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-red-200">
+                                    Refund
                                 </span>
                             @elseif ($isNewProduct)
                                 <span
@@ -95,7 +96,7 @@
                                     {{ $req->product->name ?? ($req->product_name ?? 'Unknown Product') }}
                                 </span>
                             @elseif ($isRefund)
-                                <span class="text-p dark:text-blue-400">restocked (refund)</span>
+                                <span class="text-red-600 dark:text-red-400 font-bold">refunded</span>
                                 <span
                                     class="font-bold text-p dark:text-[#1389af]">{{ $req->quantity_requested }}x</span>
                                 @if ($req->product && $req->product->base_unit_name)
@@ -134,7 +135,7 @@
                             </p>
                         @elseif ($isRefund)
                             <p
-                                class="text-[11px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1 pt-0.5">
+                                class="text-[11px] font-semibold text-red-600 dark:text-red-400 flex items-center gap-1 pt-0.5">
                                 <x-heroicon-s-check-circle class="w-3.5 h-3.5" /> Already processed — no action needed
                             </p>
                         @else
