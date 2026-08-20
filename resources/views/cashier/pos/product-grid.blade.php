@@ -11,25 +11,22 @@
         {{-- Search + Barcode --}}
         <div class="flex items-center gap-3 flex-1 max-w-xl">
             <div class="relative flex-1">
-                <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-zinc-400"></i>
+                <x-heroicon-m-magnifying-glass
+                    class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-zinc-400" />
                 <input x-model="searchQuery" type="search" placeholder="Search products, categories, code..."
                     class="w-full pl-9 pr-4 py-2 border border-gray-400 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 rounded-full text-sm outline-none">
-                <button type="button" x-show="searchQuery" @click="searchQuery = ''; filterProducts()"
-                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 z-10">
-                    ✕
-                </button>
+
+                <x-heroicon-m-x-mark
+                    class="w-6 h-6 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 z-10"
+                    x-show="searchQuery" @click="searchQuery = ''" />
             </div>
-            <button @click="$dispatch('trigger-scan')"
-                class="px-4 py-2 bg-[#0F6E8C] text-white rounded-full hover:bg-[#0c5972] transition flex items-center gap-2 text-sm font-medium whitespace-nowrap shrink-0 shadow-sm">
-                <i class="bi bi-upc-scan text-base"></i>
-                <span class="hidden sm:inline">Scan</span>
-            </button>
+
             {{-- Held Carts Dropdown Section --}}
             <div x-show="heldCartsList.length > 0" class="relative" x-data="{ open: false }">
 
                 {{-- Trigger Button --}}
                 <button @click="open = !open"
-                    class="w-full flex items-center justify-between px-3 py-2 rounded-full text-xs font-bold text-gray-800 dark:text-zinc-200 bg-gray-100 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">
+                    class="w-full flex items-center justify-between px-3 py-2 rounded-full text-xs font-bold text-gray-800 dark:text-zinc-200 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-pause text-gray-600 dark:text-zinc-400 text-[11px]"></i>
                         <span>Held Orders</span>
@@ -72,7 +69,9 @@
                             {{-- Right Actions Block --}}
                             <div class="flex items-center gap-2 shrink-0">
                                 {{-- Note Edit Button --}}
-                                <button @click="cart.note = prompt('Add note:', cart.note || '')" title="Edit Note"
+                                <button
+                                    @click="cart.note = prompt('Add note:', cart.note || ''); localStorage.setItem('heldCarts', JSON.stringify(heldCartsList))"
+                                    title="Edit Note"
                                     class="p-2 text-gray-400 dark:text-zinc-300 hover:text-gray-700 dark:hover:text-zinc-200 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md transition-colors">
                                     <i class="fa-solid fa-pen-to-square text-xs"></i>
                                 </button>
@@ -240,7 +239,7 @@
         </template>
 
         {{-- Empty state: Not Found via search --}}
-        <div x-show="products.length === 0 && searchQuery"
+        <div x-show="filteredProducts.length === 0 && products.length > 0 "
             class="bg-gray-200/50 dark:bg-zinc-900 col-span-full flex flex-col items-center justify-center py-12">
             <div class="rounded-full bg-gray-100 dark:bg-zinc-800 p-4 mb-4">
                 <x-heroicon-o-magnifying-glass class="w-10 h-10 text-gray-400 dark:text-zinc-600" />
@@ -251,7 +250,7 @@
             </p>
         </div>
         {{-- Empty state: Category truly empty (no search) --}}
-        <div x-show="products.length === 0 && !searchQuery"
+        <div x-show="products.length === 0"
             class="bg-gray-200/50 dark:bg-zinc-900 col-span-full flex flex-col items-center justify-center py-12">
             <div class="rounded-full bg-gray-100 dark:bg-zinc-800 p-4 mb-4">
                 <x-heroicon-o-shopping-bag class="w-10 h-10 text-gray-400 dark:text-zinc-600" />

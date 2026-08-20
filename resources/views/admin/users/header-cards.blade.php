@@ -5,7 +5,7 @@
         <p class="text-xs text-gray-500 dark:text-zinc-400">Manage admin and cashier accounts</p>
     </div>
     <button @click="openAdd()"
-        class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md hover:bg-[#0c5972] transition">
+        class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md hover:bg-[#1a627a] transition">
         <i class="fa-solid fa-plus"></i> Add User
     </button>
 </div>

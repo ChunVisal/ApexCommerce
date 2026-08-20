@@ -22,7 +22,6 @@ class PosController extends Controller
     // loads the main POS screen categories, products available to sell
     public function pos(Request $request)
     {
-        $cashierId = Auth::id();
 
         $cashierId = Auth::id();
 
@@ -30,13 +29,19 @@ class PosController extends Controller
         $sellableFilter = function ($q) use ($cashierId) {
             $q->where('status', 'active')
                 ->whereHas('cashierStocks', function ($sq) use ($cashierId) {
-                    $sq->where('cashier_id', $cashierId)->whereRaw('allocated_quantity > sold_quantity');
+                    $sq->where('cashier_id', $cashierId)
+                        ->select('product_id')
+                        ->groupBy('product_id')
+                        ->havingRaw('SUM(allocated_quantity) - SUM(sold_quantity) - SUM(lost_quantity) > 0');
                 });
         };
 
         // this checks a CASHIER_STOCKS row directly — does IT belong to this cashier and have stock left?
         $hasStockFilter = function ($sq) use ($cashierId) {
-            $sq->where('cashier_id', $cashierId)->whereRaw('allocated_quantity > sold_quantity');
+            $sq->where('cashier_id', $cashierId)
+                ->select('product_id')
+                ->groupBy('product_id')
+                ->havingRaw('SUM(allocated_quantity) - SUM(sold_quantity) - SUM(lost_quantity) > 0');
         };
 
         // load categories but only if at least one product that cashier still has stock left to sell

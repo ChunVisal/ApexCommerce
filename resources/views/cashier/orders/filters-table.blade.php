@@ -2,7 +2,7 @@
 <div x-data="orderSearch()">
     <div class="flex items-center gap-3 mb-4">
         <x-search-input placeholder="Search order number or customer name..." />
-  
+
         {{-- Date Filter --}}
         <div class="relative" x-data="{ open: false, selected: '{{ $selectedFilter }}' }">
             <button @click="open = !open"
@@ -57,7 +57,7 @@
     {{-- Orders Component Box Container --}}
     <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
         {{-- Unified Scroll Contained Table Boundary Layout matching Customer Grid --}}
-        <div class="scroll-smooth table-scroll overflow-auto max-h-[600px]" x-ref="tableBody">
+        <div class="tab-container overflow-auto max-h-[600px]" x-ref="tableBody">
             <table class="w-full text-sm">
                 <thead class="sticky top-0 bg-white dark:bg-zinc-900 z-10">
                     <tr
@@ -113,10 +113,13 @@
                                 <button @click="viewOrder(order.id)" class="text-yellow-400 hover:text-yellow-500">
                                     <i class="fa-solid fa-receipt text-lg"></i>
                                 </button>
-                                <button x-show="order.status === 'completed'" @click="refundOrder(order.id)"
+                                <button x-show="order.status === 'completed' || order.status === 'partially_refunded'"
+                                    @click="refundOrder(order.id)"
                                     class="text-xs font-medium text-red-500 hover:text-red-600 ml-2">
                                     Refund
                                 </button>
+                                <span x-show="order.status === 'partially_refunded'"
+                                    class="text-xs ml-1 font-medium text-amber-600">Partially Refunded</span>
                                 <span x-show="order.status === 'refunded'"
                                     class="text-xs ml-1 font-medium text-green-600">Refunded</span>
                             </td>
@@ -138,38 +141,9 @@
                 </tbody>
             </table>
         </div>
-        {{-- pagination  --}}
-        <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-zinc-800">
-            <p class="text-xs text-gray-500 dark:text-zinc-400" x-text="showingText"></p>
 
-            <div class="flex items-center gap-1">
-                {{-- Previous Button --}}
-                <button @click="prevPage()" :disabled="currentPage === 1" type="button"
-                    class="px-3 py-1 text-xs border border-gray-200 dark:border-zinc-700 rounded-md text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent transition">
-                    Previous
-                </button>
-
-                {{-- Page Numbers --}}
-                <template x-for="page in pageNumbers" :key="page">
-                    <div class="inline-flex items-center">
-                        <button x-show="page !== '...'" @click="goToPage(page)" type="button"
-                            :class="currentPage === page ?
-                                'bg-[#0F6E8C] text-white border-[#0F6E8C]' :
-                                'border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800'"
-                            class="px-3 py-1 text-xs border rounded-md transition">
-                            <span x-text="page"></span>
-                        </button>
-                        <span x-show="page === '...'" class="px-2 text-xs text-gray-400 dark:text-zinc-500">...</span>
-                    </div>
-                </template>
-
-                {{-- Next Button --}}
-                <button @click="nextPage()" :disabled="currentPage === totalPages" type="button"
-                    class="px-3 py-1 text-xs border border-gray-200 dark:border-zinc-700 rounded-md text-gray-600 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:hover:bg-transparent dark:disabled:hover:bg-transparent transition">
-                    Next
-                </button>
-            </div>
-        </div>
+        {{-- Alpine Pagination --}}
+        <x-pagination />
     </div>
 </div>
 
@@ -204,21 +178,28 @@
                 return result;
             },
 
+
             get totalPages() {
                 return Math.ceil(this.filteredOrders.length / this.perPage);
             },
-
             get paginatedOrders() {
                 const start = (this.currentPage - 1) * this.perPage;
                 return this.filteredOrders.slice(start, start + this.perPage);
             },
-
             get showingText() {
                 const start = (this.currentPage - 1) * this.perPage + 1;
                 const end = Math.min(this.currentPage * this.perPage, this.filteredOrders.length);
                 return `Showing ${start}-${end} of ${this.filteredOrders.length} entries`;
             },
-
+            get pageNumbers() {
+                const pages = [];
+                for (let i = 1; i <= this.totalPages; i++) {
+                    if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage +
+                            2)) pages.push(i);
+                    else if (pages[pages.length - 1] !== '...') pages.push('...');
+                }
+                return pages;
+            },
             prevPage() {
                 if (this.currentPage > 1) this.currentPage--;
             },
@@ -226,26 +207,11 @@
                 if (this.currentPage < this.totalPages) this.currentPage++;
             },
             goToPage(page) {
-                if (typeof page === 'number') {
-                    this.currentPage = page;
-                    this.$nextTick(() => {
-                        const el = this.$refs.tableBody;
-                        if (el) el.scrollTop = 0;
-                    });
-                }
-            },
-
-            get pageNumbers() {
-                const pages = [];
-                for (let i = 1; i <= this.totalPages; i++) {
-                    if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage +
-                            2)) {
-                        pages.push(i);
-                    } else if (pages[pages.length - 1] !== '...') {
-                        pages.push('...');
-                    }
-                }
-                return pages;
+                if (typeof page === 'number') this.currentPage = page;
+                this.$nextTick(() => {
+                    const el = this.$refs.tableBody;
+                    if (el) el.scrollTop = 0;
+                });
             },
 
             searchOrders() {

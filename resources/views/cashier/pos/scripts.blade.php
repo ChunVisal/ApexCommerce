@@ -144,9 +144,6 @@
                         this.calculateChange();
                     }
                 });
-                this.$watch('discountValue', (val) => {
-                    console.log('discountValue changed to:', val, new Error().stack);
-                });
             },
 
             addToCart(product) {
@@ -251,7 +248,6 @@
             },
 
             saveCustomer() {
-                console.log('saveCustomer called');
                 if (!this.customerForm.name || !this.customerForm.phone) return;
 
                 this.selectedCustomer = {

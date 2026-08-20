@@ -18,7 +18,7 @@
             </div>
             <button @click="closeUomPanel()" type="button"
                 class="text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300">
-                <i class="fa-solid fa-xmark text-lg"></i>
+            <i class="fa-solid fa-xmark text-lg"></i>
             </button>
         </div>
 

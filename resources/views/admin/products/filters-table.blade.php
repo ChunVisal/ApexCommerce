@@ -14,7 +14,7 @@
     </div>
     <div class="items-center flex gap-4">
         <button @click="openAdd()"
-            class="mt-3 sm:mt-0 inline-flex justify-center items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-p rounded-md hover:bg-[#0c5972] transition">
+            class="mt-3 sm:mt-0 inline-flex justify-center items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-p rounded-md hover:bg-[#1a627a] transition">
             <i class="fa-solid fa-plus"></i>
             <span>Add Product</span>
         </button>

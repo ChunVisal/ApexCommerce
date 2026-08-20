@@ -56,7 +56,11 @@ body {
 
 /* primary blue background color hover:bg-gray-100 */
 .bg-p {
-    background: #1063a2;
+    background: #0F6E8C;
+}
+
+.bg-p-hover {
+    background: #0c5972;
 }
 
 .bg-white {

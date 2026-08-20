@@ -5,6 +5,7 @@
             searchQuery: '',
             filterType: '',
             filterCategory: '',
+            
             currentPage: 1,
             perPage: 20,
 

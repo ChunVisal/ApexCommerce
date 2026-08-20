@@ -35,7 +35,7 @@ class CustomerService
                 'iconBg' => '#EAB308',
                 'iconColor' => '#EAB308',
                 'badge' => '5% OFF',
-                'subtitle' => 'Spent over $5,000',
+                'subtitle' => 'Spent 6+ order or over $5,000',
             ],
             [
                 'title' => 'Regular',

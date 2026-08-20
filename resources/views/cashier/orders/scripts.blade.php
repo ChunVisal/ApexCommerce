@@ -12,6 +12,8 @@
             refundOrderNumber: '',
             refundTotal: 0,
             refundReason: '',
+            refundOrderItems: [], // NEW
+            refundSelection: {},
             restockItems: true,
 
             refundOrder(id) {
@@ -20,10 +22,41 @@
                 this.refundOrderId = id;
                 this.refundOrderNumber = order.order_number;
                 this.refundTotal = parseFloat(order.total).toFixed(2);
+                this.refundOrderItems = order.items || [];
+                this.refundSelection = {};
+                this.refundOrderItems.forEach(item => {
+                    this.refundSelection[item.id] = {
+                        selected: false,
+                        broken: false
+                    };
+                });
                 this.refundOpen = true;
             },
 
+            toggleRefundItem(itemId) {
+                this.refundSelection[itemId].selected = !this.refundSelection[itemId].selected;
+                if (!this.refundSelection[itemId].selected) {
+                    this.refundSelection[itemId].broken = false;
+                }
+            },
+
+            toggleBroken(itemId) {
+                this.refundSelection[itemId].broken = !this.refundSelection[itemId].broken;
+            },
+
             processRefund() {
+                const items = Object.entries(this.refundSelection)
+                    .filter(([id, val]) => val.selected)
+                    .map(([id, val]) => ({
+                        order_item_id: parseInt(id),
+                        restock: !val.broken,
+                    }));
+
+                if (items.length === 0) {
+                    alert('Please select at least one item to refund');
+                    return;
+                }
+
                 fetch(`/cashier/orders/${this.refundOrderId}/refund`, {
                         method: 'POST',
                         headers: {
@@ -32,7 +65,7 @@
                         },
                         body: JSON.stringify({
                             reason: this.refundReason,
-                            restock: this.restockItems,
+                            items: items,
                         })
                     })
                     .then(res => res.json())

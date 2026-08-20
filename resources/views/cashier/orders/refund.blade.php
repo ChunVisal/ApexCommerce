@@ -19,7 +19,8 @@
                     <div class="w-2 h-2 rounded-full bg-rose-500"></div>
                     <h3 class="text-sm font-bold uppercase text-gray-900 dark:text-zinc-100">Refund Order Process</h3>
                 </div>
-                <p class="ml-4 text-xs text-gray-500 dark:text-zinc-400 mt-1">Initiate a refund for the selected order below.
+                <p class="ml-4 text-xs text-gray-500 dark:text-zinc-400 mt-1">Initiate a refund for the selected order
+                    below.
                 </p>
             </div>
             <button @click="refundOpen = false"
@@ -29,7 +30,7 @@
         </div>
 
         {{-- Content Area --}}
-        <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+        <div class="tab-container flex-1 overflow-y-auto px-6 py-5 space-y-5">
 
             {{-- Summary Card --}}
             <div
@@ -70,16 +71,72 @@
                 </div>
             </div>
 
-            {{-- Toggle Box --}}
-            <div class="p-3.5 border border-gray-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 flex items-start gap-3 cursor-pointer"
-                @click="restockItems = !restockItems">
-                <input type="checkbox" x-model="restockItems" id="restockCheck" @click.stop
-                    class="mt-0.5 rounded border-gray-300 dark:border-zinc-700 text-rose-600 focus:ring-rose-500/20 dark:bg-zinc-800">
-                <label for="restockCheck" class="text-xs select-none cursor-pointer">
-                    <span class="font-bold block text-gray-900 dark:text-zinc-200">Restock inventory items</span>
-                    <span class="text-gray-400 dark:text-zinc-500 text-[11px] block mt-0.5">Automatically add these
-                        quantities back to active stock.</span>
+            {{-- Item Selection List --}}
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-400 mb-1.5">
+                    Select Items to Refund
                 </label>
+                <div class="space-y-2">
+                    <template x-for="item in refundOrderItems" :key="item.id">
+                        <div class="p-3 border rounded-lg transition-colors duration-150"
+                            :class="{
+                                'border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900': !refundSelection[item
+                                    .id]?.selected && !item.is_refunded,
+                                'bg-rose-50/50 dark:bg-rose-950/10': refundSelection[
+                                    item.id]?.selected && !item.is_refunded,
+                                'border-gray-100 dark:border-zinc-800/60 bg-gray-50/50 dark:bg-zinc-900/40 opacity-60': item
+                                    .is_refunded
+                            }">
+
+                            <template x-if="item.is_refunded">
+                                <div class="flex items-center justify-between gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-xs font-semibold text-gray-700 dark:text-zinc-300 truncate"
+                                            x-text="item.name"></p>
+                                        <p class="text-[11px] text-gray-400 mt-0.5"
+                                            x-text="'x' + item.quantity + ' - $' + item.total"></p>
+                                    </div>
+                                    <span
+                                        class="inline-flex items-center text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 shrink-0"
+                                        x-text="'Already Refunded (' + item.refund_type + ')'"></span>
+                                </div>
+                            </template>
+
+                            <template x-if="!item.is_refunded">
+                                <div class="flex items-start gap-3">
+                                    <div class="flex items-center h-5">
+                                        <input type="checkbox" :checked="refundSelection[item.id]?.selected"
+                                            @change="toggleRefundItem(item.id)"
+                                            class="rounded border-gray-300 dark:border-zinc-700 text-rose-600 focus:ring-rose-500/20 dark:bg-zinc-800 cursor-pointer">
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-baseline justify-between gap-2">
+                                            <p class="text-xs font-semibold text-gray-900 dark:text-zinc-200 truncate"
+                                                x-text="item.name"></p>
+                                            <p class="text-[11px] font-semibold text-gray-500 dark:text-zinc-400 shrink-0"
+                                                x-text="'x' + item.quantity + ' - $' + item.total"></p>
+                                        </div>
+
+                                        <div
+                                            class="mt-2 pt-2 border-t border-gray-100 dark:border-zinc-800/80 flex items-center justify-between">
+                                            <label class="inline-flex items-center gap-1.5 cursor-pointer select-none"
+                                                :class="refundSelection[item.id]?.selected ? '' :
+                                                    'opacity-40 pointer-events-none'">
+                                                <input type="checkbox" :checked="refundSelection[item.id]?.broken"
+                                                    @change="toggleBroken(item.id)"
+                                                    :disabled="!refundSelection[item.id]?.selected"
+                                                    class="rounded border-gray-300 dark:border-zinc-700 text-rose-600 focus:ring-rose-500/20 dark:bg-zinc-800">
+                                                <span class="text-[11px] text-gray-500 dark:text-zinc-400">Broken /
+                                                    Lost</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
 

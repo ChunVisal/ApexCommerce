@@ -52,30 +52,40 @@ class OrderController extends Controller
 
     public function refund(Request $request, int $id)
     {
+        $request->validate([
+            'reason' => 'required|string',
+            'items' => 'required|array|min:1',
+            'items.*.order_item_id' => 'required|exists:order_items,id',
+            'items.*.restock' => 'required|boolean',
+        ]);
+
         // find items order for only belong to cashier or fail message
         $order = Order::with('items')->where('cashier_id', Auth::id())->findOrFail($id);
         $order_number = $order->order_number; // get the order_number invoice here
 
-        // prevent old data, double-click, bypassing API
-        if ($order->status !== 'completed') {
-            return response()->json(['message' => 'Order already refunded', 'order_number' => $order_number], 400);
+        // Prevent refunding items that are already refunded, or don't belong to this order
+        foreach ($request->items as $refundItem) {
+            $item = $order->items->firstWhere('id', $refundItem['order_item_id']);
+
+            if (!$item) {
+                return response()->json(['message' => 'Invalid item for this order'], 400);
+            }
+
+            if ($item->is_refunded) {
+                return response()->json(['message' => $item->name . ' has already been refunded'], 400);
+            }
         }
 
         // groups multiple database changes together, so they either all succeed or all fail if one fail reset all
         try {
             DB::beginTransaction();
-            // Mark order as refunded
-            $order->update([
-                'status' => 'refunded',
-                'refund_reason' => $request->reason,
-                'refunded_at' => now(),
-            ]);
-
-            // Restock items if checkbox checked
 
             // loops mutiply through each one, one at a time then increase qty
-            foreach ($order->items as $item) {
+            foreach ($request->items as $refundItem) {
                 // then restock items to specfic cashier_id allocation
+                $item = $order->items->firstWhere('id', $refundItem['order_item_id']);
+                $restock = $refundItem['restock'];   // THIS item's own restock choice
+
                 $cashierStock = CashierStock::where('cashier_id', $order->cashier_id)
                     ->where('product_id', $item->product_id)
                     ->first();
@@ -111,6 +121,12 @@ class OrderController extends Controller
                     'user_id' => Auth::id(),
                 ]);
 
+                // NEW — mark THIS specific item as refunded, so it can't be refunded again later
+                $item->update([
+                    'is_refunded' => true,
+                    'refund_type' => $restock ? 'restock' : 'broken',
+                ]);
+
                 // After refund StockMovement, create StockRequest to notify cashier of refund restock
                 if (!$request->restock) {
                     StockActivity::create([
@@ -131,8 +147,20 @@ class OrderController extends Controller
                     'Orders',
                     'warning'
                 );
-                DB::commit();
             }
+
+            // Determine the order's OVERALL status after this refund
+            $totalItems = $order->items->count();
+            $refundedItems = $order->items()->where('is_refunded', true)->count();
+
+            $order->update([
+                'status' => $refundedItems >= $totalItems ? 'refunded' : 'partially_refunded',
+                'refund_reason' => $request->reason,
+                'refunded_at' => now(),
+            ]);
+
+            DB::commit();
+
             return response()->json(['message' => 'Order refunded successfully', 'order_number' => $order_number]);
         } catch (\Exception $e) {
             DB::rollBack();

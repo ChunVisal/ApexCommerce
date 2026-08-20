@@ -1,12 +1,12 @@
 @props(['role' => 'cashier'])
 
 <nav
-    class="bg-white dark:bg-black border-b border-gray-300 dark:border-zinc-800 px-4 py-2 flex items-center justify-between sticky top-0 z-40 transition-colors duration-200">
+    class="bg-white dark:bg-black border-b border-gray-300 dark:border-zinc-800 px-4 py-1 flex items-center justify-between sticky top-0 z-40 transition-colors duration-200">
 
     <a href="{{ $role === 'admin' ? route('admin.dashboard') : route('cashier.pos') }}" class="flex items-center">
         @php $logo = App\Models\Setting::get('logo'); @endphp
         @if ($logo)
-            <img src="{{ $logo }}" class="h-[41px] w-auto max-w-[120px] object-contain shrink-0" />
+            <img src="{{ $logo }}" class="h-[45px] w-auto max-w-full object-contain shrink-0" />
         @else
             <img src="{{ asset('images/logo.png') }}"
                 class="h-[41px] w-auto max-w-[120px] object-contain shrink-0 dark:hidden" />
@@ -30,10 +30,9 @@
                 @endif
             </div>
             <div class="hidden sm:block leading-none">
-                <p class="font-semibold text-sm text-gray-800 dark:text-zinc-200">{{ auth()->user()->name ?? 'Guest' }}
+                <p class="font-semibold text-sm text-gray-800 dark:text-zinc-200">{{ auth()->user()->name }}
                 </p>
-                <span
-                    class="text-xs text-[#0F6E8C] dark:text-[#138cb3] font-medium">{{ auth()->user()->role ?? 'User' }}</span>
+                <span class="text-xs text-[#0F6E8C] dark:text-[#138cb3] font-medium">{{ auth()->user()->role }}</span>
             </div>
         </div>
     </div>

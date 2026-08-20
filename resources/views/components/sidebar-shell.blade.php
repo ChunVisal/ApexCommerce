@@ -12,7 +12,7 @@
         open ? 'w-[185px]' : 'w-14',
         ready ? 'transition-all duration-300' : ''
     ]"
-    class="sticky top-[58px] h-[calc(100vh-58px)] flex flex-col bg-white dark:bg-black overflow-hidden z-40">
+    class="sticky top-[54px] h-[calc(100vh-55px)] flex flex-col bg-white dark:bg-black overflow-hidden z-40">
 
     <div class="absolute right-0 top-0 bottom-0 w-[1px] cursor-ew-resize hover:bg-blue-400 bg-gray-200 dark:bg-zinc-800 transition-all z-50"
         @mousedown.stop="

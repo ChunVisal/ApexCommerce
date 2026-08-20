@@ -27,7 +27,7 @@
         <option value="in">In Stock</option>
     </x-filter-select>
     <button @click="openAdjust()"
-        class="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-medium text-white bg-[#0F6E8C] rounded-md hover:bg-[#0c5972] transition">
+        class="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-medium text-white bg-p rounded-md hover:bg-[#1a627a] transition">
         <i class="fa-solid fa-plus"></i> Stock Adjustment
     </button>
 </div>
