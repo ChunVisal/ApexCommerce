@@ -8,7 +8,7 @@
             searchQuery: '',
             filterSegment: '',
             sortBy: 'recent',
-            customerDetailOpen: false,
+            open: false,
             customerProfile: {},
             customerOrders: [],
 
@@ -83,6 +83,7 @@
                                 price: parseFloat(i.price) || 0,
                                 qty: i.quantity,
                                 base_unit: i.base_unit || '',
+                                is_refunded: i.is_refunded || false,
                             })),
                             subtotal: parseFloat(order.subtotal) || 0,
                             net: parseFloat(order.net) || 0,
@@ -160,7 +161,7 @@
                 .then(data => {
                     this.customerProfile = data.customer;
                     this.customerOrders = data.orders;
-                    this.customerDetailOpen = true;
+                    this.open = true;
                 });
             },
 

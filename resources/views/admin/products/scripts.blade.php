@@ -356,10 +356,6 @@
                 this.draftList = newList;
             },
 
-            closePanel() {
-                this.open = false;
-            },
-
             loadProducts() {
                 this.form.name = '';
                 this.selectedCategoryId = null;
@@ -476,8 +472,11 @@
                         if (data && data.id) {
                             _isSubmitting = false;
                             this.submitting = false;
-                            window.location.reload();
                         }
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
                     })
                     .catch(err => {
                         _isSubmitting = false;

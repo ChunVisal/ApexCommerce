@@ -95,14 +95,14 @@ class OrderController extends Controller
                     $cashierStock->decrement('sold_quantity', $item->quantity);
 
                     // prevent maybe someone edits the database by hand, some new feature bug
-                    if (!$request->restock) {
+                    if (!$restock) {
                         // Item is broken/lost — track it separately, allocated stays the same
                         $cashierStock->increment('lost_quantity', $item->quantity);
                     }
                 }
 
-                $movementType = $request->restock ? 'in' : 'out';
-                $movementReason = $request->restock
+                $movementType = $restock ? 'in' : 'out';
+                $movementReason = $restock
                     ? 'Refund (restocked): ' . $request->reason
                     : 'Refund (lost/broken): ' . $request->reason;
 
@@ -128,7 +128,7 @@ class OrderController extends Controller
                 ]);
 
                 // After refund StockMovement, create StockRequest to notify cashier of refund restock
-                if (!$request->restock) {
+                if (!$restock) {
                     StockActivity::create([
                         'cashier_id' => $order->cashier_id,
                         'product_id' => $item->product_id,
@@ -153,10 +153,26 @@ class OrderController extends Controller
             $totalItems = $order->items->count();
             $refundedItems = $order->items()->where('is_refunded', true)->count();
 
+            // Recalculate remaining totals based on what's LEFT (non-refunded items only)
+            $remainingSubtotal = $order->items()->where('is_refunded', false)->sum('total');
+
+            $taxRate = \App\Models\Setting::get('tax_rate', 10) / 100;
+            $remainingDiscount = $order->subtotal > 0 ? ($order->discount / $order->subtotal) * $remainingSubtotal : 0;
+            $remainingVipDiscount = $order->subtotal > 0 ? ($order->vip_discount / $order->subtotal) * $remainingSubtotal : 0;
+            $remainingNet = $remainingSubtotal - $remainingDiscount - $remainingVipDiscount;
+            $remainingTax = $remainingNet * $taxRate;
+            $remainingTotal = $remainingNet + $remainingTax;
+
             $order->update([
                 'status' => $refundedItems >= $totalItems ? 'refunded' : 'partially_refunded',
                 'refund_reason' => $request->reason,
                 'refunded_at' => now(),
+                'subtotal' => $remainingSubtotal,
+                'discount' => $remainingDiscount,
+                'vip_discount' => $remainingVipDiscount,
+                'net' => $remainingNet,
+                'tax' => $remainingTax,
+                'total' => $remainingTotal,
             ]);
 
             DB::commit();

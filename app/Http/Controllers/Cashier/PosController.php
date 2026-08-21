@@ -109,8 +109,8 @@ class PosController extends Controller
             if ($request->customer && $request->customer['name'] && $request->customer['phone']) {
                 // create new customer or find exist by phone number identity 
 
-                $lastCustomer = Customer::latest()->first();
-                $nextNumber = $lastCustomer && $lastCustomer->code
+                $lastCustomer = Customer::whereNotNull('code')->orderByDesc('code')->first();
+                $nextNumber = $lastCustomer
                     ? intval(substr($lastCustomer->code, 5)) + 1
                     : 1;
                 $customerCode = 'CUST-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);

@@ -21,11 +21,6 @@
                                 REFUNDED
                             </div>
                         </div>
-                        <div class="absolute right-6 top-[58px] w-[140px] text-center pointer-events-none">
-                            <p class="text-[10px] text-red-500 dark:text-red-300 px-2"
-                                x-text="receiptData.refund_reason">
-                            </p>
-                        </div>
                     </div>
                 </template>
 
@@ -80,15 +75,17 @@
                 {{-- Items --}}
                 <div class="space-y-1.5 mb-3">
                     <template x-for="item in receiptData.items" :key="item.id">
-                        <div class="flex justify-between text-xs">
+                        <div class="flex justify-between text-xs" :class="item.is_refunded ? 'opacity-70' : ''">
                             <span class="flex-1 truncate dark:text-zinc-200">
                                 <span x-text="item.qty"></span>x <span x-text="item.name"></span>
-                                <span class="text-[12px] text-gray-700 dark:text-zinc-100"
+                                <span class="text-[12px] text-gray-800 dark:text-white"
                                     x-text="item.base_unit ? '(' + item.base_unit + ')' : '' "></span>
 
                             </span>
-                            <span class="font-semibold ml-2 dark:text-zinc-200">$<span
-                                    x-text="(item.price * item.qty).toFixed(2)"></span></span>
+                            <span class="font-semibold ml-2"
+                                :class="item.is_refunded ? 'line-through text-red-500 dark:text-red-400' : 'dark:text-zinc-200'">
+                                $<span x-text="(item.price * item.qty).toFixed(2)"></span>
+                            </span>
                         </div>
                     </template>
                 </div>

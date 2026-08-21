@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    protected $fillable = ['order_number', 'cashier_id', 'customer_id', 'subtotal', 'tax', 'total', 'net', 'discount', 'vip_discount', 'status', 'notes'];
-
+    protected $fillable = ['order_number', 'cashier_id', 'customer_id', 'subtotal', 'tax', 'total', 'net', 'discount', 'vip_discount', 'status', 'notes', 'refund_reason', 'refunded_at'];
+    
     protected $casts = [
         'refunded_at' => 'datetime',
     ];

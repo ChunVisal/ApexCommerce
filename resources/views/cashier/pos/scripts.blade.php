@@ -322,7 +322,7 @@
                                 id: i.id,
                                 qty: i.qty,
                                 uom_id: i.uom_id || null,
-                                base_unit: i.base_unit || ''
+                                base_unit: i.base_unit || '',
                             })),
                             payment_method: this.paymentMethod,
                             total: this.total,

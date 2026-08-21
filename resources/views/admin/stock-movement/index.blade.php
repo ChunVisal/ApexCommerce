@@ -105,8 +105,9 @@
                             <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition-colors">
                                 {{-- Date Column Field Element --}}
                                 <td class="py-3 px-4 text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
-                                    x-text="new Date(movement.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' ' + new Date(movement.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })">
+                                    x-text="new Date(movement.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' ' + new Date(movement.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })">
                                 </td>
+
 
                                 {{-- Product + Category Visual Hierarchy Mapping row --}}
                                 <td class="py-3 px-4">

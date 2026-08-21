@@ -32,6 +32,7 @@
 <body>
     <!-- Navbar - Full width, outside flex -->
     <x-navbar role="admin" />
+    <x-toast />
 
     <!-- Sidebar + Content - Below navbar -->
     <div class="flex">

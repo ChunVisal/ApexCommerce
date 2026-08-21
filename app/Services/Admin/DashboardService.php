@@ -119,7 +119,7 @@ class DashboardService
 
     public static function getTopProducts($limit = 5)
     {
-        $items = OrderItem::whereHas('order', fn($q) => $q->where('status', '!=', 'refunded'))
+        $items = OrderItem::whereHas('order', fn($q) => $q->whereNotIn('status', ['refunded']))
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->select(
                 'order_items.name',
@@ -158,9 +158,10 @@ class DashboardService
 
     public static function getTopCategories($limit = 5)
     {
-        $items = OrderItem::join('products', 'order_items.product_id', '=', 'products.id')
+        $items =  OrderItem::where('is_refunded', false)
+            ->join('products', 'order_items.product_id', '=', 'products.id')
             ->join('categories', 'products.category_id', '=', 'categories.id')
-            ->whereHas('order', fn($q) => $q->where('status', '!=', 'refunded'))
+            ->whereHas('order', fn($q) => $q->whereNotIn('status', ['refunded']))
             ->select(
                 'categories.id',
                 'categories.name',

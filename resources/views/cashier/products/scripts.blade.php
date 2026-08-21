@@ -10,7 +10,7 @@
             viewMode: localStorage.getItem('viewMode') || 'list',
 
             // new product request
-            requestNewProduct: false,
+            requestOpen: false,
             newProductList: [{
                 name: '',
                 quantity: 1,
@@ -18,7 +18,7 @@
             }],
 
             // low stock request
-            requestOpen: false,
+            restockOpen: false,
             requestSearch: '',
             requestForm: {
                 product_id: '',
@@ -84,7 +84,7 @@
                     .then(res => res.json())
                     .then(data => {
                         alert(data.message);
-                        this.requestOpen = false;
+                        this.restockOpen = false;
                         this.requestForm = {
                             product_id: '',
                             product_name: '',
@@ -121,7 +121,7 @@
                     .then(res => res.json())
                     .then(data => {
                         alert(data.message);
-                        this.requestNewProduct = false;
+                        this.requestOpen = false;
                         this.newProductList = [{
                             product_id: '',
                             name: '',

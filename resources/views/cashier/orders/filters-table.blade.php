@@ -6,7 +6,7 @@
         {{-- Date Filter --}}
         <div class="relative" x-data="{ open: false, selected: '{{ $selectedFilter }}' }">
             <button @click="open = !open"
-                class="flex items-center gap-2 px-3 py-1.5 text-xs border border-gray-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800  text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/60 transition-colors whitespace-nowrap">
+                class="flex items-center gap-2 px-3 py-1.5 text-xs border border-gray-300 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900  text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800/60 transition-colors whitespace-nowrap">
                 <i class="fa-regular fa-calendar text-[14px] text-gray-600 dark:text-zinc-400"></i>
                 <span x-text="selected"></span>
                 <i class="fa-solid fa-chevron-down text-gray-400 dark:text-zinc-500 text-[10px]"></i>
@@ -33,7 +33,7 @@
         {{-- Payment Filter --}}
         <div class="relative" x-data="{ open: false, selected: 'All Payments' }">
             <button @click="open = !open"
-                class="flex items-center gap-2 px-3 py-1.5 text-xs border border-gray-300 dark:border-zinc-700 rounded-md bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-200 whitespace-nowrap hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition">
+                class="flex items-center gap-2 px-3 py-1.5 text-xs border border-gray-300 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900 text-gray-700 dark:text-zinc-200 whitespace-nowrap hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition">
                 <i class="fa-solid fa-credit-card text-[#1A1F7C] dark:text-[#4a9eb8]"></i>
                 <span x-text="selected"></span>
                 <i class="fa-solid fa-chevron-down text-gray-400 dark:text-zinc-400 text-[10px]"></i>
@@ -67,7 +67,8 @@
                         <th class="pb-2 px-4 font-medium text-center">Items</th>
                         <th class="pb-2 px-4 font-medium">Total</th>
                         <th class="pb-2 px-4 font-medium">Payment</th>
-                        <th class="pb-2 px-4 font-medium">Date</th>
+                        <th class="pb-2 pl-10 font-medium text-left">Date</th>
+                        <th class="pb-2 px-4 font-medium text-center">Refunded At</th>
                         <th class="pb-2 pr-4 pl-2 font-medium text-right">Actions</th>
                     </tr>
                 </thead>
@@ -90,7 +91,7 @@
                                 x-text="order.items.reduce((sum, i) => sum + (i.quantity || 0), 0)"></td>
 
                             <td class="font-medium text-gray-800 dark:text-zinc-300"
-                                x-text="'$' + (order.total ? parseFloat(order.total).toFixed(2) : '0.00')"></td>
+                                x-text="'$' + (parseFloat(order.total) || 0).toFixed(2)"></td>
 
                             <td class="py-3 px-4">
                                 <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full uppercase"
@@ -105,23 +106,32 @@
                                     x-text="order.payment?.method || 'CASH'"></span>
                             </td>
 
-                            <td class="text-gray-800 dark:text-zinc-300"
+                            <td class="text-gray-800 dark:text-zinc-300 text-left"
                                 x-text="order.created_at ? new Date(order.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '-'">
+                            </td>
+
+                            <td class="text-gray-800 dark:text-zinc-300 text-center"
+                                x-text="order.refunded_at ? new Date(order.refunded_at).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Not Refunded'">
                             </td>
 
                             <td class="py-3 pr-4 pl-2 text-right">
                                 <button @click="viewOrder(order.id)" class="text-yellow-400 hover:text-yellow-500">
                                     <i class="fa-solid fa-receipt text-lg"></i>
                                 </button>
-                                <button x-show="order.status === 'completed' || order.status === 'partially_refunded'"
-                                    @click="refundOrder(order.id)"
+                                <button x-show="order.status === 'completed'" @click="refundOrder(order.id)"
                                     class="text-xs font-medium text-red-500 hover:text-red-600 ml-2">
                                     Refund
                                 </button>
-                                <span x-show="order.status === 'partially_refunded'"
-                                    class="text-xs ml-1 font-medium text-amber-600">Partially Refunded</span>
+
+                                <button x-show="order.status === 'partially_refunded'" @click="refundOrder(order.id)"
+                                    class="text-xs font-medium text-orange-600 dark:text-amber-500 hover:text-orange-700 ml-2">
+                                    Partially_refunded
+                                </button>
+
                                 <span x-show="order.status === 'refunded'"
-                                    class="text-xs ml-1 font-medium text-green-600">Refunded</span>
+                                    class="text-xs ml-1 font-medium text-green-600">
+                                    Refunded
+                                </span>
                             </td>
                         </tr>
                     </template>

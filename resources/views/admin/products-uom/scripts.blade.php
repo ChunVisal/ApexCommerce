@@ -10,7 +10,7 @@
             stockFilter: '',
 
             // Slide-over visibility + mode
-            uomFormOpen: false,
+            open: false,
             editMode: false,
             submitting: false,
 
@@ -133,7 +133,7 @@
                     this.uomFormList = (product.uoms && product.uoms.length > 0) ?
                         JSON.parse(JSON.stringify(product.uoms)) : [];
                 }
-                this.uomFormOpen = true;
+                this.open = true;
             },
 
             deleteUom(id, button) {
@@ -158,10 +158,6 @@
                             window.location.reload();
                         }
                     })
-            },
-
-            closeUomPanel() {
-                this.uomFormOpen = false;
             },
 
             // Open panel to CREATE a brand new UOM product
@@ -194,7 +190,7 @@
                     is_default: true
                 }];
 
-                this.uomFormOpen = true;
+                this.open = true;
             },
 
             // Fetch products belonging to the selected category (for the "select existing name" dropdown)
@@ -277,7 +273,7 @@
                     })
                     .then(res => res.json())
                     .then(() => {
-                        this.uomFormOpen = false;
+                        this.open = false;
                         window.location.reload();
                     })
                     .catch(err => {

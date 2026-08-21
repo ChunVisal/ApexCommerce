@@ -153,12 +153,12 @@
                                     @if ($notif->status === 'loss_reported')
                                         <span class="text-red-500 dark:text-red-400">reported loss of</span>
                                     @elseif ($notif->status === 'refunded')
-                                        <span class="text-red-500 dark:text-red-400">refunded</span>
+                                        <span class="text-red-500 dark:text-red-400 whitespace-nowrap">refunded</span>
                                     @else
                                         <span class="text-amber-600 dark:text-amber-400">requested</span>
                                     @endif
                                     <span
-                                        class="font-bold text-[#0F6E8C] dark:text-[#1389af]">{{ $notif->quantity_requested }}x</span>
+                                        class="font-bold text-[#0F6E8C] dark:text-[#1389af] whitespace-nowrap">{{ $notif->quantity_requested }}x</span>
                                 @else
                                     @if ($notif->quantity_approved)
                                         <span class="font-extrabold">({{ $notif->quantity_approved }} sent)</span>

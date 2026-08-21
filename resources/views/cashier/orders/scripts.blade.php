@@ -12,6 +12,7 @@
             refundOrderNumber: '',
             refundTotal: 0,
             refundReason: '',
+            refundReasonSelect: '',
             refundOrderItems: [], // NEW
             refundSelection: {},
             restockItems: true,
@@ -30,6 +31,13 @@
                         broken: false
                     };
                 });
+
+                // sum only items NOT already refunded — this is what's actually still refundable
+                const remainingTotal = this.refundOrderItems
+                    .filter(item => !item.is_refunded)
+                    .reduce((sum, item) => sum + parseFloat(item.total), 0);
+                this.refundTotal = remainingTotal.toFixed(2);
+
                 this.refundOpen = true;
             },
 
@@ -89,6 +97,7 @@
                                 price: parseFloat(i.price) || 0,
                                 qty: i.quantity,
                                 base_unit: i.base_unit || '',
+                                is_refunded: i.is_refunded || false,
                             })),
                             subtotal: parseFloat(order.subtotal) || 0,
                             tax: parseFloat(order.tax) || 0,

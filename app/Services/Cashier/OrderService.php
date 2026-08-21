@@ -70,6 +70,7 @@ class OrderService
             ],
         ];
     }
+    
     public static function getCashierOrders($cashierId, $payment = null, $search = null, $filter = null)
     {
         return Order::with(['items', 'payment', 'customer'])

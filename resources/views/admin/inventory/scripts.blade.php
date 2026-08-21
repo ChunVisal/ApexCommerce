@@ -95,10 +95,6 @@
                 this.open = true;
             },
 
-            closePanel() {
-                this.open = false;
-            },
-
             openStockDrop(productId) {
                 const product = this.products.find(p => p.id == productId);
                 if (!product) return;
