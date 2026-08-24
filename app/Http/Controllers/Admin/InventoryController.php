@@ -143,9 +143,11 @@ class InventoryController extends Controller
         }
 
         return response()->json([
-            'message' => 'Updated',
+            'success' => true,
+            'message' => $product->name . ' updated successfully',
             'new_stock' => $product->stock_quantity,
             'low_stock_threshold' => $product->low_stock_threshold,
+            'status' => $product->status,
         ]);
     }
 
@@ -213,7 +215,10 @@ class InventoryController extends Controller
             'success'
         );
 
-        return response()->json(['success' => true, 'message' => 'Stock transferred']);
+        return response()->json([
+            'success' => true,
+            'message' => 'transfer ' . $product->name . ' to ' . $cashierName . ' successfully',
+        ]);
     }
 
     /* =========================================================================

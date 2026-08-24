@@ -14,6 +14,7 @@
         <x-heroicon-o-chevron-down
             class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none" />
     </div>
+
     <x-filter-select model="statusFilter">
         <option value="all">All Status</option>
         <option value="Active">Active</option>
@@ -26,6 +27,7 @@
         <option value="out">Out of Stock</option>
         <option value="in">In Stock</option>
     </x-filter-select>
+
     <button @click="openAdjust()"
         class="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-medium text-white bg-p rounded-md hover:bg-[#1a627a] transition">
         <i class="fa-solid fa-plus"></i> Stock Adjustment

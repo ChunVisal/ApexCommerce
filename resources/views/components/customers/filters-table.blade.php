@@ -87,7 +87,7 @@
                         </td>
 
                         <td class="py-3 px-4 text-left whitespace-nowrap">
-                            <span class="px-2 py-0.5 text-[12px] font-semibold rounded-full"
+                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full"
                                 :class="{
                                     'bg-yellow-50 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-300': customer
                                         .segment === 'vip',

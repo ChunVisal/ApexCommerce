@@ -196,8 +196,8 @@
                                         <x-heroicon-m-pencil-square class="w-5 h-5" />
                                     </button>
                                     <button @click="deleteProduct(product.id, $el)"
-                                        class="trash-btn text-red-500 hover:text-red-600" title="Delete">
-                                        <x-heroicon-m-trash class="w-5 h-5" />
+                                        class="mt-[3px] trash-btn text-red-500 hover:text-red-600" title="Delete">
+                                        <i class="fa-solid fa-trash text-[16px]"></i>
                                     </button>
                                 </div>
                             </td>

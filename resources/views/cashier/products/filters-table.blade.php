@@ -16,8 +16,7 @@
                 </option>
             @endforeach
         </select>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor"
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
             class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
         </svg>
@@ -214,14 +213,25 @@
                             <div class="flex items-center justify-center gap-1 flex-wrap">
                                 <template x-for="uom in product.uom_list.filter(u => !u.is_default)"
                                     :key="uom.id">
-                                    <span
-                                        class="px-2 py-0.5 text-[12px] font-medium bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
-                                        <span x-text="uom.name || 'Unit'"></span>
-                                        (<span x-text="uom.allocated_quantity"></span><span
-                                            x-text="product.base_unit_code || product.base_unit_name || 'Unit'"></span>)
-                                        -
-                                        $<span x-text="parseFloat(uom.price).toFixed(2)"></span>
-                                    </span>
+                                    <div class="relative group">
+                                        <span
+                                            class="cursor-pointer px-2 py-0.5 text-[12px] font-medium bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
+                                            <span x-text="uom.name || 'Unit'"></span>
+                                            (<span x-text="uom.allocated_quantity"></span><span
+                                                x-text="product.base_unit_code || product.base_unit_name || 'Unit'"></span>)
+                                            -
+                                            $<span x-text="parseFloat(uom.price).toFixed(2)"></span>
+                                        </span>
+                                        {{-- Custom tooltip --}}
+                                        <div
+                                            class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block whitespace-nowrap px-2 py-1 text-[11px] font-medium text-white bg-gray-900 dark:bg-zinc-700 rounded shadow-lg z-10">
+                                            <span x-text="uom.description || 'No description'"></span>
+                                            {{-- little arrow pointing down --}}
+                                            <div
+                                                class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-zinc-700">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </template>
                                 {{-- Fallback: base unit only, no additional UOMs --}}
                                 <span

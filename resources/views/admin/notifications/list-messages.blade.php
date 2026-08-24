@@ -24,7 +24,7 @@
             $isNewProduct = !$req->product_id;
         @endphp
 
-        <div
+        <div data-request-id="{{ $req->id }}"
             class="rounded-r-lg border-l-md border border-gray-200/70 dark:border-zinc-800 p-4 shadow-sm transition-all hover:shadow-md">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
 
@@ -166,7 +166,7 @@
                         class="flex flex-wrap items-center gap-2 pt-3 lg:pt-0 border-t lg:border-t-0 border-gray-100 dark:border-zinc-800/60">
                         {{-- Approval Form --}}
                         @if ($isNewProduct)
-                            <form action="{{ route('admin.notifications.approve', $req->id) }}" method="POST">
+                            <form @submit.prevent="approveRequest({{ $req->id }}, $event)">
                                 @csrf
                                 <button type="submit"
                                     class="px-3.5 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md shadow-sm transition">
@@ -174,7 +174,7 @@
                                 </button>
                             </form>
                         @else
-                            <form action="{{ route('admin.notifications.approve', $req->id) }}" method="POST"
+                            <form @submit.prevent="approveRequest({{ $req->id }}, $event)"
                                 class="flex items-center gap-1.5">
                                 @csrf
                                 <input type="number" name="quantity" value="{{ $req->quantity_requested }}"
@@ -203,7 +203,7 @@
                         <div class="hidden sm:block w-px h-5 bg-gray-200 dark:bg-zinc-800 mx-1"></div>
 
                         {{-- Reject Form --}}
-                        <form action="{{ route('admin.notifications.reject', $req->id) }}" method="POST"
+                        <form @submit.prevent="rejectRequest({{ $req->id }}, $event)"
                             class="flex items-center gap-1.5">
                             @csrf
                             <select name="reason"

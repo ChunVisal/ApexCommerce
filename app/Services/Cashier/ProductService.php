@@ -115,6 +115,7 @@ class ProductService
                         'name' => $uom->name,
                         'allocated_quantity' => $uom->quantity_per_unit,
                         'price' => (float) $uom->price,
+                        'description' => $uom->description ?? '',
                         'is_default' => (bool) $uom->is_default,
                     ];
                 })->values()->toArray();

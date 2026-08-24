@@ -145,7 +145,7 @@
                     alert('Cannot delete: This product has existing orders');
                     return;
                 }
-                if (!confirm('Are you sure you want to delete this product inlcude stockmovement inital')) return;
+                if (!confirm('Are you sure you want to delete this product include stock movement initial')) return;
 
                 fetch('/admin/products/' + id, {
                         method: 'DELETE',
@@ -154,16 +154,34 @@
                             'Accept': 'application/json'
                         }
                     })
-                    .then(res => {
-                        if (res.status === 422) {
-                            return res.json().then(data => {
-                                alert(data.message);
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || 'Failed to delete product',
+                                type: 'error'
                             });
+                            return;
                         }
-                        if (!res.ok) throw new Error('Error');
-                        window.location.reload();
+
+                        this.$dispatch('toast', {
+                            message: data.message || 'Product deleted successfully',
+                            type: 'success'
+                        });
+                        this.products = this.products.filter(p => p.id !== id);
                     })
-                    .catch(err => alert('Error: ' + err.message));
+                    .catch(err => {
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
+                    });
             },
 
             emptyForm() {
@@ -462,26 +480,47 @@
                         },
                         body: fd
                     })
-                    .then(res => {
-                        if (!res.ok) return res.text().then(t => {
-                            throw new Error(t);
-                        });
-                        return res.json();
-                    })
-                    .then(data => {
-                        if (data && data.id) {
-                            _isSubmitting = false;
-                            this.submitting = false;
+                    .then(res => res.json().then(responseData => ({
+                        status: res.status,
+                        ok: res.ok,
+                        data: responseData
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        _isSubmitting = false;
+                        this.submitting = false;
+
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || 'Something went wrong',
+                                type: 'error'
+                            });
+                            return;
                         }
+
                         this.$dispatch('toast', {
                             message: data.message,
                             type: 'success'
                         });
+
+                        if (this.editMode) {
+                            const index = this.products.findIndex(p => p.id === this.form.id);
+                            if (index !== -1) this.products[index] = data.product;
+                        } else {
+                            this.products.push(data.product);
+                        }
+
+                        this.open = false;
                     })
                     .catch(err => {
                         _isSubmitting = false;
                         this.submitting = false;
-                        alert('Error: ' + err.message);
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
                     });
             },
 

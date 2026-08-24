@@ -13,7 +13,7 @@
         <option value="active">Active</option>
         <option value="inactive">Inactive</option>
     </x-filter-select>
-    
+
     {{-- Bulk Action Bar --}}
     <div id="bulkBar" style="display:none;"
         class="flex items-center justify-between pl-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 rounded-md">
@@ -133,15 +133,16 @@
 
                         {{-- Actions --}}
                         <td class="py-3 pl-4">
-                            <div class="flex items-center justify-end gap-3">
+                            <div class="flex items-center justify-end gap-2">
                                 <button @click="openEdit(user)" type="button"
                                     class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] transition-colors"
                                     title="Edit">
-                                    <i class="fa-solid fa-pen"></i>
+                                    <x-heroicon-m-pencil-square class="w-5 h-5" />
                                 </button>
+
                                 <button @click="deleteUser(user.id, $el)" type="button"
                                     class="text-red-500 hover:text-red-600 transition-colors" title="Delete">
-                                    <i class="fa-solid fa-trash"></i>
+                                    <i class="mt-[4px] fa-solid fa-trash text-[15px]"></i>
                                 </button>
                             </div>
                         </td>

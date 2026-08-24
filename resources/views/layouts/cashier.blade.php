@@ -30,6 +30,8 @@
     {{-- Cashier Navbar --}}
     <x-navbar role="cashier" />
 
+    <x-toast />
+
     {{-- Cashier Sidebar + Content --}}
     <div class="flex">
         @include('layouts.cashier-sidebar')

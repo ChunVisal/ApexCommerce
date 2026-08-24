@@ -33,7 +33,7 @@ class StockActivityController extends Controller
             'info'
         );
 
-        return response()->json(['message' => 'Request sent to admin']);
+        return response()->json(['success' => true, 'message' => 'Request sent to admin']);
     }
 
     public function bulkProductRequest(Request $request)
@@ -62,6 +62,6 @@ class StockActivityController extends Controller
             'info'
         );
 
-        return response()->json(['message' => count($request->items) . ' requests sent']);
+        return response()->json(['success' => true, 'message' => count($request->items) . ' requests sent']);
     }
 }

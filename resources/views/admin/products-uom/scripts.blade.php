@@ -146,18 +146,34 @@
                             'Accept': 'application/json',
                         }
                     })
-                    .then(res => {
-                        console.log('Status:', res.status);
-                        return res.json();
-                    })
-                    .then(data => {
-                        console.log('Response:', data);
-                        if (data.error) {
-                            alert(data.error);
-                        } else {
-                            window.location.reload();
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || 'Failed to delete product',
+                                type: 'error'
+                            });
+                            return;
                         }
+
+                        this.$dispatch('toast', {
+                            message: data.message || 'Product deleted successfully',
+                            type: 'success'
+                        });
+                        this.products = this.products.filter(p => p.id !== id);
                     })
+                    .catch(err => {
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
+                    });
             },
 
             // Open panel to CREATE a brand new UOM product
@@ -271,17 +287,49 @@
                         },
                         body: payload
                     })
-                    .then(res => res.json())
-                    .then(() => {
+                    .then(res => res.json().then(responseData => ({
+                        status: res.status,
+                        ok: res.ok,
+                        data: responseData
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        this.submitting = false;
+
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || data.error || 'Something went wrong',
+                                type: 'error'
+                            });
+                            return;
+                        }
+
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
+
+                        if (this.editMode) {
+
+                            const index = this.products.findIndex(
+                                p => p.id === this.uomFormProduct.id
+                            );
+
+                            if (index !== -1) this.products[index] = data.product;
+                        } else {
+                            this.products.push(data.product);
+                        }
+
                         this.open = false;
-                        window.location.reload();
                     })
                     .catch(err => {
-                        console.error(err);
-                        alert('Something went wrong saving the UOM product.');
-                    })
-                    .finally(() => {
                         this.submitting = false;
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
                     });
             }
         }

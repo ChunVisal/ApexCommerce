@@ -20,8 +20,11 @@
 
         <x-notification-bell :role="$role" />
 
+        <div class="w-px h-8 bg-gray-300 dark:bg-zinc-700"></div>
+
         <div class="flex items-center gap-2">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold overflow-hidden"
+
+            <div class="w-10 h-10 shadow-sm rounded-full flex items-center justify-center font-semibold overflow-hidden"
                 style="background-color: {{ auth()->user()->role === 'admin' ? '#8B5CF6' : '#0F6E8C' }};">
                 @if (auth()->user()->avatar)
                     <img src="{{ auth()->user()->avatar }}" class="w-full h-full object-cover">

@@ -82,14 +82,18 @@ class NotificationController extends Controller
             return back()->with('error', 'This request was already processed.');
         }
 
-        // Check if product is ull, product not eixst  
+        // Check if product is all, product not eixst  
         if (!$stockRequest->product_id) {
             $stockRequest->update([
                 'status' => 'approved',
                 'approved_by' => Auth::id(),
                 'seen_at' => null,
             ]);
-            return back()->with('success', 'Request acknowledged');
+            return response()->json([
+                'success' => true,
+                'message' => 'Request acknowledged',
+                'stockRequest' => $stockRequest->fresh(),
+            ]);
         }
 
         $request->validate([
@@ -101,7 +105,11 @@ class NotificationController extends Controller
         $product = $stockRequest->product;
 
         if ($product->stock_quantity < $quantity) {
-            return back()->with('error', 'Not enough stock! Warehouse has ' . $product->stock_quantity . ' left.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Not enough stock! Warehouse has ' .
+                    $product->stock_quantity . ' left.',
+            ], 422);
         }
 
         DB::beginTransaction();
@@ -155,7 +163,11 @@ class NotificationController extends Controller
 
         DB::commit();
 
-        return back()->with('success', 'Stock transferred!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Stock transferred!',
+            'stockRequest' => $stockRequest->fresh()->load(['product', 'cashier']),
+        ]);
     }
 
     public function reject(Request $request, $id)
@@ -178,7 +190,11 @@ class NotificationController extends Controller
             'warning'
         );
 
-        return back()->with('success', 'Request rejected');
+        return response()->json([
+            'success' => true,
+            'message' => 'Request rejected',
+            'stockRequest' => $req->fresh()->load(['product', 'cashier']),
+        ]);
     }
 
     // Admin

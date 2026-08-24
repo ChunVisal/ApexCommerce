@@ -81,17 +81,38 @@
                         },
                         body: JSON.stringify(this.requestForm)
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert(data.message);
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || 'Something went wrong',
+                                type: 'error'
+                            });
+                            return;
+                        }
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
                         this.restockOpen = false;
                         this.requestForm = {
                             product_id: '',
                             product_name: '',
                             quantity: 1,
                             note: ''
-                        };
-                        window.location.reload();
+                        }; // ADDED — reset form
+                    })
+                    .catch(err => {
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
                     });
             },
 
@@ -105,9 +126,14 @@
             },
 
             submitNewProductRequest() {
-                console.log('Items:', this.newProductList);
                 const validItems = this.newProductList.filter(item => item.product_id || item.name.trim());
-                if (validItems.length === 0) return alert('Add at least one product');
+                if (validItems.length === 0) {
+                    this.$dispatch('toast', {
+                        message: 'Add at least one product',
+                        type: 'error'
+                    });
+                    return;
+                }
                 fetch('/cashier/stock-request/bulk', {
                         method: 'POST',
                         headers: {
@@ -118,17 +144,37 @@
                             items: validItems
                         })
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert(data.message);
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || 'Something went wrong',
+                                type: 'error'
+                            });
+                            return;
+                        }
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
                         this.requestOpen = false;
                         this.newProductList = [{
-                            product_id: '',
                             name: '',
                             quantity: 1,
                             note: ''
-                        }];
-                        window.location.reload();
+                        }]; // reset THIS form, not returnForm
+                    })
+                    .catch(err => {
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
                     });
             },
 
@@ -146,7 +192,10 @@
 
             submitReturn() {
                 if (this.returnForm.quantity > this.returnForm.maxQuantity) {
-                    alert('Cannot report more than available: ' + this.returnForm.maxQuantity);
+                    this.$dispatch('toast', {
+                        message: 'Cannot report more than available: ' + this.returnForm.maxQuantity,
+                        type: 'error'
+                    });
                     return;
                 }
 
@@ -159,11 +208,47 @@
                         },
                         body: JSON.stringify(this.returnForm)
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert(data.message);
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || 'Something went wrong',
+                                type: 'error'
+                            });
+                            return;
+                        }
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
                         this.returnOpen = false;
-                        window.location.reload();
+
+                        const product = this.products.find(p => p.id === this.returnForm.product_id);
+                        if (product) {
+                            product.lost = (product.lost || 0) + this.returnForm.quantity;
+                            product.remaining = product.allocated - product.sold - product.lost;
+                        }
+
+                        this.returnForm = {
+                            request_id: null,
+                            product_id: null,
+                            product_name: '',
+                            quantity: 1,
+                            maxQuantity: 1,
+                            reason: ''
+                        }; // reset
+                    })
+                    .catch(err => {
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
                     });
             },
         }

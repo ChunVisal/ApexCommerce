@@ -108,7 +108,7 @@
                 };
                 this.stockDropOpen = true;
             },
-            
+
             getCashierStock() {
                 const stock = this.cashierStocks.find(s => s.product_id === this.dropForm.product_id && s.cashier_id ===
                     this.dropForm.cashier_id);
@@ -139,24 +139,48 @@
                         },
                         body: JSON.stringify(this.dropForm)
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Also approve the request
-                            if (this.dropForm.request_id) {
-                                fetch('/admin/notifications/' + this.dropForm.request_id + '/approve', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    }
-                                });
-                            }
-                            window.location.reload();
-                        } else {
-                            this.dropSubmitting = false;
-                            alert(data.message);
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+
+                        this.dropSubmitting = false;
+                        
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || 'Something went wrong',
+                                type: 'error'
+                            });
+                            return;
                         }
+
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
+
+                        this.stockDropOpen = false;
+
+                        if (this.dropForm.request_id) {
+                            fetch('/admin/notifications/' + this.dropForm.request_id + '/approve', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                }
+                            });
+                        }
+                    })
+
+                    .catch(err => {
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
                     });
             },
 
@@ -196,17 +220,36 @@
                         data
                     }) => {
                         this.submitting = false;
+
                         if (!ok) {
-                            alert(data.error || 'Something went wrong');
+                            this.$dispatch('toast', {
+                                message: data.message || 'Something went wrong',
+                                type: 'error'
+                            });
                             return;
                         }
-                        this.stockMap[this.form.product_code] = data.new_stock;
-                        this.closePanel();
-                        window.location.reload();
+
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
+
+                        // find the matching product and update its stock directly
+                        const product = this.products.find(p => p.code === this.form.product_code);
+                        if (product) {
+                            product.stock_quantity = data.new_stock;
+                            product.low_stock_threshold = data.low_stock_threshold;
+                            product.status = data.status;
+                        }
+
+                        this.open = false;
                     })
                     .catch(err => {
                         this.submitting = false;
-                        alert('Error: ' + err.message);
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
                     });
             },
         }

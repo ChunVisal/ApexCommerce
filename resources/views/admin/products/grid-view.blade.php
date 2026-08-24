@@ -73,20 +73,20 @@
                                 <button @click="openEdit(product)" type="button"
                                     class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] dark:hover:text-[#188cb3] transition-colors py-0.5"
                                     title="Edit Product">
-                                    <x-heroicon-m-pencil-square class="w-4 h-4" />
+                                    <x-heroicon-m-pencil-square class="w-5 h-5" />
                                 </button>
 
                                 {{-- Delete Button --}}
                                 <button @click="deleteProduct(product.id, $el)" type="button"
-                                    class="text-red-400 dark:text-red-500 hover:text-rose-600 transition-colors py-0.5"
+                                    class="text-red-500 dark:text-red-500 hover:text-rose-600 transition-colors py-0.5"
                                     title="Delete Product">
-                                    <x-heroicon-m-trash class="w-4 h-4" />
+                                    <i class="fa-solid fa-trash text-sm"></i>
                                 </button>
 
-                                {{-- Bulk Action Checkbox --}}
+                                {{-- Bulk Action Checkbox
                                 <input type="checkbox"
                                     class="bulk-checkbox rounded border-gray-300 dark:border-zinc-700 dark:bg-zinc-800 text-[#0F6E8C] focus:ring-0 cursor-pointer ml-1"
-                                    :data-id="product.id" @change="updateBulkBar()">
+                                    :data-id="product.id" @change="updateBulkBar()"> --}}
                             </div>
 
                         </div>

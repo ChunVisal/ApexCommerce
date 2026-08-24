@@ -41,8 +41,35 @@
                             'Accept': 'application/json',
                         }
                     })
-                    .then(() => button.closest('tr').remove())
-                    .catch(err => alert('Error: ' + err.message));
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || data.error || 'Failed to delete user',
+                                type: 'error'
+                            });
+                            return;
+                        }
+
+                        this.$dispatch('toast', {
+                            message: data.message || 'User deleted successfully',
+                            type: 'success'
+                        });
+
+                        this.users = this.users.filter(user => user.id !== id);
+                    })
+                    .catch(err => {
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
+                    });
             },
 
             updateBulkBar() {
@@ -291,15 +318,43 @@
                     .then(data => {
                         if (data.errors) {
                             const messages = Object.values(data.errors).flat().join('\n');
-                            alert('Error:\n' + messages);
+
                             this.submitting = false;
-                        } else {
-                            window.location.reload();
+
+                            this.$dispatch('toast', {
+                                message: messages,
+                                type: 'error'
+                            });
+
+                            return;
                         }
+
+                        this.submitting = false;
+
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
+
+                        if (isEdit) {
+                            const index = this.users.findIndex(u => u.id === this.form.id);
+
+                            if (index !== -1) {
+                                this.users[index] = data.user;
+                            }
+                        } else {
+                            this.users.push(data.user);
+                        }
+
+                        this.open = false;
                     })
                     .catch(err => {
                         alert('Error: ' + err.message);
                         this.submitting = false;
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
                     });
             },
         }

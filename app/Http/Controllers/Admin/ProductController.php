@@ -42,10 +42,13 @@ class ProductController extends Controller
     {
         try {
 
-            $category = Categories::where('code', $request->category_code)->first();
+            $category = Categories::find($request->category_id);
 
             if (! $category) {
-                return response()->json(['error' => 'Category not found'], 422);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Category not found',
+                ], 422);
             }
 
             $code = $this->generateProductCode($request->name);
@@ -59,7 +62,7 @@ class ProductController extends Controller
             $product = Product::create([
                 'code' => $code,
                 'name' => $request->name,
-                'category_id' => $request->category_id,
+                'category_id' => $category->id,
                 'barcode' => $barcode,
                 'selling_price' => $request->selling_price,
                 'stock_quantity' => $request->stock_quantity ?? 0,
@@ -85,14 +88,18 @@ class ProductController extends Controller
 
             ActivityService::log('product_created', ' created product: ' . $product->name, 'Products List', 'info');
 
-            return response()->json($product);
+            return response()->json([
+                'success' => true,
+                'message' => $product->name . ' created successfully',
+                'product' => $product->load('category'),
+            ]);
         } catch (\Exception $e) {
             Log::error('Store error: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         try {
             $product = Product::findOrFail($id);
@@ -112,7 +119,11 @@ class ProductController extends Controller
 
             ActivityService::log('product_updated', ' updated product: ' . $product->name, 'Products List', 'info');
 
-            return response()->json($product->fresh());
+            return response()->json([
+                'success' => true,
+                'message' => $product->name . ' updated successfully',
+                'product' => $product->fresh()->load('category'),
+            ]);
         } catch (\Exception $e) {
             Log::error('Update error: ' . $e->getMessage());
 
@@ -120,7 +131,7 @@ class ProductController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
         // find product in table if not faild send error message
         $product = Product::findOrFail($id);
@@ -138,7 +149,7 @@ class ProductController extends Controller
 
         $product->delete();
 
-        return response()->json(['message' => 'Deleted']);
+        return response()->json(['success' => true, 'message' => 'Product deleted successfully']);
     }
 
     public function bulkDestroy(Request $request)
@@ -274,7 +285,11 @@ class ProductController extends Controller
                 ]);
             }
 
-            return response()->json(['success' => true, 'message' => 'UOM product created']);
+            return response()->json([
+                'success' => true,
+                'message' => $product->name . ' created successfully',
+                'product' => $product->load(['category', 'uoms']),
+            ]);
         } catch (\Exception $e) {
             Log::error('Store UOM error: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
@@ -314,10 +329,14 @@ class ProductController extends Controller
 
         ActivityService::log('uom_product_updated', ' updated UOM product: ' . $product->name, 'Products UOMs', 'info');
 
-        return response()->json(['success' => true, 'message' => 'UOM product updated']);
+        return response()->json([
+            'success' => true,
+            'message' => $product->name . ' updated successfully',
+            'product' => $product->fresh()->load(['category', 'uoms']),
+        ]);
     }
 
-    public function destroyUom($id)
+    public function destroyUom(int $id)
     {
         $product = Product::findOrFail($id);
 
@@ -334,7 +353,7 @@ class ProductController extends Controller
 
         ActivityService::log('product_deleted', ' deleted product: ' . $product->name, 'Products UOMs', 'danger');
 
-        return response()->json(['success' => true, 'message' => 'Product deleted']);
+        return response()->json(['success' => true, 'message' => 'Product deleted successfully']);
     }
 
     /* =========================================================================

@@ -59,7 +59,7 @@ class UserController extends Controller
         $employeeId = $request->role === 'cashier' ? $this->generateEmployeeId() : null;
         $imageUrl = $this->handleAvatarImage($request);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -82,7 +82,11 @@ class UserController extends Controller
             'success'
         );
 
-        return response()->json(['success' => true, 'message' => 'User created']);
+        return response()->json([
+            'success' => true,
+            'message' => $request->name . 'created successfully',
+            'user' => $user->fresh(),
+        ]);
     }
 
     public function update(Request $request, int $id)
@@ -128,7 +132,11 @@ class UserController extends Controller
                 'info'
             );
 
-            return response()->json(['success' => true, 'message' => 'User updated']);
+            return response()->json([
+                'success' => true,
+                'message' => $request->name . ' updated successfully',
+                'user' => $user->fresh(),
+            ]);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -151,7 +159,7 @@ class UserController extends Controller
         return response()->json(['status' => $user->status]);
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $user = User::findOrFail($id);
         $userName = $user->name;
@@ -181,7 +189,10 @@ class UserController extends Controller
 
         ActivityService::log('user_deleted', 'Deleted user: ' . $userName, 'Users', 'warning');
 
-        return response()->json(['message' => 'User deleted']);
+        return response()->json([
+            'success' => true,
+            'message' => $userName . ' deleted successfully'
+        ]);
     }
 
     /* =========================================================================

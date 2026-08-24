@@ -49,7 +49,7 @@ class ProductController extends Controller
         // Only use cashier's own allocated stock for loss
         $remaining = $cashierStock->allocated_quantity - $cashierStock->sold_quantity - $cashierStock->lost_quantity;
         if ($request->quantity > $remaining) {
-            return response()->json(['message' => 'Cannot report more than available in your allocated stock'], 422);
+            return response()->json(['success' => false, 'message' => 'Cannot report more than available in your allocated stock'], 422);
         }
 
         // lost_quantity goes up — allocated_quantity is never touched, it stays admin's original record
@@ -78,6 +78,6 @@ class ProductController extends Controller
             'seen_at' => null,
         ]);
 
-        return response()->json(['message' => 'Loss reported']);
+        return response()->json(['success' => true, 'message' => 'Loss reported']);
     }
 }
