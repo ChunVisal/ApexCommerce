@@ -43,20 +43,21 @@ A full stack web-based Point of Sale (POS) and inventory management system desig
 - Cloudinary image upload
 
 ## Project Structure
+```text
+app/
 ├── Http/
 │   └── Controllers/
 │       ├── Admin/
 │       └── Cashier/
-│
 ├── Models/
-│
 ├── Services/
 │   ├── Admin/
 │   └── Cashier/
-│
 └── Traits/
+
 resources/
 └── views/
     ├── admin/
     ├── cashier/
     └── components/
+```
