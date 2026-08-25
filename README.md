@@ -1,6 +1,6 @@
 # 🛒 Apex Commerce — POS & Inventory Management System
 
-A full-stack, web-based Point of Sale (POS) and inventory management platform built for retail operations — managing products, warehouse stock, cashier sales, customers, payments, refunds, reports, and stock activities in real time.
+A full-stack, web-based Point of Sale (POS) and inventory management platform built for retail operations — managing products, warehouse stock, cashier sales, customers, payments, refunds, reports, and stock activities, It covers the full retail workflow.
 
 <p align="left">
   <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
@@ -12,12 +12,6 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
   <img src="https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white" />
   <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" />
 </p>
-
----
-
-## 📖 Overview
-
-Apex Commerce is a role-based POS system with two dedicated portals — **Admin** and **Cashier** — connected by a shared inventory and order pipeline. It covers the full retail workflow: stock intake, cashier allocation, point-of-sale checkout, payments, refunds, and analytics reporting.
 
 ---
 
