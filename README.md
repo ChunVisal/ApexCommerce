@@ -1,55 +1,67 @@
-# POS System - Apex Commerce
+# 🛒 Apex Commerce — POS & Inventory Management System
 
-A full stack web-based Point of Sale (POS) and inventory management system designed to manage products, warehouse stock, cashier sales, customers, payments, refunds, reports, and stock activities.
+A full-stack, web-based Point of Sale (POS) and inventory management platform built for retail operations — managing products, warehouse stock, cashier sales, customers, payments, refunds, reports, and stock activities in real time.
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
+  <img src="https://img.shields.io/badge/Blade-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" />
+  <img src="https://img.shields.io/badge/Alpine.js-FFD600?style=for-the-badge&logo=alpinedotjs&logoColor=black" />
+  <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
+  <img src="https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white" />
+  <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" />
+</p>
 
-![Blade](https://img.shields.io/badge/Blade-FF2D20?style=for-the-badge&logo=laravel&logoColor=white) ![Tailwind
-CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
-![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)
-![Alpine.js](https://img.shields.io/badge/Alpine.js-FFD600?style=for-the-badge&logo=alpinedotjs&logoColor=black) 
-![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)
-![Figma](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)
+---
 
-## Features
+## 📖 Overview
 
-### Admin
-- Dashboard & sales charts
-- Product lists/UOMS & category management
-- Inventory & stock movements
-- Stock request & approval system
+Apex Commerce is a role-based POS system with two dedicated portals — **Admin** and **Cashier** — connected by a shared inventory and order pipeline. It covers the full retail workflow: stock intake, cashier allocation, point-of-sale checkout, payments, refunds, and analytics reporting.
+
+---
+
+## ✨ Features
+
+### 🔑 Admin
+- Dashboard with sales charts & analytics
+- Product list, UOM (unit of measurement), and category management
+- Inventory tracking & stock movement history
+- Stock request & approval workflow
 - Stock transfer to cashiers & stock adjustment
-- User management & customer sale 
-- Reports & sales analytics, Order, top categories/products
+- User management & customer sales overview
+- Reports: sales analytics, orders, top categories/products
 - Notifications & activity logs
-- Store, tax & receipt settings
+- Store, tax & receipt configuration
 
-### Cashier
-- POS sales & checkout/Hold cart
-- Product lists/UOMS allocated
-- Order History
+### 🧾 Cashier
+- POS sales & checkout with hold-cart support
+- Allocated product list & UOM view
+- Order history
 - Customer management
-- Cash & KHQR payments (DEMO)
-- Stock request: Restock, New Products
+- Cash & KHQR payments *(demo)*
+- Stock requests: restock & new product
 - Loss/damage reporting
-- Refund & partial refund
-- Receipt & invoice
+- Full & partial refunds
+- Receipt & invoice generation
 
-### System
-- Authentication & role management
-- UOM (Unit of Measurement)
+### ⚙️ System
+- Authentication & role-based access control
+- UOM (Unit of Measurement) support
 - VIP 5% & manual discounts
-- Tax, gross & net amount
+- Tax, gross & net amount calculation
 - Stock tracking & movement history
-- Real-time search & filtering/Date range
-- SummaryCard analytics per Modules & Chart Graphs
-- Modern UX & dark mode
+- Real-time search, filtering & date-range queries
+- Summary card analytics per module + chart graphs
+- Dark mode & modern UX
 - Reusable Blade components
-- Laravel ORM optimization
+- Optimized Laravel ORM queries
 - Cloudinary image upload
 
-## Project Structure
+---
+
+## 🏗️ Project Structure
+
 ```text
 app/
 ├── Http/
@@ -69,22 +81,75 @@ resources/
     └── components/
 ```
 
-### Main Tables
+---
+
+## 🗄️ Database Schema
 
 | Table | Purpose |
 |---|---|
 | `users` | Admin and cashier accounts |
 | `categories` | Product categories |
 | `products` | Product master data |
-| `product_catalog` | Product data name and price eixst |
+| `product_catalog` | Product name & price reference data |
 | `product_uoms` | Product units, prices, stock, and UOM details |
 | `customers` | Customer information |
 | `orders` | Sales orders |
 | `order_items` | Products included in each order |
 | `payments` | Payment records |
 | `cashier_stocks` | Stock allocated to each cashier |
-| `stock_movements` | Stock increase, decrease, transfer, refund, and loss records |
-| `stock_activities` | Stock request and activity workflow |
+| `stock_movements` | Stock increase, decrease, transfer, refund & loss records |
+| `stock_activities` | Stock request & activity workflow |
 | `notifications` | Admin and cashier notifications |
 | `activity_logs` | System action history |
-| `settings` | Configuration Shop |
+| `settings` | Shop configuration |
+
+---
+
+## 🚀 Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/<your-username>/apex-commerce.git
+cd apex-commerce
+
+# Install dependencies
+composer install
+npm install
+
+# Environment setup
+cp .env.example .env
+php artisan key:generate
+
+# Configure database in .env, then run migrations
+php artisan migrate --seed
+
+# Build assets & serve
+npm run dev
+php artisan serve
+```
+
+---
+
+## 🧰 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Laravel |
+| Frontend | Blade, Alpine.js, Tailwind CSS |
+| Database | MySQL |
+| Charts | Chart.js |
+| Media Storage | Cloudinary |
+| Design | Figma |
+
+---
+
+## 📌 Roadmap Ideas
+- [ ] Live KHQR payment integration (beyond demo)
+- [ ] Multi-branch/warehouse support
+- [ ] Barcode scanner integration
+- [ ] Exportable PDF/Excel reports
+
+---
+
+## 📄 License
+This project is open for educational and internal business use. Add your preferred license here (MIT, Apache 2.0, etc.).
