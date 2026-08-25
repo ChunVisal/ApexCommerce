@@ -60,3 +60,23 @@ resources/
     ├── cashier/
     └── components/
 ```
+
+### Main Tables
+
+| Table | Purpose |
+|---|---|
+| `users` | Admin and cashier accounts |
+| `categories` | Product categories |
+| `products` | Product master data |
+| `product_catalog` | Product data name and price eixst |
+| `product_uoms` | Product units, prices, stock, and UOM details |
+| `customers` | Customer information |
+| `orders` | Sales orders |
+| `order_items` | Products included in each order |
+| `payments` | Payment records |
+| `cashier_stocks` | Stock allocated to each cashier |
+| `stock_movements` | Stock increase, decrease, transfer, refund, and loss records |
+| `stock_activities` | Stock request and activity workflow |
+| `notifications` | Admin and cashier notifications |
+| `activity_logs` | System action history |
+| `settings` | Configuration Shop |
