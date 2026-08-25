@@ -104,7 +104,7 @@ resources/
 ```bash
 # Clone the repository
 git clone https://github.com/ChunVisal/ApexCommerce.git
-cd apex-commerce
+cd ApexCommerce
 
 # Install dependencies
 composer install
