@@ -42,4 +42,23 @@ A full stack web-based Point of Sale (POS) and inventory management system desig
 - Laravel ORM optimization
 - Cloudinary image upload
 
-- 
+## Project Structure
+  app/
+├── Http/
+│   └── Controllers/
+│       ├── Admin/
+│       └── Cashier/
+│
+├── Models/
+│
+├── Traits/
+│   └── HandlesImageUploads.php
+│
+resources/
+├── views/
+│   ├── admin/
+│   ├── cashier/
+│   └── components/
+│
+routes/
+├── web.php
