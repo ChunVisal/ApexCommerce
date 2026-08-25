@@ -3,6 +3,7 @@
 namespace App\Services\Cashier;
 
 use App\Models\Customer;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
 
 class CustomerService
@@ -34,7 +35,7 @@ class CustomerService
                 'icon' => 'fa-solid fa-crown',
                 'iconBg' => '#EAB308',
                 'iconColor' => '#EAB308',
-                'badge' => '5% OFF',
+                'badge' => Setting::get('vip_discount', '5') . '% OFF',
                 'subtitle' => 'Spent 6+ order or over $5,000',
             ],
             [
@@ -84,10 +85,10 @@ class CustomerService
                     ->where('status', '!=', 'refunded');
             }], 'total')
             ->orderBy('last_order_at', 'desc')
-            ->get()
-            ->map(function ($customer) {
-                $customer->segment = self::determineSegment($customer->total_orders ?? 0, $customer->total_spent ?? 0);
-                return $customer;
-            });
+            ->get();
+        // ->map(function ($customer) {
+        //     $customer->segment = self::determineSegment($customer->total_orders ?? 0, $customer->total_spent ?? 0);
+        //     return $customer;
+        // });
     }
 }

@@ -156,10 +156,13 @@ class PosController extends Controller
             $discount = $request->discount ?? 0;
             $vipDiscount = 0;
 
+            // Get VIP discount percent from settings (default to 5), using same code as Blade {{ App\Models\Setting::get('vip_discount', '5') }}
+            $vipDiscountPercent = \App\Models\Setting::get('vip_discount', 5);
+
             // safety check ($customer exists, not null) col had deleted, bypass or glitch proceeds without a VIP discount and if segement is vip 
             if ($customer && $customer->segment === 'vip') {
                 $isVip = true;
-                $vipDiscount = $subtotal * 0.05;
+                $vipDiscount = $subtotal * ($vipDiscountPercent / 100);
             }
 
             // get tax number from setting if never change default to 10 then / 100
@@ -170,6 +173,10 @@ class PosController extends Controller
             $net = $subtotal - $totalDiscount;
             $tax = $net * $taxRate;
             $total = $net + $tax;
+
+            if ($total <= 0) {
+                throw new \Exception('Order total must be greater than zero.');
+            }
 
             // 4. Create main order record
             $order = Order::create([
@@ -184,6 +191,8 @@ class PosController extends Controller
                 'total' => $total,
                 'status' => 'completed',
             ]);
+
+            $updatedStock = [];
 
             // 5. Create order items + database records and adjusting stock
             foreach ($request->items as $item) {
@@ -225,6 +234,20 @@ class PosController extends Controller
                 // (sometimes there may not be, e.g. for a product newly added or not yet assigned to cashier)
                 if ($cashierStock) {
                     $cashierStock->increment('sold_quantity', $actualQtyNeeded);
+
+                    // Refresh model so we have the NEW values
+                    $cashierStock->refresh();
+
+                    // Calculate the new remaining stock after the sale
+                    $availableStock =
+                        $cashierStock->allocated_quantity
+                        - $cashierStock->sold_quantity
+                        - $cashierStock->lost_quantity;
+
+                    $updatedStock[] = [
+                        'product_id' => $product->id,
+                        'available_stock' => $availableStock,
+                    ];
                 }
 
                 // create record order items
@@ -291,6 +314,7 @@ class PosController extends Controller
                     'is_vip' => $isVip,
                     'vip_discount' => $vipDiscount,
                 ],
+                'updated_stock' => $updatedStock,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

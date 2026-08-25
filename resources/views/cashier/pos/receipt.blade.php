@@ -102,7 +102,7 @@
                     <span>-$<span x-text="(receiptData.discount || 0).toFixed(2)"></span></span>
                 </div>
                 <div x-show="receiptData.vip_discount > 0" class="flex justify-between text-sm text-yellow-600">
-                    <span>VIP Discount (5%)</span>
+                    <span>VIP Discount ({{ App\Models\Setting::get('vip_discount', '5') }}%)</span>
                     <span>-$<span x-text="(receiptData.vip_discount || 0).toFixed(2)"></span></span>
                 </div>
                 <div class="flex justify-between dark:text-zinc-300">

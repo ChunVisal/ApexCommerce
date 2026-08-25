@@ -20,6 +20,7 @@ class SettingController extends Controller
         Setting::set('shop_address', $request->shop_address);
         Setting::set('shop_phone', $request->shop_phone);
         Setting::set('tax_rate', $request->tax_rate);
+        Setting::set('vip_discount', $request->vip_discount);
 
         if ($request->hasFile('logo')) {
             // Delete old logo

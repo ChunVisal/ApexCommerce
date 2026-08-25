@@ -15,7 +15,7 @@
             @if (isset($card['badge']))
                 <div class="absolute -top-1 -right-1 w-16 h-16 pointer-events-none overflow-hidden z-10">
                     <span
-                        class="absolute top-3 -right-6 w-24 text-center text-[9px] font-bold tracking-wider text-white shadow-sm bg-[#DDCE00] dark:bg-yellow-500/60"
+                        class="absolute top-4 -right-6 w-24 text-center text-[10px] font-bold tracking-wider text-white shadow-sm bg-[#DDCE00] dark:bg-yellow-500/60"
                         style="padding-top: 2px; padding-bottom: 2px; border-radius: 2px; box-shadow: 0 2px 6px 0 rgba(0,0,0,0.08); transform: rotate(45deg); text-transform: uppercase;">
                         {{ $card['badge'] }}
                     </span>

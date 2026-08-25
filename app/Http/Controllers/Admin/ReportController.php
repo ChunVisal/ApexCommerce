@@ -16,17 +16,18 @@ class ReportController extends Controller
     {
         $start = $request->start_date ? Carbon::parse($request->start_date) : now()->subDays(14);
         $end = $request->end_date ? Carbon::parse($request->end_date) : now();
-
         $summaryCards = ReportService::getSummaryCards($request->start_date, $request->end_date);
         $dailySales = ReportService::getDailySales($start, $end);
         $topCashiers = ReportService::getTopCashiers($start, $end);
+        $paymentBreakdown = ReportService::getPaymentBreakdown($start, $end);
         $orders = ReportService::getOrders($start, $end);
 
         return view('admin.reports.index', compact(
             'summaryCards',
             'dailySales',
-            'topCashiers',
             'orders',
+            'topCashiers',
+            'paymentBreakdown',
             'start',
             'end'
         ));

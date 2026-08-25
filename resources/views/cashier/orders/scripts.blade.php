@@ -61,7 +61,10 @@
                     }));
 
                 if (items.length === 0) {
-                    alert('Please select at least one item to refund');
+                    this.$dispatch('toast', {
+                        message: 'Please select at least one item to refund',
+                        type: 'error'
+                    });
                     return;
                 }
 
@@ -76,11 +79,42 @@
                             items: items,
                         })
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert(data.message);
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || 'Refund failed',
+                                type: 'error'
+                            });
+                            return;
+                        }
+
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
+
+                        items.forEach(refundItem => {
+                            const item = this.refundOrderItems.find(i => i.id === refundItem.order_item_id);
+                            if (item) {
+                                item.is_refunded = true;
+                                item.refund_type = refundItem.restock ? 'restock' : 'broken';
+                            }
+                        });
+
                         this.refundOpen = false;
-                        window.location.reload();
+                    })
+                    .catch(err => {
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
                     });
             },
 

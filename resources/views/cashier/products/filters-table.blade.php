@@ -92,16 +92,31 @@
                             x-text="product.last_drop ? new Date(product.last_drop).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '-'">
                         </td>
                         <td class="py-3 px-2 text-center">
-                            <span class="px-2 py-0.5 text-[10px] rounded-full font-medium"
-                                :class="product.remaining > product.low_stock_threshold ?
-                                    'bg-green-100 dark:bg-green-400 text-green-600 dark:text-green-900' : (
-                                        product.remaining > 0 ?
-                                        'bg-amber-100 dark:bg-amber-300 text-amber-500 dark:text-amber-900' :
-                                        'bg-red-100 dark:bg-rose-400 text-red-600 dark:text-red-800')"
-                                x-text="product.remaining > product.low_stock_threshold ? 'In Stock' : (product.remaining > 0 ? 'Low Stock' : 'Out of Stock')"
-                                x-text="product.remaining > 5 ? 'In Stock' : (product.remaining > 0 ? 'Low Stock' : 'Out of Stock')">
-                            </span>
+                            <template x-if="product.remaining <= 0">
+                                <span
+                                    class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
+                                    Out of stock
+                                </span>
+                            </template>
+                            <template x-if="product.remaining > 0 && product.remaining <= product.low_stock_threshold">
+                                <span
+                                    class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+                                    <span x-text="product.remaining"></span>
+                                    <span x-show="product.has_uom" x-text="product.base_unit_name"
+                                        class="lowercase"></span>
+                                    Low
+                                </span>
+                            </template>
+                            <template x-if="product.remaining > product.low_stock_threshold">
+                                <span
+                                    class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400">
+                                    <span x-text="product.remaining"></span>
+                                    <span x-show="product.has_uom" x-text="product.base_unit_name"
+                                        class="lowercase"></span>
+                                </span>
+                            </template>
                         </td>
+                   
                         <td class="py-3 pr-4 pl-2 text-center">
                             <button @click="reportLoss(product.id, product.name, product.remaining)"
                                 class="text-xs font-medium text-red-500 hover:text-red-600 transition-colors shrink-0">

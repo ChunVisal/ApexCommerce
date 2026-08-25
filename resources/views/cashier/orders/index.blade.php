@@ -2,7 +2,7 @@
 
 @section('content')
     @include('cashier.orders.scripts')
-    <div x-data="orderPage()">
+    <div x-data="orderPage()" x-data="orderSearch()">
         <div class="p-5">
             @include('cashier.orders.header-cards')
             @include('cashier.orders.filters-table')

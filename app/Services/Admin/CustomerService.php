@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Customer;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
 
 class CustomerService
@@ -35,7 +36,7 @@ class CustomerService
                 'icon' => 'fa-solid fa-crown',
                 'iconBg' => '#EAB308',
                 'iconColor' => '#EAB308',
-                'badge' => '5% OFF',
+                'badge' => Setting::get('vip_discount', '5') . '% OFF',
                 'subtitle' => '6+ orders or $5,000+',
             ],
             [

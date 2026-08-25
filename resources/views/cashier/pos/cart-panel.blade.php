@@ -69,7 +69,7 @@
             <span class="font-medium" x-text="'$' + subtotal.toFixed(2)"></span>
         </div>
         <div class="flex text-gray-500 dark:text-zinc-300 justify-between text-xs">
-            <span class="">Tax (0.5%)</span>
+            <span class="">Tax ({{ App\Models\Setting::get('tax_rate', '10') }}%)</span>
             <span class="font-medium" x-text="'$' + tax.toFixed(2)"></span>
         </div>
         <div class="flex justify-between text-sm font-bold border-t border-gray-200 dark:border-zinc-700 pt-2">

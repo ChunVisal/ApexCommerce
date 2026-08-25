@@ -20,12 +20,12 @@
         </button>
 
         <div class="flex items-center border border-gray-300 dark:border-zinc-700 rounded-md overflow-hidden">
-            <button @click="viewMode = 'table'"
+            <button @click="viewMode = 'table'; localStorage.setItem('productViewMode', 'table')"
                 :class="viewMode === 'table' ? 'bg-p text-white' : 'bg-white dark:bg-zinc-900 text-gray-500'"
                 class="px-3 py-2">
                 <x-heroicon-m-list-bullet class="w-4 h-4" />
             </button>
-            <button @click="viewMode = 'grid'"
+            <button @click="viewMode = 'grid'; localStorage.setItem('productViewMode', 'grid')"
                 :class="viewMode === 'grid' ? 'bg-p text-white' : 'bg-white dark:bg-zinc-900 text-gray-500'"
                 class="px-3 py-2 border-l border-gray-300 dark:border-zinc-700">
                 <x-heroicon-m-squares-2x2 class="w-4 h-4" />
@@ -62,7 +62,7 @@
         <option value="Active">Active</option>
         <option value="Inactive">Inactive</option>
     </x-filter-select>
-    
+
     <x-filter-select model="stockFilter">
         <option value="all">All Stock</option>
         <option value="out">Out of Stock</option>

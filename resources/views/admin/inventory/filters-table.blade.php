@@ -75,7 +75,7 @@
                                     class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
                                     Out of stock
                                 </span>
-                            </template>
+                        </template>
                             <template
                                 x-if="product.stock_quantity > 0 && product.stock_quantity <= product.low_stock_threshold">
                                 <span

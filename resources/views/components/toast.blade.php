@@ -12,69 +12,58 @@
     "
     class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col items-center w-full max-w-sm px-4 space-y-2">
     <template x-for="toast in toasts" :key="toast.id">
-        <div x-transition:enter="transition-transform transition-opacity duration-500"
-            x-transition:enter-start="opacity-0 -translate-y-10 scale-95"
-            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-            x-transition:leave="transition-transform transition-opacity duration-300"
-            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-            x-transition:leave-end="opacity-0 -translate-y-8 scale-90" x-show="true"
-            class="rounded-sm  w-full shadow-xl border-2 overflow-hidden"
-            :class="{
-                // Success
-                'bg-emerald-500 border-emerald-500 text-white dark:bg-emerald-600 dark:border-emerald-400': toast.type==='success',
-                // Error
-                'bg-rose-500 border-rose-700 text-white dark:bg-rose-600 dark:border-rose-400': toast.type==='error'
-            }">
-            <div class="flex items-start gap-3 p-4">
+        <div class="toast-animate w-full bg-white dark:bg-zinc-800 border rounded-lg shadow-xl overflow-hidden"
+            :class="toast.type === 'success' ? 'border-emerald-200 dark:border-emerald-900' :
+                'border-rose-200 dark:border-rose-900'">
+
+            <div class="flex items-start gap-3 p-3.5">
                 {{-- Status Icon --}}
-                <div class="shrink-0 w-8 h-8 flex items-center justify-center"
-                    :class="toast.type === 'success' ?
-                        'bg-emerald-700 dark:bg-emerald-400' :
-                        'bg-rose-700 dark:bg-rose-400'"
-                    style="border-radius:0">
-                    <i class="text-base"
-                        :class="toast.type === 'success' ?
-                            'fa-solid fa-check text-white' :
-                            'fa-solid fa-xmark text-white dark:text-rose-900'"></i>
+                <div class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+                    :class="toast.type === 'success' ? 'bg-emerald-100 dark:bg-emerald-900/40' :
+                        'bg-rose-100 dark:bg-rose-900/40'">
+                    <i class="text-sm"
+                        :class="toast.type === 'success' ? 'fa-solid fa-check text-emerald-600 dark:text-emerald-400' :
+                            'fa-solid fa-xmark text-rose-600 dark:text-rose-400'"></i>
                 </div>
 
                 {{-- Content --}}
                 <div class="flex-1 min-w-0">
-                    <p class="text-xs font-bold"
-                        :class="toast.type === 'success' ?
-                            'text-white dark:text-emerald-50' :
-                            'text-white dark:text-rose-50'"
-                        x-text="toast.title">
-                    </p>
-                    <p class="text-xs mt-1"
-                        :class="toast.type === 'success' ?
-                            'text-white' :
-                            'text-rose-100 dark:text-rose-200'"
-                        x-text="toast.message">
-                    </p>
+                    <p class="text-xs font-bold text-gray-900 dark:text-zinc-100" x-text="toast.title"></p>
+                    <p class="text-xs text-gray-500 dark:text-zinc-400 mt-0.5" x-text="toast.message"></p>
                 </div>
 
                 {{-- Status Badge --}}
-                <span class="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5"
+                <span class="shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded"
                     :class="toast.type === 'success' ?
-                        'bg-emerald-700 text-emerald-100 dark:bg-emerald-200 dark:text-emerald-900' :
-                        'bg-rose-700 text-rose-100 dark:bg-rose-200 dark:text-rose-900'"
-                    style="border-radius:0" x-text="toast.type"></span>
+                        'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400' :
+                        'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400'"
+                    x-text="toast.type"></span>
             </div>
 
             {{-- Progress bar showing time until auto-dismiss --}}
-            <div class="h-1"
-                :class="toast.type === 'success' ?
-                    'bg-emerald-700 dark:bg-emerald-400' :
-                    'bg-rose-700 dark:bg-rose-400'"
-                style="border-radius:0">
-                <div class="h-full"
-                    :class="toast.type === 'success' ?
-                        'bg-emerald-300 dark:bg-emerald-200' :
-                        'bg-rose-100 dark:bg-rose-200'"
-                    style="width: 100%; border-radius:0" x-init="$el.style.transition = 'width 3.5s linear';
+            <div class="h-0.5 bg-gray-100 dark:bg-zinc-800">
+                <div class="h-full" :class="toast.type === 'success' ? 'bg-emerald-500' : 'bg-rose-500'"
+                    style="width: 100%" x-init="$el.style.transition = 'width 3.5s linear';
                     requestAnimationFrame(() => $el.style.width = '0%')"></div>
             </div>
         </div>
     </template>
 </div>
+
+<style>
+    @keyframes toast-in {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .toast-animate {
+        animation: toast-in 0.3s ease-out;
+    }
+</style>

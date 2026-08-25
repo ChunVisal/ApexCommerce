@@ -5,8 +5,10 @@
 
     <a href="{{ $role === 'admin' ? route('admin.dashboard') : route('cashier.pos') }}" class="flex items-center">
         @php $logo = App\Models\Setting::get('logo'); @endphp
+
         @if ($logo)
-            <img src="{{ $logo }}" class="h-[45px] w-auto max-w-full object-contain shrink-0" />
+            <img src="{{ $logo }}"
+                class="h-[45px] w-auto max-w-full object-contain shrink-0 dark:brightness-150" />
         @else
             <img src="{{ asset('images/logo.png') }}"
                 class="h-[41px] w-auto max-w-[120px] object-contain shrink-0 dark:hidden" />

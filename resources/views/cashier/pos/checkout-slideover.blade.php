@@ -46,7 +46,11 @@
                 {{-- VIP Discount (auto) --}}
                 <div x-show="isVipCustomer"
                     class="mb-2 flex items-center justify-between text-xs text-yellow-600 bg-yellow-50 dark:bg-yellow-950/30 rounded p-2">
-                    <span><i class="fa-solid fa-crown mr-1"></i> VIP 5% Discount</span>
+                    <span>
+                        <i class="fa-solid fa-crown mr-1"></i>
+                        VIP {{ App\Models\Setting::get('vip_discount', '5') }}% Discount
+                    </span>
+
                     <span>-$<span x-text="vipDiscount.toFixed(2)"></span></span>
                 </div>
                 {{-- Change --}}
@@ -89,43 +93,62 @@
                 <p class="text-xs font-semibold text-gray-500 dark:text-zinc-300 uppercase">Select Payment</p>
 
                 <button @click="paymentMethod = 'cash'; amountReceived = ''; change = 0"
-                    :class="paymentMethod === 'cash' ? 'border-[#0F6E8C]/60 bg-[#0F6E8C]/5' :
+                    :class="paymentMethod === 'cash' ? 'border-[#0F6E8C]/60 bg-[#0F6E8C]/10 shadow-lg' :
                         'border-gray-200 dark:border-zinc-700'"
-                    class="w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all">
-                    <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-950 flex items-center justify-center">
-                        <i class="fa-solid fa-money-bill text-green-600"></i>
+                    class="w-full flex items-center gap-4 p-3 rounded-lg border-2 transition-all group">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-tr from-green-400/40 via-green-300/50 to-green-100 dark:from-green-900 dark:via-green-950 dark:to-green-900 flex items-center justify-center border-2 border-green-200 dark:border-green-800 shadow group-hover:scale-110 transition-transform">
+                        <i
+                            class="fa-solid fa-money-bill-wave text-[20px] text-green-700 dark:text-green-400 drop-shadow"></i>
                     </div>
                     <div class="text-left">
-                        <p class="text-sm font-bold text-gray-800 dark:text-zinc-200">Cash Payment</p>
+                        <p class="text-base font-bold text-gray-900 dark:text-zinc-100 flex items-center gap-1">
+                            Cash Payment
+                            <span
+                                class="inline-block bg-green-500/20 text-[10px] px-2 py-0.5 rounded text-green-800 dark:text-green-300 ml-1 font-semibold tracking-wide">Popular</span>
+                        </p>
                         <p class="text-xs text-gray-500 dark:text-zinc-300">Walk-in payment</p>
                     </div>
                 </button>
 
                 <button @click="paymentMethod = 'card'"
-                    :class="paymentMethod === 'card' ? 'border-[#0F6E8C]/60 bg-[#0F6E8C]/5' :
+                    :class="paymentMethod === 'card' ? 'border-[#0F6E8C]/60 bg-[#0F6E8C]/10 shadow-lg' :
                         'border-gray-200 dark:border-zinc-700'"
-                    class="w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all">
-                    <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-950 flex items-center justify-center">
-                        <i class="fa-solid fa-credit-card text-blue-600"></i>
+                    class="w-full flex items-center gap-4 p-3 rounded-lg border-2 transition-all group">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-400/40 via-blue-200/50 to-blue-100 dark:from-blue-900 dark:via-blue-950 dark:to-blue-900 flex items-center justify-center border-2 border-blue-200 dark:border-blue-800 shadow group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-credit-card text-[20px] text-blue-700 dark:text-blue-400 drop-shadow"></i>
                     </div>
+
                     <div class="text-left">
-                        <p class="text-sm font-bold text-gray-800 dark:text-zinc-200">Credit Card</p>
-                        <p class="text-xs text-gray-500 dark:text-z">Credit / Debit</p>
+                        <p class="text-base font-bold text-gray-900 dark:text-zinc-100 flex items-center gap-1">
+                            Credit Card
+                            <span
+                                class="inline-block bg-blue-500/20 text-[10px] px-2 py-0.5 rounded text-blue-800 dark:text-blue-300 ml-1 font-semibold tracking-wide">POS</span>
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-zinc-300">Credit / Debit</p>
                     </div>
                 </button>
 
                 <button @click="paymentMethod = 'khqr'; startTimer()"
-                    :class="paymentMethod === 'khqr' ? 'border-[#0F6E8C]/60 bg-[#0F6E8C]/5' :
+                    :class="paymentMethod === 'khqr' ? 'border-[#0F6E8C]/60 bg-[#0F6E8C]/10 shadow-lg' :
                         'border-gray-200 dark:border-zinc-700'"
-                    class="w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all">
-                    <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-950 flex items-center justify-center">
-                        <i class="fa-solid fa-qrcode text-purple-600"></i>
+                    class="w-full flex items-center gap-4 p-3 rounded-lg border-2 transition-all group">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-400/40 via-purple-200/50 to-purple-100 dark:from-purple-900 dark:via-purple-950 dark:to-purple-900 flex items-center justify-center border-2 border-purple-200 dark:border-purple-800 shadow group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-qrcode text-[20px] text-purple-700 dark:text-purple-400 drop-shadow"></i>
                     </div>
                     <div class="text-left">
-                        <p class="text-sm font-bold text-gray-800 dark:text-zinc-200">Bakong KHQR</p>
-                        <p class="text-xs text-gray-500 dark:text-z">Scan to pay</p>
+                        <p class="text-base font-bold text-gray-900 dark:text-zinc-100 flex items-center gap-1">
+                            Bakong KHQR
+                            <span
+                                class="inline-block bg-purple-500/20 text-[10px] px-2 py-0.5 rounded text-purple-800 dark:text-purple-300 ml-1 font-semibold tracking-wide">QR</span>
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-zinc-300">Scan to pay</p>
                     </div>
                 </button>
+
+
 
                 <div x-show="requiresCustomer && !selectedCustomer"
                     class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-3">

@@ -59,9 +59,12 @@
                                 class="px-1.5 py-0.5 text-[11px] rounded-full font-medium
                             {{ $order->status === 'completed'
                                 ? 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400 border dark:border-green-800/50'
-                                : 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400 border dark:border-red-800/50' }}">
+                                : ($order->status === 'partially_refunded'
+                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400 border dark:border-yellow-800/50'
+                                    : 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400 border dark:border-red-800/50') }}">
                                 {{ ucfirst($order->status) }}
                             </span>
+
                         </td>
                     </tr>
                 @empty

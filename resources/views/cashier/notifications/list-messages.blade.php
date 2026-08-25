@@ -117,17 +117,6 @@
                                         <span class="break-words min-w-0">"{{ $notif->cashier_notes }}"</span>
                                     </p>
                                 @endif
-
-                                {{-- Action Button --}}
-                                @if ($isApproved)
-                                    <div class="pt-1">
-                                        <button @click="returnStock({{ $notif->id }})"
-                                            class="inline-flex items-center gap-1 text-xs font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 transition-colors">
-                                            <x-heroicon-o-arrow-path-rounded-square class="w-3.5 h-3.5" />
-                                            <span>Report Loss</span>
-                                        </button>
-                                    </div>
-                                @endif
                             </div>
 
                         </div>

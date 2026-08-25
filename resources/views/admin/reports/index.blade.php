@@ -32,6 +32,18 @@
                         Top Cashiers
                     </button>
 
+                    <!-- Payments -->
+                    <button @click="tab = 'payments'"
+                        :class="tab === 'payments'
+                            ?
+                            'border-[#0F6E8C] text-[#0F6E8C] dark:text-[#1898be] font-semibold' :
+                            'border-transparent text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:border-gray-300 dark:hover:border-zinc-700 font-medium'"
+                        class="inline-flex items-center gap-2 py-3 px-1 border-b-2 text-xs transition-all duration-200 ease-in-out whitespace-nowrap ">
+                        <i class="fa-solid fa-credit-card w-4 h-4"></i>
+                        Payments
+                    </button>
+
+
                     <!-- Orders -->
                     <button @click="tab = 'orders'"
                         :class="tab === 'orders'
@@ -52,6 +64,9 @@
                 </div>
                 <div x-show="tab === 'cashiers'" x-cloak x-transition.opacity.duration.150ms>
                     @include('admin.reports.top-cashiers')
+                </div>
+                <div x-show="tab === 'payments'" x-cloak x-transition.opacity.duration.150ms>
+                    @include('admin.reports.payments-breakdown')
                 </div>
                 <div x-show="tab === 'orders'" x-cloak x-transition.opacity.duration.150ms>
                     @include('admin.reports.total-orders')

@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Customer;
+use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -161,6 +162,42 @@ class ReportService
                 $cashier->avg_order = $cashier->orders > 0 ? $cashier->revenue / $cashier->orders : 0;
                 return $cashier;
             });
+    }
+
+    public static function getPaymentBreakdown($start, $end)
+    {
+        $start = Carbon::parse($start);
+        $end = Carbon::parse($end);
+
+        // Use the payments that are attached to orders in the given date range only
+        $cash = Payment::where('method', 'cash')
+            ->whereHas('order', function ($query) use ($start, $end) {
+                $query->whereDate('created_at', '>=', $start)
+                    ->whereDate('created_at', '<=', $end);
+            })
+            ->count();
+
+        $card = Payment::where('method', 'card')
+            ->whereHas('order', function ($query) use ($start, $end) {
+                $query->whereDate('created_at', '>=', $start)
+                    ->whereDate('created_at', '<=', $end);
+            })
+            ->count();
+
+        $khqr = Payment::where('method', 'khqr')
+            ->whereHas('order', function ($query) use ($start, $end) {
+                $query->whereDate('created_at', '>=', $start)
+                    ->whereDate('created_at', '<=', $end);
+            })
+            ->count();
+
+        $total = ($cash + $card + $khqr) ?: 1;
+
+        return [
+            'cash' => round(($cash / $total) * 100),
+            'card' => round(($card / $total) * 100),
+            'khqr' => round(($khqr / $total) * 100),
+        ];
     }
 
     public static function getOrders($start, $end)

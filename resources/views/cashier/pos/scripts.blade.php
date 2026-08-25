@@ -47,6 +47,9 @@
             },
             selectedCustomer: null,
             customerSaved: false,
+            
+            // Get VIP discount percent from settings (Blade inject for use in calculations)
+            vipDiscountPercent: {{ App\Models\Setting::get('vip_discount', '5') }},
 
             heldCartsList: JSON.parse(localStorage.getItem('heldCarts') || '[]'),
 
@@ -85,7 +88,7 @@
                 }
                 // VIP discount (only if no manual discount)
                 if (total === 0 && this.isVipCustomer) {
-                    total += this.subtotal * 0.05;
+                    total += this.subtotal * (this.vipDiscountPercent / 100);
                 }
                 return total;
             },
@@ -101,7 +104,7 @@
             get isVipCustomer() {
                 const vip = this.selectedCustomer?.segment === 'vip';
                 if (vip && this.discountValue > 0 && this.discountValue === parseFloat(this.vipDiscount.toFixed(
-                        2))) {
+                    2))) {
                     // If manual discount equals VIP discount, it was auto-set. Reset it.
                     this.discountValue = 0;
                 }
@@ -109,7 +112,7 @@
             },
             get vipDiscount() {
                 if (!this.selectedCustomer || this.selectedCustomer.segment !== 'vip') return 0;
-                return this.subtotal * 0.05;
+                return this.subtotal * (this.vipDiscountPercent / 100);
             },
             // Don't auto-fill manual discount with VIP
             get manualDiscount() {
@@ -343,69 +346,84 @@
                             } : null,
                         }),
                     })
-                    .then(res => {
-                        return res.json();
-                    })
-                    .then(data => {
-
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
                         this.submitting = false;
-                        if (data.success) {
-                            this.receiptData = {
-                                order_number: data.order.order_number,
-                                items: this.cartItems.map(i => ({
-                                    id: i.id,
-                                    name: i.name,
-                                    price: i.price,
-                                    qty: i.qty,
-                                    base_unit: i.base_unit || '',
-                                })),
-                                subtotal: this.subtotal,
-                                net: this.net,
-                                tax: this.tax,
-                                discount: this.manualDiscount,
-                                total: data.order.total,
-                                is_vip: this.isVipCustomer,
-                                vip_discount: this.vipDiscount,
-                                payment_method: this.paymentMethod,
-                                amount_received: this.amountReceived,
-                                change: data.order.change,
-                                customer: this.selectedCustomer ? JSON.parse(JSON.stringify(this
-                                    .selectedCustomer)) : null,
-                            };
 
-                            this.lastOrder = data.order;
-                            this.checkoutOpen = false;
-                            this.receiptOpen = true;
-                            this.$nextTick(() => {
-                                if (this.receiptData.order_number) {
-                                    JsBarcode("#barcode", this.receiptData.order_number, {
-                                        format: "CODE128",
-                                        width: 1.5,
-                                        height: 40,
-                                        displayValue: false,
-                                        margin: 0,
-                                        background: "transparent",
-                                        lineColor: "#000",
-                                    });
-                                }
-                            });
+                        // NEW — update each sold product's stock directly, no reload needed
+                        (data.updated_stock || []).forEach(update => {
+                            const product = this.products.find(
+                                p => p.id === update.product_id
+                            );
 
-                            // 2. THEN clear everything
-                            this.cartItems = [];
-                            this.amountReceived = '';
-                            this.change = 0;
-                            this.selectedCustomer = null;
-                            this.customerSaved = false;
-                            this.customerForm = {
-                                name: '',
-                                phone: '',
-                                email: ''
-                            };
-                        }
+                            if (product) {
+                                product.available_stock = update.available_stock;
+                            }
+                        });
+
+                        this.receiptData = {
+                            order_number: data.order.order_number,
+                            items: this.cartItems.map(i => ({
+                                id: i.id,
+                                name: i.name,
+                                price: i.price,
+                                qty: i.qty,
+                                base_unit: i.base_unit || '',
+                            })),
+                            subtotal: this.subtotal,
+                            net: this.net,
+                            tax: this.tax,
+                            discount: this.manualDiscount,
+                            total: data.order.total,
+                            is_vip: this.isVipCustomer,
+                            vip_discount: this.vipDiscount,
+                            payment_method: this.paymentMethod,
+                            amount_received: this.amountReceived,
+                            change: data.order.change,
+                            customer: this.selectedCustomer ? JSON.parse(JSON.stringify(this
+                                .selectedCustomer)) : null,
+                        };
+
+                        this.lastOrder = data.order;
+                        this.checkoutOpen = false;
+                        this.receiptOpen = true;
+                        this.$nextTick(() => {
+                            if (this.receiptData.order_number) {
+                                JsBarcode("#barcode", this.receiptData.order_number, {
+                                    format: "CODE128",
+                                    width: 1.5,
+                                    height: 40,
+                                    displayValue: false,
+                                    margin: 0,
+                                    background: "transparent",
+                                    lineColor: "#000",
+                                });
+                            }
+                        });
+
+                        this.cartItems = [];
+                        this.amountReceived = '';
+                        this.change = 0;
+                        this.selectedCustomer = null;
+                        this.customerSaved = false;
+                        this.customerForm = {
+                            name: '',
+                            phone: '',
+                            email: ''
+                        };
                     })
                     .catch(err => {
                         this.submitting = false;
-                        alert('Network error. Please try again.');
+                        this.$dispatch('toast', {
+                            message: 'Network error. Please try again.',
+                            type: 'error'
+                        });
                         console.error(err);
                     });
             },

@@ -53,7 +53,7 @@ class CustomerController extends Controller
         return response()->json(['customer' => $customer]);
     }
 
-    public function show($id)
+    public function show(int $id)
     {
         $customer = Customer::findOrFail($id);
 

@@ -177,12 +177,17 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Order refunded successfully', 'order_number' => $order_number]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Order ' . $order_number . ' refunded successfully',
+                'order_number' => $order_number
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Refund error: ' . $e->getMessage());
 
             return response()->json([
+                'success' => false,
                 'message' => 'Refund failed: ' . $e->getMessage(),
             ], 500);
         }

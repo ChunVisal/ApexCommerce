@@ -184,7 +184,6 @@
                 if (this.paymentFilter !== 'all') {
                     result = result.filter(o => o.payment?.method === this.paymentFilter);
                 }
-
                 return result;
             },
 
