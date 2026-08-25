@@ -43,7 +43,6 @@ A full stack web-based Point of Sale (POS) and inventory management system desig
 - Cloudinary image upload
 
 ## Project Structure
-  app/
 ├── Http/
 │   └── Controllers/
 │       ├── Admin/
@@ -51,14 +50,13 @@ A full stack web-based Point of Sale (POS) and inventory management system desig
 │
 ├── Models/
 │
-├── Traits/
-│   └── HandlesImageUploads.php
+├── Services/
+│   ├── Admin/
+│   └── Cashier/
 │
+└── Traits/
 resources/
-├── views/
-│   ├── admin/
-│   ├── cashier/
-│   └── components/
-│
-routes/
-├── web.php
+└── views/
+    ├── admin/
+    ├── cashier/
+    └── components/
