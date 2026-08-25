@@ -1,3 +1,9 @@
 # POS System - Apex Commerce
 
 A full stack web-based Point of Sale (POS) and inventory management system designed to manage products, warehouse stock, cashier sales, customers, payments, refunds, reports, and stock activities.
+
+## 
+
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
