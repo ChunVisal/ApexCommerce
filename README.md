@@ -109,7 +109,7 @@ resources/
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/apex-commerce.git
+git clone https://github.com/ChunVisal/ApexCommerce.git
 cd apex-commerce
 
 # Install dependencies
@@ -127,29 +127,3 @@ php artisan migrate --seed
 npm run dev
 php artisan serve
 ```
-
----
-
-## 🧰 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Backend | Laravel |
-| Frontend | Blade, Alpine.js, Tailwind CSS |
-| Database | MySQL |
-| Charts | Chart.js |
-| Media Storage | Cloudinary |
-| Design | Figma |
-
----
-
-## 📌 Roadmap Ideas
-- [ ] Live KHQR payment integration (beyond demo)
-- [ ] Multi-branch/warehouse support
-- [ ] Barcode scanner integration
-- [ ] Exportable PDF/Excel reports
-
----
-
-## 📄 License
-This project is open for educational and internal business use. Add your preferred license here (MIT, Apache 2.0, etc.).
