@@ -1,4 +1,4 @@
-# 🛒 Apex Commerce — POS & Inventory Management System
+# 🛒 ApexCommerce — POS & Inventory Management System
 
 A full-stack, web-based Point of Sale (POS) and inventory management platform built for retail operations — managing products, warehouse stock, cashier sales, customers, payments, refunds, reports, and stock activities, It covers the full retail workflow.
 
@@ -84,7 +84,7 @@ resources/
 | `users` | Admin and cashier accounts |
 | `categories` | Product categories |
 | `products` | Product master data |
-| `product_catalog` | Product name & price reference data |
+| `product_catalog` | Important Product name & price reference data |
 | `product_uoms` | Product units, prices, stock, and UOM details |
 | `customers` | Customer information |
 | `orders` | Sales orders |
