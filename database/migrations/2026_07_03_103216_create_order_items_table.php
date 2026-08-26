@@ -16,9 +16,13 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained();
             $table->string('name');
+            $table->string('base_unit')->nullable();
             $table->decimal('price', 10, 2);
             $table->integer('quantity');
+            $table->unsignedInteger('refunded_quantity')->default(0);
             $table->decimal('total', 10, 2);
+            $table->boolean('is_refunded')->default(false);
+            $table->string('refund_type')->nullable();
             $table->timestamps();
         });
     }

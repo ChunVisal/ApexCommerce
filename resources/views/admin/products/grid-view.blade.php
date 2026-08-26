@@ -38,7 +38,7 @@
 
 
                         {{-- Price & Date --}}
-                        <div class="mt-auto pt-2">
+                        <div class="mt-auto c">
                             <p class="text-sm font-bold text-[#0F6E8C] dark:text-[#188cb3]"
                                 x-text="'$' + Number(product.selling_price).toFixed(2)"></p>
                             <p class="text-[10px] text-gray-500 dark:text-zinc-500">

@@ -6,6 +6,7 @@
         @include('components.customers.header-cards', [
             'exportRoute' => route('admin.customers.export'),
         ])
+        @include('cashier.customers.slide-over')
         @include('components.customers.filters-table')
         @include('components.customers.customer-detail')
         @include('cashier.pos.receipt')

@@ -26,7 +26,53 @@
             currentPage: 1,
             perPage: 12,
 
+            editMode: false,
+            customerPanelOpen: false,
+            customerForm: { id: null, name: '', phone: '', email: '' },
+
             viewCustomerData: {},
+
+            editCustomer(customer) {
+                this.editMode = true;
+                this.customerForm = { id: customer.id, name: customer.name, phone: customer.phone, email: customer.email || '' };
+                this.customerPanelOpen = true;
+            },
+
+            submitCustomer() {
+                const url = this.editMode ? `/cashier/customers/${this.customerForm.id}` : `/cashier/customers`;
+                const method = this.editMode ? 'PUT' : 'POST';
+
+                fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(this.customerForm)
+                    })
+                    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+                    .then(({ ok, data }) => {
+                        if (!ok) {
+                            this.$dispatch('toast', { message: data.message || 'Something went wrong', type: 'error' });
+                            return;
+                        }
+
+                        this.$dispatch('toast', { message: data.message, type: 'success' });
+
+                        if (this.editMode) {
+                            const index = this.customers.findIndex(c => c.id === data.customer.id);
+                            if (index !== -1) this.customers[index] = data.customer;
+                        } else {
+                            this.customers.unshift(data.customer);
+                        }
+
+                        this.customerPanelOpen = false;
+                    })
+                    .catch(err => {
+                        this.$dispatch('toast', { message: 'Network error: ' + err.message, type: 'error' });
+                    });
+            },
+
             form: {
                 id: null,
                 name: '',
@@ -84,6 +130,7 @@
                                 qty: i.quantity,
                                 base_unit: i.base_unit || '',
                                 is_refunded: i.is_refunded || false,
+                                refunded_quantity: i.refunded_quantity || 0,
                             })),
                             subtotal: parseFloat(order.subtotal) || 0,
                             net: parseFloat(order.net) || 0,

@@ -19,10 +19,6 @@ return new class extends Migration
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->integer('sort_order')->default(0);
 
-            // Optional fields
-            $table->decimal('tax_rate', 5, 2)->nullable(); // Total 5 digits, 2 decimal places (e.g., 12.50%)
-            $table->boolean('discount_allowed')->default(true);
-
             $table->timestamps();
         });
     }

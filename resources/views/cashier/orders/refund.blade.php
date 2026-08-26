@@ -87,15 +87,15 @@
                         <div class="p-3 border rounded-lg transition-colors duration-150"
                             :class="{
                                 'border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900': !refundSelection[item
-                                    .id]?.selected && !item.is_refunded,
-                                'bg-rose-50/50 dark:bg-rose-950/10': refundSelection[
-                                    item.id]?.selected && !item.is_refunded,
-                                'border-gray-200 dark:border-zinc-800/60 bg-gray-100 dark:bg-zinc-900/40 opacity-70': item
-                                    .is_refunded
+                                    .id]?.selected && (item.quantity - item.refunded_quantity) > 0,
+                                'bg-rose-50/50 dark:bg-rose-950/10': refundSelection[item.id]?.selected,
+                                'border-gray-200 dark:border-zinc-800/60 bg-gray-100 dark:bg-zinc-900/40 opacity-70': (
+                                    item.quantity - item.refunded_quantity) <= 0
                             }">
 
-                            <template x-if="item.is_refunded">
-                                <div class=" flex items-center justify-between gap-2">
+                            {{-- Fully refunded — no more units left to refund --}}
+                            <template x-if="(item.quantity - item.refunded_quantity) <= 0">
+                                <div class="flex items-center justify-between gap-2">
                                     <div class="min-w-0 flex-1">
                                         <p class="text-xs font-semibold text-gray-900 dark:text-zinc-300 truncate"
                                             x-text="item.name"></p>
@@ -104,15 +104,16 @@
                                     </div>
                                     <span
                                         class="inline-flex items-center text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 shrink-0"
-                                        x-text="'Already Refunded (' + item.refund_type + ')'"></span>
+                                        x-text="'Fully Refunded (' + item.refund_type + ')'"></span>
                                 </div>
                             </template>
 
-                            <template x-if="!item.is_refunded">
+                            {{-- Still has refundable units --}}
+                            <template x-if="(item.quantity - item.refunded_quantity) > 0">
                                 <div class="flex items-start gap-3">
                                     <div class="flex items-center h-5">
                                         <input type="checkbox" :checked="refundSelection[item.id]?.selected"
-                                            @change="toggleRefundItem(item.id)"
+                                            @change="toggleRefundItem(item.id, item.quantity - item.refunded_quantity)"
                                             class="rounded border-gray-300 dark:border-zinc-700 text-rose-600 focus:ring-rose-500/20 dark:focus:ring-rose-400/20 dark:bg-zinc-800 cursor-pointer">
                                     </div>
 
@@ -121,7 +122,19 @@
                                             <p class="text-xs font-semibold text-gray-900 dark:text-zinc-200 truncate"
                                                 x-text="item.name"></p>
                                             <p class="text-[11px] font-semibold text-gray-500 dark:text-zinc-400 shrink-0"
-                                                x-text="'x' + item.quantity + ' - $' + item.total"></p>
+                                                x-text="(item.refunded_quantity > 0 ? item.refunded_quantity + '/' : '') + item.quantity + ' refundable: ' + (item.quantity - item.refunded_quantity)">
+                                            </p>
+                                        </div>
+
+                                        {{-- Quantity selector, only shown once this item is selected --}}
+                                        <div x-show="refundSelection[item.id]?.selected"
+                                            class="mt-2 flex items-center gap-2">
+                                            <label class="text-[11px] text-gray-500 dark:text-zinc-400">Qty to
+                                                refund:</label>
+                                            <input type="number" min="1"
+                                                :max="item.quantity - item.refunded_quantity"
+                                                x-model.number="refundSelection[item.id].quantity"
+                                                class="w-16 text-xs text-center border border-gray-300 dark:border-zinc-700 rounded-md px-2 py-1 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 focus:outline-none focus:border-rose-500">
                                         </div>
 
                                         <div

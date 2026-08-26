@@ -27,6 +27,10 @@ return new class extends Migration
 
             $table->enum('status', ['active', 'inactive'])->default('active');
 
+            $table->boolean('has_uom')->default(false);
+            $table->string('base_unit_name')->nullable();
+            $table->string('base_unit_code')->nullable();
+
             $table->timestamps();
         });
     }

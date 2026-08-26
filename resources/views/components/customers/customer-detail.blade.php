@@ -104,20 +104,45 @@
                         {{-- Order Items --}}
                         <div class="mt-1 pt-1 border-t border-gray-200 dark:border-zinc-700">
                             <template x-for="item in order.items" :key="item.id">
-                                <div class="flex justify-between text-[12px]"
-                                    :class="item.is_refunded ? 'opacity-70' : 'text-gray-500 dark:text-zinc-300'">
-                                    <span class="flex-1 truncate text-gray-600 dark:text-zinc-200">
-                                        <span x-text="item.quantity"></span>x <span x-text="item.name"></span>
-                                        <span class="text-[12px] text-gray-800 dark:text-white"
-                                            x-text="item.base_unit ? '(' + item.base_unit + ')' : '' "></span>
-                                    </span>
-                                    <span class="font-semibold ml-2"
-                                        :class="item.is_refunded ? 'line-through text-red-500 dark:text-red-400' :
-                                            'dark:text-zinc-200 '">
-                                        $<span x-text="(item.price * item.quantity).toFixed(2)"></span>
-                                    </span>
+                                <div class="text-xs">
+                                    <div class="flex justify-between"
+                                        :class="(item.refunded_quantity || 0) >= item.quantity ? 'opacity-70' : ''">
+                                        <template x-if="(item.refunded_quantity || 0) >= item.quantity">
+                                            <!-- Fully refunded: full row red + line-through -->
+                                            <span class="flex-1 truncate line-through text-red-500 dark:text-red-400">
+                                                <span x-text="item.quantity"></span>x
+                                                <span x-text="item.name"></span>
+                                                <span class="text-[12px] text-red-500 dark:text-red-400"
+                                                    x-text="item.base_unit ? '(' + item.base_unit + ')' : '' "></span>
+                                            </span>
+                                        </template>
+                                        <template x-if="(item.refunded_quantity || 0) < item.quantity">
+                                            <!-- Not fully refunded: original design -->
+                                            <span class="flex-1 truncate dark:text-zinc-200">
+                                                <template
+                                                    x-if="(item.refunded_quantity || 0) > 0 && (item.refunded_quantity || 0) < item.quantity">
+                                                    <span>
+                                                        <span class="line-through text-red-500 dark:text-red-400"
+                                                            x-text="item.refunded_quantity"></span>
+                                                        <span class="text-gray-400 dark:text-zinc-500">/</span>
+                                                    </span>
+                                                </template>
+                                                <span x-text="item.quantity - (item.refunded_quantity || 0)"></span>x
+                                                <span x-text="item.name"></span>
+                                                <span class="text-[12px] text-gray-800 dark:text-white"
+                                                    x-text="item.base_unit ? '(' + item.base_unit + ')' : '' "></span>
+                                            </span>
+                                        </template>
+                                        <span class="font-semibold ml-2"
+                                            :class="(item.refunded_quantity || 0) >= item.quantity ?
+                                                'line-through text-red-500 dark:text-red-400' : 'dark:text-zinc-200'">
+                                            $<span
+                                                x-text="((item.quantity - (item.refunded_quantity || 0)) * item.price).toFixed(2)"></span>
+                                        </span>
+                                    </div>
                                 </div>
                             </template>
+                       
 
                             <!-- Subtotal row -->
                             <div class="flex justify-between text-[12px] text-gray-600 dark:text-zinc-300 mt-2">

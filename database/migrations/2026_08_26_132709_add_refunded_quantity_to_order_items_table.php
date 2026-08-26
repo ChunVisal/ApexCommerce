@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('product_uoms', function (Blueprint $table) {
-            $table->text('description')->nullable()->after('name');
+        Schema::table('order_items', function (Blueprint $table) {
+            $table->unsignedInteger('refunded_quantity')->default(0)->after('quantity');
         });
     }
 
     public function down(): void
     {
-        Schema::table('product_uoms', function (Blueprint $table) {
-            $table->dropColumn('description');
+        Schema::table('order_items', function (Blueprint $table) {
+            $table->dropColumn('refunded_quantity');
         });
     }
 };

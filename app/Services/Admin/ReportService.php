@@ -194,12 +194,58 @@ class ReportService
         $total = ($cash + $card + $khqr) ?: 1;
 
         return [
-            'cash' => round(($cash / $total) * 100),
-            'card' => round(($card / $total) * 100),
-            'khqr' => round(($khqr / $total) * 100),
+            'cash' => $cash,
+            'card' => $card,
+            'khqr' => $khqr,
         ];
     }
 
+    public static function getPaymentSummaryCards($start, $end)
+    {
+        $start = Carbon::parse($start);
+        $end = Carbon::parse($end);
+
+        $orders = Order::whereDate('created_at', '>=', $start)
+            ->whereDate('created_at', '<=', $end)
+            ->where('status', '!=', 'refunded')
+            ->get();
+
+        $totalVolume = $orders->sum('total');
+        $netRevenue = $orders->sum('net');
+        $totalDiscount = $orders->sum('discount') + $orders->sum('vip_discount');
+        $totalTax = $orders->sum('tax');
+
+        $discountPercent = $totalVolume > 0 ? round(($totalDiscount / $netRevenue) * 100, 1) : 0;
+        $taxPercent = $totalVolume > 0 ? round(($totalTax / $netRevenue) * 100, 1) : 0;
+        $periodLabel = $start->format('M d, Y') . ' - ' . $end->format('M d, Y');
+
+        return [
+            [
+                'title' => 'Total Volume',
+                'value' => '$' . number_format($totalVolume, 2),
+                'subtitle' => $periodLabel,
+                'valueColor' => 'text-p',
+            ],
+            [
+                'title' => 'Net Revenue',
+                'value' => '$' . number_format($netRevenue, 2),
+                'subtitle' => $periodLabel,
+                'valueColor' => 'text-emerald-600 dark:text-emerald-400',
+            ],
+            [
+                'title' => 'Total Discount',
+                'value' => '-$' . number_format($totalDiscount, 2),
+                'subtitle' => $discountPercent . '% of net worth',
+                'valueColor' => 'text-rose-600 dark:text-rose-400',
+            ],
+            [
+                'title' => 'Total Tax',
+                'value' => '$' . number_format($totalTax, 2),
+                'subtitle' => $taxPercent . '% of net worth',
+                'valueColor' => 'text-p',
+            ],
+        ];
+    }
     public static function getOrders($start, $end)
     {
         return Order::with(['cashier', 'customer', 'payment', 'items'])

@@ -14,15 +14,24 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('avatar')->nullable();
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
             $table->enum('role', ['admin', 'cashier'])->default('cashier');
             $table->string('status')->default('active');
             $table->dateTime('last_login')->nullable();
+            $table->string('employee_id')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('address')->nullable();
+            $table->string('shift')->nullable();
+            $table->string('pin')->nullable();
+            $table->string('avatar')->nullable();
+            $table->date('hire_date')->nullable();
+            $table->decimal('salary', 15, 2)->nullable();
+            $table->string('otp_code')->nullable();
+            $table->dateTime('otp_expires_at')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->rememberToken();
+            $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

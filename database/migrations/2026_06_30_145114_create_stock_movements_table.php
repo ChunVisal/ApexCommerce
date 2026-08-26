@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->enum('type', ['in', 'out']);
             $table->integer('quantity');
+            $table->integer('balance')->nullable();
+            $table->string('reference')->nullable();
             $table->string('reason');
             $table->text('notes')->nullable();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();

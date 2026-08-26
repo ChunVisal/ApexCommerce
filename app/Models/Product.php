@@ -30,7 +30,7 @@ class Product extends Model
 
     public function uoms()
     {
-        return $this->hasMany(ProductUom::class);
+    return $this->hasMany(ProductUom::class);
     }
 
     public function category()

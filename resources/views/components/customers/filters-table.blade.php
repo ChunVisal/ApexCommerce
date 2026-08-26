@@ -107,12 +107,22 @@
                         <td class="py-3 px-2 text-xs text-gray-500 dark:text-zinc-400"
                             x-text="customer.last_order_at ? new Date(customer.last_order_at).toLocaleDateString('en-US', {hour: 'numeric', minute: 'numeric', month:'short', day:'numeric', year:'numeric'}) : '-'">
                         </td>
-                        <td class="py-3 pr-4 pl-2 text-center">
-                            <button @click="openCustomerDetail(customer.id)"
-                                class="text-yellow-400 hover:text-yellow-500">
-                                <i class="fa-solid fa-receipt text-lg"></i>
-                            </button>
+                        <td class="py-3 pr-8">
+                            <div class="flex items-center justify-end gap-2">
+                                @if (auth()->user()->role === 'cashier')
+                                    <button @click="editCustomer(customer)" type="button"
+                                        class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] transition-colors"
+                                        title="Edit">
+                                        <x-heroicon-m-pencil-square class="w-[21px] h-[21px] mb-0.5" />
+                                    </button>
+                                @endif
+                                <button @click="openCustomerDetail(customer.id)" type="button"
+                                    class="text-yellow-400 hover:text-yellow-500 transition-colors" title="Receipt">
+                                    <i class="fa-solid fa-receipt text-lg"></i>
+                                </button>
+                            </div>
                         </td>
+
                     </tr>
                 </template>
 
@@ -147,7 +157,7 @@
             </tbody>
         </table>
     </div>
-    
+
     {{-- Alpine Pagination --}}
     <x-pagination />
 

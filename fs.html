@@ -1,367 +1,688 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>POS Cashier Selling Terminal</title>
-  <style>
-    :root {
-      --bg: #0b0f19;
-      --card: #111827;
-      --panel: #1f293d;
-      --border: #2d3748;
-      --text: #f3f4f6;
-      --muted: #9ca3af;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --green: #10b981;
-      --red: #ef4444;
-      --amber: #f59e0b;
-      --purple: #a855f7;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-
-    /* TOP CASHIER BAR */
-    header { background: var(--card); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-    .terminal-info { display: flex; gap: 12px; align-items: center; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; font-family: monospace; }
-    .badge-shop { background: rgba(59, 130, 246, 0.2); color: var(--accent); border: 1px solid var(--accent); }
-    .badge-term { background: rgba(168, 85, 247, 0.2); color: var(--purple); border: 1px solid var(--purple); }
-
-    /* MAIN POS LAYOUT */
-    .pos-container { display: grid; grid-template-columns: 1fr 380px; flex: 1; overflow: hidden; }
-
-    /* LEFT: PRODUCT CATALOG */
-    .catalog-section { padding: 16px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
-    
-    .search-bar { display: flex; gap: 10px; }
-    .search-bar input { flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 6px; font-size: 14px; outline: none; }
-    .search-bar input:focus { border-color: var(--accent); }
-
-    .category-pills { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-    .pill { background: var(--card); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; color: var(--muted); }
-    .pill.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: 600; }
-
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
-    
-    .product-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; transition: transform 0.1s, border-color 0.1s; }
-    .product-card:hover { border-color: var(--accent); }
-    .product-header { display: flex; justify-content: space-between; align-items: flex-start; }
-    .product-title { font-size: 14px; font-weight: 600; }
-    .product-sku { font-size: 11px; color: var(--muted); font-family: monospace; }
-    
-    /* UOM SELECTOR INSIDE CARD */
-    .uom-control { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
-    .uom-control label { font-size: 10px; color: var(--muted); text-transform: uppercase; font-weight: 700; }
-    .uom-select { background: var(--panel); border: 1px solid var(--border); color: var(--accent); padding: 6px; border-radius: 4px; font-size: 12px; font-weight: 600; outline: none; cursor: pointer; }
-
-    .product-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
-    .product-price { font-size: 16px; font-weight: 700; color: var(--green); font-family: monospace; }
-    .btn-add { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
-    .btn-add:hover { background: var(--accent-hover); }
-
-    /* RIGHT: CART & BILLING */
-    .cart-section { background: var(--card); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
-    .cart-header { padding: 14px; border-bottom: 1px solid var(--border); font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-    
-    .cart-items { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-    .cart-item { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-    .cart-item-top { display: flex; justify-content: space-between; font-weight: 600; font-size: 13px; }
-    .cart-item-uom { font-size: 11px; color: var(--purple); font-weight: 600; }
-    .cart-item-bottom { display: flex; justify-content: space-between; align-items: center; }
-    
-    .qty-controls { display: flex; align-items: center; gap: 6px; }
-    .btn-qty { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
-    .qty-val { font-family: monospace; font-size: 13px; width: 24px; text-align: center; }
-
-    /* BILLING SUMMARY */
-    .cart-summary { padding: 16px; border-top: 1px solid var(--border); background: var(--panel); display: flex; flex-direction: column; gap: 10px; }
-    .summary-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
-    .summary-row.total { font-size: 18px; font-weight: 700; color: var(--text); border-top: 1px solid var(--border); padding-top: 10px; }
-    .total-val { color: var(--green); font-family: monospace; }
-
-    .btn-checkout { background: var(--green); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase; margin-top: 6px; }
-    .btn-checkout:hover { opacity: 0.9; }
-    .btn-clear { background: rgba(239, 68, 68, 0.15); color: var(--red); border: 1px solid var(--red); padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Breakdown Canvas & Analytics</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #090d16; }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glow-effect {
+            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.25);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    </style>
 </head>
-<body>
+<body class="text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
 
-  <!-- TOP TERMINAL HEADER -->
-  <header>
-    <div class="terminal-info">
-      <strong>POS Cashier Terminal</strong>
-      <span class="badge badge-shop">Branch: Outlet #01</span>
-      <span class="badge badge-term">Terminal: #T-01</span>
-    </div>
-    <div>
-      Cashier: <strong>Sokha</strong>
-    </div>
-  </header>
-
-  <!-- POS CONTENT GRID -->
-  <div class="pos-container">
-
-    <!-- LEFT CATALOG -->
-    <div class="catalog-section">
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Search product name or SKU..." onkeyup="renderCatalog()">
-      </div>
-
-      <div class="category-pills">
-        <div class="pill active" onclick="filterCategory('ALL', this)">All Products</div>
-        <div class="pill" onclick="filterCategory('Beverage', this)">Beverages</div>
-        <div class="pill" onclick="filterCategory('Bakery', this)">Bakery</div>
-        <div class="pill" onclick="filterCategory('Raw Material', this)">Raw Materials</div>
-      </div>
-
-      <div class="product-grid" id="productGrid"></div>
-    </div>
-
-    <!-- RIGHT CART -->
-    <div class="cart-section">
-      <div class="cart-header">
-        <span>Current Sale Cart</span>
-        <button class="btn-clear" onclick="clearCart()">Clear Cart</button>
-      </div>
-
-      <div class="cart-items" id="cartItems"></div>
-
-      <div class="cart-summary">
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <span id="subtotalVal">$0.00</span>
-        </div>
-        <div class="summary-row">
-          <span>Tax (0%)</span>
-          <span>$0.00</span>
-        </div>
-        <div class="summary-row total">
-          <span>Total Pay</span>
-          <span class="total-val" id="totalVal">$0.00</span>
-        </div>
-        <button class="btn-checkout" onclick="checkout()">Complete Sale</button>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    // PRODUCT MASTER DATA WITH MULTIPLE SELLING UOMs
-    const products = [
-      {
-        id: "PRD_001",
-        name: "Espresso Coffee Beans",
-        sku: "BE-001",
-        category: "Raw Material",
-        uomList: [
-          { uom: "Bag (1kg)", price: 18.00, ratio: 1 },
-          { uom: "Pack (250g)", price: 5.00, ratio: 0.25 },
-          { uom: "Box (10 Bags)", price: 170.00, ratio: 10 }
-        ]
-      },
-      {
-        id: "PRD_002",
-        name: "Iced Milk Tea",
-        sku: "BV-002",
-        category: "Beverage",
-        uomList: [
-          { uom: "Cup (500ml)", price: 2.50, ratio: 1 },
-          { uom: "Bottle (1L)", price: 4.50, ratio: 2 },
-          { uom: "Box (12 Cups)", price: 28.00, ratio: 12 }
-        ]
-      },
-      {
-        id: "PRD_003",
-        name: "Butter Croissant",
-        sku: "FD-001",
-        category: "Bakery",
-        uomList: [
-          { uom: "Piece", price: 2.00, ratio: 1 },
-          { uom: "Box (6 Pcs)", price: 11.00, ratio: 6 }
-        ]
-      },
-      {
-        id: "PRD_004",
-        name: "Matcha Powder",
-        sku: "BE-002",
-        category: "Raw Material",
-        uomList: [
-          { uom: "Can (500g)", price: 15.00, ratio: 1 },
-          { uom: "Carton (6 Cans)", price: 85.00, ratio: 6 }
-        ]
-      },
-      {
-        id: "PRD_005",
-        name: "Mineral Water",
-        sku: "BV-003",
-        category: "Beverage",
-        uomList: [
-          { uom: "Bottle (500ml)", price: 0.50, ratio: 1 },
-          { uom: "Pack (6 Bottles)", price: 2.70, ratio: 6 },
-          { uom: "Carton (24 Bottles)", price: 10.00, ratio: 24 }
-        ]
-      }
-    ];
-
-    let currentCategory = 'ALL';
-    let cart = [];
-
-    // RENDER PRODUCT CATALOG
-    function renderCatalog() {
-      const grid = document.getElementById('productGrid');
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      grid.innerHTML = '';
-
-      products.forEach(p => {
-        const matchCategory = currentCategory === 'ALL' || p.category === currentCategory;
-        const matchSearch = p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query);
-
-        if (matchCategory && matchSearch) {
-          const defaultUom = p.uomList[0];
-          
-          let uomOptionsHtml = p.uomList.map((u, index) => 
-            `<option value="${index}">${u.uom} - $${u.price.toFixed(2)}</option>`
-          ).join('');
-
-          grid.innerHTML += `
-            <div class="product-card">
-              <div>
-                <div class="product-header">
-                  <div class="product-title">${p.name}</div>
-                </div>
-                <div class="product-sku">${p.sku}</div>
+    <div id="app" class="flex-1 flex flex-col">
+        <!-- Top Navigation -->
+        <header class="border-b border-slate-800/80 bg-slate-950/80 sticky top-0 z-50 backdrop-blur-md px-4 lg:px-8 py-3.5">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
                 
-                <div class="uom-control">
-                  <label>Select Sell UOM:</label>
-                  <select class="uom-select" id="uom_select_${p.id}" onchange="updateCardPrice('${p.id}')">
-                    ${uomOptionsHtml}
-                  </select>
+                <!-- Logo & Workspace -->
+                <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                            <i class="fa-solid fa-chart-pie text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h1 class="font-bold text-white tracking-wide text-base">PayCanvas</h1>
+                                <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase">Demo</span>
+                            </div>
+                            <p class="text-xs text-slate-400">Payment Breakdown & Revenue Analytics</p>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Menu Indicator -->
+                    <div class="sm:hidden text-slate-400">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
                 </div>
-              </div>
 
-              <div class="product-footer">
-                <div class="product-price" id="price_${p.id}">$${defaultUom.price.toFixed(2)}</div>
-                <button class="btn-add" onclick="addToCart('${p.id}')">+ Add</button>
-              </div>
-            </div>
-          `;
-        }
-      });
-    }
+                <!-- Global Quick Stats & Controls -->
+                <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+                    <!-- Date Selector -->
+                    <div class="relative flex-1 sm:flex-initial">
+                        <select id="dateRangeSelect" onchange="updateDataRange(this.value)" class="w-full sm:w-auto bg-slate-900 border border-slate-800 text-xs font-medium text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500 cursor-pointer">
+                            <option value="30">Last 30 Days</option>
+                            <option value="7">Last 7 Days</option>
+                            <option value="90">This Quarter</option>
+                            <option value="365">Year to Date</option>
+                        </select>
+                    </div>
 
-    // UPDATE CARD PRICE BASED ON UOM SELECTOR
-    function updateCardPrice(productId) {
-      const p = products.find(prod => prod.id === productId);
-      const uomIndex = document.getElementById(`uom_select_${productId}`).value;
-      const selectedUom = p.uomList[uomIndex];
-      document.getElementById(`price_${productId}`).innerText = `$${selectedUom.price.toFixed(2)}`;
-    }
+                    <!-- Currency Switcher -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-1 flex items-center text-xs font-medium">
+                        <button onclick="setCurrency('USD')" id="currUSD" class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-semibold transition">USD ($)</button>
+                        <button onclick="setCurrency('EUR')" id="currEUR" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition">EUR (€)</button>
+                        <button onclick="setCurrency('GBP')" id="currGBP" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition">GBP (£)</button>
+                    </div>
 
-    // CATEGORY FILTER
-    function filterCategory(cat, element) {
-      currentCategory = cat;
-      document.querySelectorAll('.pill').forEach(el => el.classList.remove('active'));
-      element.classList.add('active');
-      renderCatalog();
-    }
-
-    // ADD TO CART WITH SELECTED UOM
-    function addToCart(productId) {
-      const p = products.find(prod => prod.id === productId);
-      const uomIndex = document.getElementById(`uom_select_${productId}`).value;
-      const selectedUom = p.uomList[uomIndex];
-
-      const cartKey = `${productId}_${selectedUom.uom}`;
-      const existing = cart.find(item => item.key === cartKey);
-
-      if (existing) {
-        existing.qty += 1;
-      } else {
-        cart.push({
-          key: cartKey,
-          productId: p.id,
-          name: p.name,
-          uom: selectedUom.uom,
-          price: selectedUom.price,
-          qty: 1
-        });
-      }
-
-      renderCart();
-    }
-
-    // QUANTITY ADJUSTMENTS
-    function changeQty(key, delta) {
-      const item = cart.find(i => i.key === key);
-      if (item) {
-        item.qty += delta;
-        if (item.qty <= 0) {
-          cart = cart.filter(i => i.key !== key);
-        }
-      }
-      renderCart();
-    }
-
-    // CLEAR CART
-    function clearCart() {
-      cart = [];
-      renderCart();
-    }
-
-    // RENDER CART SUMMARY
-    function renderCart() {
-      const cartContainer = document.getElementById('cartItems');
-      cartContainer.innerHTML = '';
-      let subtotal = 0;
-
-      if (cart.length === 0) {
-        cartContainer.innerHTML = `<div style="text-align:center; color: var(--muted); margin-top: 40px; font-size: 13px;">Cart is empty.<br>Select products to sell.</div>`;
-      } else {
-        cart.forEach(item => {
-          const itemTotal = item.price * item.qty;
-          subtotal += itemTotal;
-
-          cartContainer.innerHTML += `
-            <div class="cart-item">
-              <div class="cart-item-top">
-                <span>${item.name}</span>
-                <span style="font-family: monospace;">$${itemTotal.toFixed(2)}</span>
-              </div>
-              <div class="cart-item-uom">Sell Unit: ${item.uom}</div>
-              <div class="cart-item-bottom">
-                <span style="font-size: 11px; color: var(--muted);">$${item.price.toFixed(2)} / ${item.uom}</span>
-                <div class="qty-controls">
-                  <button class="btn-qty" onclick="changeQty('${item.key}', -1)">-</button>
-                  <span class="qty-val">${item.qty}</span>
-                  <button class="btn-qty" onclick="changeQty('${item.key}', 1)">+</button>
+                    <!-- Export Button -->
+                    <button onclick="showToast('Exporting breakdown dataset as CSV...')" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-medium px-3.5 py-2 rounded-xl flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-download text-slate-400"></i>
+                        <span class="hidden md:inline">Export</span>
+                    </button>
                 </div>
-              </div>
             </div>
-          `;
+        </header>
+
+        <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+            
+            <!-- Tab Navigation & Status Bar -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+                <nav class="flex space-x-1 bg-slate-950 p-1.5 rounded-xl border border-slate-800/80 self-start">
+                    <button onclick="switchTab('overview')" id="tab-overview" class="px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Overview</span>
+                    </button>
+                    <button onclick="switchTab('breakdown')" id="tab-breakdown" class="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-donut"></i>
+                        <span>Payment Breakdown</span>
+                    </button>
+                    <button onclick="switchTab('payouts')" id="tab-payouts" class="px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Payouts & Fees</span>
+                    </button>
+                </nav>
+
+                <div class="flex items-center space-x-3 text-xs text-slate-400">
+                    <span class="flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-slate-300 font-medium">Live Settlement Sync</span>
+                    </span>
+                    <span class="text-slate-700">•</span>
+                    <span>Updated 2 mins ago</span>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: Payment Breakdown (Focused 2-Column Single-Row Canvas) -->
+            <div id="breakdownTabContent">
+                
+                <!-- 2-COLUMN MAIN ROW GRID -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                    
+                    <!-- COLUMN 1 (LEFT): Interactive Donut Chart + Core KPI Summary Cards -->
+                    <div class="glass-panel rounded-2xl p-6 flex flex-col justify-between space-y-6 glow-effect">
+                        
+                        <!-- Card Header & Chart Controls -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                                    <i class="fa-solid fa-chart-pie text-indigo-400"></i>
+                                    <span>Method Breakdown</span>
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-0.5">Share distribution by volume or frequency</p>
+                            </div>
+
+                            <!-- Toggle metric mode (Volume vs Count) -->
+                            <div class="bg-slate-900 border border-slate-800 p-1 rounded-xl flex text-[11px] font-medium">
+                                <button onclick="toggleChartMode('volume')" id="btnChartVol" class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-semibold">Volume</button>
+                                <button onclick="toggleChartMode('count')" id="btnChartCount" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white">Count</button>
+                            </div>
+                        </div>
+
+                        <!-- Canvas Wrapper with Center Legend Overlay -->
+                        <div class="relative my-2 flex items-center justify-center min-h-[250px]">
+                            <div class="w-60 h-60 relative">
+                                <canvas id="paymentDonutChart"></canvas>
+                                
+                                <!-- Center Text Overlay -->
+                                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center p-2">
+                                    <span class="text-[10px] uppercase tracking-wider font-semibold text-slate-400" id="centerLabel">Total Volume</span>
+                                    <span class="text-xl font-extrabold text-white mt-0.5 tracking-tight" id="centerValue">$128,450</span>
+                                    <span class="text-[10px] text-indigo-400 font-medium mt-1 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full" id="centerSubtext">5 Payment Types</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mini Integrated 2x2 KPI Grid inside Column 1 -->
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <div class="glass-card rounded-xl p-3 flex flex-col justify-between">
+                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total Volume</span>
+                                <div class="text-lg font-bold text-white mt-1" id="metricTotalVol">$128,450.00</div>
+                                <span class="text-[10px] text-emerald-400 font-medium mt-0.5">+14.2% vs last month</span>
+                            </div>
+
+                            <div class="glass-card rounded-xl p-3 flex flex-col justify-between">
+                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Net Revenue</span>
+                                <div class="text-lg font-bold text-emerald-400 mt-1" id="metricNetRev">$124,812.20</div>
+                                <span class="text-[10px] text-slate-400 font-medium mt-0.5">Net yield rate 97.1%</span>
+                            </div>
+
+                            <div class="glass-card rounded-xl p-3 flex flex-col justify-between">
+                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total Fees</span>
+                                <div class="text-lg font-bold text-amber-400 mt-1" id="metricTotalFees">$3,637.80</div>
+                                <span class="text-[10px] text-slate-400 font-medium mt-0.5">Effective fee rate 2.83%</span>
+                            </div>
+
+                            <div class="glass-card rounded-xl p-3 flex flex-col justify-between">
+                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Transactions</span>
+                                <div class="text-lg font-bold text-white mt-1" id="metricTxCount">2,148</div>
+                                <span class="text-[10px] text-cyan-400 font-medium mt-0.5">99.4% settlement rate</span>
+                            </div>
+                        </div>
+
+                        <!-- Footer Quick Filter Controls -->
+                        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                            <span class="flex items-center space-x-1.5">
+                                <i class="fa-regular fa-lightbulb text-amber-400"></i>
+                                <span>Click slices to isolate channels</span>
+                            </span>
+                            <button onclick="resetChartFilter()" class="text-indigo-400 hover:text-indigo-300 font-medium text-xs">Reset Filters</button>
+                        </div>
+                    </div>
+
+                    <!-- COLUMN 2 (RIGHT): Category Share Distribution & Channel Settlement Table -->
+                    <div class="glass-panel rounded-2xl p-6 flex flex-col justify-between space-y-6">
+                        
+                        <!-- Top Half: Payment Categories Progress Bar Breakdown -->
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                                    <i class="fa-solid fa-sliders text-indigo-400"></i>
+                                    <span>Category Distribution</span>
+                                </h3>
+                                <span class="text-xs text-slate-400">Interactive Legend</span>
+                            </div>
+
+                            <div class="space-y-2.5" id="categoryListContainer">
+                                <!-- Dynamic category rows injected here -->
+                            </div>
+                        </div>
+
+                        <!-- Bottom Half: Itemized Settlement Channels Table -->
+                        <div class="pt-4 border-t border-slate-800/80 space-y-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-list-check text-indigo-400"></i>
+                                    <span>Settlement Channels</span>
+                                </h4>
+
+                                <!-- Table Search & Filters -->
+                                <div class="flex items-center space-x-2">
+                                    <div class="relative">
+                                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-[10px] text-slate-500"></i>
+                                        <input type="text" id="channelSearch" onkeyup="filterTable()" placeholder="Search..." class="bg-slate-900 border border-slate-800 text-[11px] text-slate-200 rounded-lg pl-7 pr-2 py-1 w-32 sm:w-40 focus:outline-none focus:border-indigo-500">
+                                    </div>
+                                    <select id="statusFilter" onchange="filterTable()" class="bg-slate-900 border border-slate-800 text-[11px] text-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-500">
+                                        <option value="all">All</option>
+                                        <option value="Settled">Settled</option>
+                                        <option value="Pending">Pending</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Table Container -->
+                            <div class="overflow-x-auto max-h-[220px] overflow-y-auto pr-1">
+                                <table class="w-full text-left text-[11px] text-slate-300">
+                                    <thead class="bg-slate-950/90 border-b border-slate-800 text-slate-400 uppercase tracking-wider sticky top-0 z-10">
+                                        <tr>
+                                            <th class="p-2.5 font-semibold rounded-l-lg">Channel</th>
+                                            <th class="p-2.5 font-semibold">Status</th>
+                                            <th class="p-2.5 font-semibold text-right">Fee Rate</th>
+                                            <th class="p-2.5 font-semibold text-right">Gross</th>
+                                            <th class="p-2.5 font-semibold text-right rounded-r-lg">Net</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="settlementTableBody" class="divide-y divide-slate-800/60 font-medium">
+                                        <!-- Dynamic rows injected by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                                <div id="tableRecordCount">Showing 5 channels</div>
+                                <span class="text-[10px] text-indigo-400">Live processing active</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- TAB CONTENT: Overview Tab (Hidden by default) -->
+            <div id="overviewTabContent" class="hidden space-y-6">
+                <div class="glass-panel rounded-2xl p-8 text-center space-y-4">
+                    <div class="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto border border-indigo-500/20">
+                        <i class="fa-solid fa-gauge-high text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">General Revenue Dashboard Overview</h3>
+                    <p class="text-sm text-slate-400 max-w-md mx-auto">This tab provides top-level KPI trends. Switch to the <button onclick="switchTab('breakdown')" class="text-indigo-400 underline font-semibold">Payment Breakdown</button> tab to explore the detailed donut visual and channel metrics.</p>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: Payouts Tab (Hidden by default) -->
+            <div id="payoutsTabContent" class="hidden space-y-6">
+                <div class="glass-panel rounded-2xl p-8 text-center space-y-4">
+                    <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/20">
+                        <i class="fa-solid fa-wallet text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Bank Payouts & Settlement Schedules</h3>
+                    <p class="text-sm text-slate-400 max-w-md mx-auto">Manage direct bank payout batches, ACH clearing schedules, and reserve holds.</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-slate-800/80 bg-slate-950 py-4 px-6 text-center text-xs text-slate-500 mt-auto">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+                <span>© 2026 PayCanvas Financial Engine Demo. All sample metrics synthetic.</span>
+                <div class="flex items-center space-x-4">
+                    <a href="#" onclick="showToast('Security compliance verified.')" class="hover:text-slate-400 transition">PCI-DSS Level 1</a>
+                    <a href="#" onclick="showToast('API docs ready.')" class="hover:text-slate-400 transition">API Specs</a>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Toast Notification Container -->
+        <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-700 text-slate-200 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-xs opacity-0 pointer-events-none transition-all duration-300 z-50 transform translate-y-2">
+            <i class="fa-solid fa-circle-info text-indigo-400 text-sm"></i>
+            <span id="toastMsg">Notification message</span>
+        </div>
+    </div>
+
+    <script>
+        // Core Payment Breakdown Dataset
+        const paymentCategories = [
+            { id: 'cards', label: 'Credit / Debit Cards', value: 58250, count: 980, color: '#6366f1', trend: '+12.4%', icon: 'fa-credit-card' },
+            { id: 'wallets', label: 'Digital Wallets', value: 36400, count: 640, color: '#38bdf8', trend: '+24.5%', icon: 'fa-mobile-screen' },
+            { id: 'bank', label: 'Bank Transfers (ACH)', value: 21500, count: 210, color: '#34d399', trend: '+5.1%', icon: 'fa-building-columns' },
+            { id: 'bnpl', label: 'Buy Now Pay Later (BNPL)', value: 7800, count: 198, color: '#a855f7', trend: '+18.2%', icon: 'fa-clock-rotate-left' },
+            { id: 'crypto', label: 'Crypto & Stablecoins', value: 4500, count: 120, color: '#f59e0b', trend: '-2.3%', icon: 'fa-bitcoin-sign' }
+        ];
+
+        const settlementChannels = [
+            { name: 'Stripe (Visa / Mastercard)', cat: 'cards', status: 'Settled', feeRate: '2.9% + $0.30', count: 720, gross: 42800, fee: 1457.20, dot: 'bg-indigo-500' },
+            { name: 'Adyen Global Cards', cat: 'cards', status: 'Settled', feeRate: '2.6% + $0.20', count: 260, gross: 15450, fee: 453.70, dot: 'bg-indigo-400' },
+            { name: 'Apple Pay & Google Pay', cat: 'wallets', status: 'Settled', feeRate: '1.5% + $0.15', count: 640, gross: 36400, fee: 642.00, dot: 'bg-sky-400' },
+            { name: 'Plaid Direct ACH Wire', cat: 'bank', status: 'Settled', feeRate: '$0.50 Flat', count: 210, gross: 21500, fee: 105.00, dot: 'bg-emerald-400' },
+            { name: 'Klarna Checkout', cat: 'bnpl', status: 'Pending', feeRate: '3.29% + $0.30', count: 198, gross: 7800, fee: 315.90, dot: 'bg-purple-400' },
+            { name: 'Solana / USDC Pay', cat: 'crypto', status: 'Settled', feeRate: '0.50% Flat', count: 120, gross: 4500, fee: 22.50, dot: 'bg-amber-400' }
+        ];
+
+        // Global State
+        let currentCurrency = 'USD';
+        let currencySymbol = '$';
+        let currencyMultiplier = 1.0;
+        let chartMode = 'volume'; // 'volume' or 'count'
+        let chartInstance = null;
+        let activeCategoryFilter = null;
+
+        // Currency Switcher
+        function setCurrency(curr) {
+            currentCurrency = curr;
+            document.querySelectorAll('#currUSD, #currEUR, #currGBP').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'font-semibold');
+                btn.classList.add('text-slate-400');
+            });
+
+            if (curr === 'USD') {
+                currencySymbol = '$';
+                currencyMultiplier = 1.0;
+                document.getElementById('currUSD').classList.add('bg-indigo-600', 'text-white', 'font-semibold');
+            } else if (curr === 'EUR') {
+                currencySymbol = '€';
+                currencyMultiplier = 0.92;
+                document.getElementById('currEUR').classList.add('bg-indigo-600', 'text-white', 'font-semibold');
+            } else if (curr === 'GBP') {
+                currencySymbol = '£';
+                currencyMultiplier = 0.79;
+                document.getElementById('currGBP').classList.add('bg-indigo-600', 'text-white', 'font-semibold');
+            }
+
+            updateMetrics();
+            updateChart();
+            renderCategoryList();
+            renderTable();
+            showToast(`Currency switched to ${curr}`);
+        }
+
+        function formatMoney(amount) {
+            const converted = amount * currencyMultiplier;
+            return currencySymbol + converted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function toggleChartMode(mode) {
+            chartMode = mode;
+            const btnVol = document.getElementById('btnChartVol');
+            const btnCount = document.getElementById('btnChartCount');
+
+            if (mode === 'volume') {
+                btnVol.className = 'px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-semibold';
+                btnCount.className = 'px-2.5 py-1 rounded-lg text-slate-400 hover:text-white';
+                document.getElementById('centerLabel').innerText = 'Total Volume';
+            } else {
+                btnCount.className = 'px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-semibold';
+                btnVol.className = 'px-2.5 py-1 rounded-lg text-slate-400 hover:text-white';
+                document.getElementById('centerLabel').innerText = 'Total Tx Count';
+            }
+
+            updateChart();
+            renderCategoryList();
+        }
+
+        // Calculate Totals
+        function getTotalVolume() {
+            return paymentCategories.reduce((acc, c) => acc + c.value, 0);
+        }
+
+        function getTotalCount() {
+            return paymentCategories.reduce((acc, c) => acc + c.count, 0);
+        }
+
+        // Update KPI Top Metrics Bar
+        function updateMetrics() {
+            const totalVol = getTotalVolume();
+            const totalFees = 3637.80;
+            const netRev = totalVol - totalFees;
+            const totalCount = getTotalCount();
+
+            document.getElementById('metricTotalVol').innerText = formatMoney(totalVol);
+            document.getElementById('metricNetRev').innerText = formatMoney(netRev);
+            document.getElementById('metricTotalFees').innerText = formatMoney(totalFees);
+            document.getElementById('metricTxCount').innerText = totalCount.toLocaleString();
+
+            // Center overlay text
+            if (chartMode === 'volume') {
+                document.getElementById('centerValue').innerText = formatMoney(totalVol).split('.')[0];
+            } else {
+                document.getElementById('centerValue').innerText = totalCount.toLocaleString();
+            }
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('paymentDonutChart').getContext('2d');
+            
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: paymentCategories.map(c => c.label),
+                    datasets: [{
+                        data: paymentCategories.map(c => chartMode === 'volume' ? c.value : c.count),
+                        backgroundColor: paymentCategories.map(c => c.color),
+                        borderWidth: 0,
+                        hoverOffset: 12,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '76%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            padding: 12,
+                            displayColors: true,
+                            boxWidth: 8,
+                            boxPadding: 4,
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.raw;
+                                    if (chartMode === 'volume') {
+                                        const pct = ((val / getTotalVolume()) * 100).toFixed(1);
+                                        return ` Volume: ${formatMoney(val)} (${pct}%)`;
+                                    } else {
+                                        const pct = ((val / getTotalCount()) * 100).toFixed(1);
+                                        return ` Transactions: ${val.toLocaleString()} (${pct}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    onClick: (e, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const cat = paymentCategories[index];
+                            filterByCategory(cat.id);
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            if (!chartInstance) return;
+            chartInstance.data.datasets[0].data = paymentCategories.map(c => chartMode === 'volume' ? c.value * currencyMultiplier : c.count);
+            chartInstance.update();
+
+            const totalVol = getTotalVolume();
+            const totalCount = getTotalCount();
+            document.getElementById('centerValue').innerText = chartMode === 'volume' 
+                ? formatMoney(totalVol).split('.')[0] 
+                : totalCount.toLocaleString();
+        }
+
+        function renderCategoryList() {
+            const container = document.getElementById('categoryListContainer');
+            container.innerHTML = '';
+
+            const total = chartMode === 'volume' ? getTotalVolume() : getTotalCount();
+
+            paymentCategories.forEach(cat => {
+                const currentVal = chartMode === 'volume' ? cat.value : cat.count;
+                const pct = ((currentVal / total) * 100).toFixed(1);
+                const displayVal = chartMode === 'volume' ? formatMoney(cat.value) : `${cat.count.toLocaleString()} txs`;
+                const isSelected = activeCategoryFilter === cat.id;
+
+                const card = document.createElement('div');
+                card.className = `p-3.5 rounded-xl border transition cursor-pointer flex flex-col space-y-2 ${isSelected ? 'bg-indigo-950/40 border-indigo-500' : 'bg-slate-950/40 border-slate-800/80 hover:border-slate-700'}`;
+                card.onclick = () => filterByCategory(cat.id);
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${cat.color}"></span>
+                            <i class="fa-solid ${cat.icon} text-slate-400 text-xs w-4 text-center"></i>
+                            <span class="text-xs font-semibold text-slate-200">${cat.label}</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xs font-bold text-white">${displayVal}</span>
+                            <span class="text-[10px] font-medium text-slate-400 w-10 text-right">${pct}%</span>
+                        </div>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-800/80 h-1.5 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500" style="width: ${pct}%; background-color: ${cat.color}"></div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('settlementTableBody');
+            tbody.innerHTML = '';
+
+            const searchVal = document.getElementById('channelSearch').value.toLowerCase();
+            const statusVal = document.getElementById('statusFilter').value;
+
+            const filtered = settlementChannels.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(searchVal);
+                const matchesStatus = statusVal === 'all' || item.status === statusVal;
+                const matchesCategory = !activeCategoryFilter || item.cat === activeCategoryFilter;
+                return matchesSearch && matchesStatus && matchesCategory;
+            });
+
+            document.getElementById('tableRecordCount').innerText = `Showing ${filtered.length} of ${settlementChannels.length} channels`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="p-8 text-center text-slate-500">
+                            No channels match the active filters.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filtered.forEach(row => {
+                const catObj = paymentCategories.find(c => c.id === row.cat);
+                const net = row.gross - row.fee;
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/30 transition';
+                tr.innerHTML = `
+                    <td class="p-3.5 font-semibold text-white flex items-center space-x-2.5">
+                        <span class="w-2.5 h-2.5 rounded-full ${row.dot}"></span>
+                        <span>${row.name}</span>
+                    </td>
+                    <td class="p-3.5 text-slate-400 text-xs">${catObj ? catObj.label : row.cat}</td>
+                    <td class="p-3.5">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${row.status === 'Settled' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+                            ${row.status}
+                        </span>
+                    </td>
+                    <td class="p-3.5 text-right text-slate-400 font-mono text-[11px]">${row.feeRate}</td>
+                    <td class="p-3.5 text-right font-medium text-slate-300">${row.count.toLocaleString()}</td>
+                    <td class="p-3.5 text-right font-semibold text-white">${formatMoney(row.gross)}</td>
+                    <td class="p-3.5 text-right text-amber-400">${formatMoney(row.fee)}</td>
+                    <td class="p-3.5 text-right font-bold text-emerald-400">${formatMoney(net)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Interactive Category Filter Trigger
+        function filterByCategory(catId) {
+            if (activeCategoryFilter === catId) {
+                activeCategoryFilter = null;
+                showToast('Reset category filter');
+            } else {
+                activeCategoryFilter = catId;
+                const cat = paymentCategories.find(c => c.id === catId);
+                showToast(`Filtered by ${cat ? cat.label : catId}`);
+            }
+            renderCategoryList();
+            renderTable();
+        }
+
+        function resetChartFilter() {
+            activeCategoryFilter = null;
+            document.getElementById('channelSearch').value = '';
+            document.getElementById('statusFilter').value = 'all';
+            renderCategoryList();
+            renderTable();
+            showToast('All breakdown filters cleared');
+        }
+
+        function filterTable() {
+            renderTable();
+        }
+
+        // Date Range Selector Handler
+        function updateDataRange(days) {
+            showToast(`Metrics recalculated for last ${days} days`);
+            // Dynamic scale simulate
+            const factor = days / 30;
+            paymentCategories.forEach(c => {
+                c.value = Math.round((c.value / (c.tempDays || 1)) * factor);
+                c.tempDays = factor;
+            });
+            updateMetrics();
+            updateChart();
+            renderCategoryList();
+            renderTable();
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('#tab-overview, #tab-breakdown, #tab-payouts').forEach(b => {
+                b.className = 'px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center space-x-2';
+            });
+
+            document.getElementById('overviewTabContent').classList.add('hidden');
+            document.getElementById('breakdownTabContent').classList.add('hidden');
+            document.getElementById('payoutsTabContent').classList.add('hidden');
+
+            if (tab === 'overview') {
+                document.getElementById('tab-overview').className = 'px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2';
+                document.getElementById('overviewTabContent').classList.remove('hidden');
+            } else if (tab === 'breakdown') {
+                document.getElementById('tab-breakdown').className = 'px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2';
+                document.getElementById('breakdownTabContent').classList.remove('hidden');
+            } else if (tab === 'payouts') {
+                document.getElementById('tab-payouts').className = 'px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 transition flex items-center space-x-2';
+                document.getElementById('payoutsTabContent').classList.remove('hidden');
+            }
+        }
+
+        // Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+            }, 2500);
+        }
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            updateMetrics();
+            renderCategoryList();
+            renderTable();
         });
-      }
-
-      document.getElementById('subtotalVal').innerText = `$${subtotal.toFixed(2)}`;
-      document.getElementById('totalVal').innerText = `$${subtotal.toFixed(2)}`;
-    }
-
-    // CHECKOUT SIMULATION
-    function checkout() {
-      if (cart.length === 0) {
-        alert("Cart is empty!");
-        return;
-      }
-      const total = document.getElementById('totalVal').innerText;
-      alert(`Sale completed successfully!\nTotal Received: ${total}`);
-      clearCart();
-    }
-
-    // INITIAL RENDER
-    renderCatalog();
-    renderCart();
-  </script>
+    </script>
 </body>
 </html>

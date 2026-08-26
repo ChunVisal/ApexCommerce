@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('cashier_id')->constrained('users');
             $table->integer('allocated_quantity');
             $table->integer('sold_quantity')->default(0);
+            $table->integer('lost_quantity')->default(0);
             $table->foreignId('allocated_by')->constrained('users');
             $table->timestamps();
         });

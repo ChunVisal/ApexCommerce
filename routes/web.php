@@ -103,31 +103,31 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 });
 
 // Cashier Routes
-Route::middleware(['auth', 'role:cashier'])->group(function () {
+Route::middleware(['auth', 'role:cashier'])->prefix('cashier')->group(function () {
 
-    Route::get('/cashier/pos', [PosController::class, 'pos'])->name('cashier.pos');
-    Route::post('/cashier/checkout', [PosController::class, 'checkout'])->name('cashier.checkout');
+    Route::get('/pos', [PosController::class, 'pos'])->name('cashier.pos');
+    Route::post('/checkout', [PosController::class, 'checkout'])->name('cashier.checkout');
 
-    Route::get('/cashier/notifications', [NotificationController::class, 'cashierIndex'])->name('cashier.notifications');
-    Route::post('/cashier/notifications/mark-read', [NotificationController::class, 'cashierMarkAllRead'])->name('cashier.notifications.markRead');
-    Route::post('/cashier/notifications/{id}/mark-read', [NotificationController::class, 'cashierMarkSingleRead'])->name('cashier.notifications.markSingleRead');
+    Route::get('/notifications', [NotificationController::class, 'cashierIndex'])->name('cashier.notifications');
+    Route::post('/notifications/mark-read', [NotificationController::class, 'cashierMarkAllRead'])->name('cashier.notifications.markRead');
+    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'cashierMarkSingleRead'])->name('cashier.notifications.markSingleRead');
 
-    Route::get('/cashier/customers/search', [CashierCustomerController::class, 'search']);
-    Route::post('/cashier/customers', [CashierCustomerController::class, 'store']);
-    Route::get('/cashier/customers', [CashierCustomerController::class, 'index'])->name('cashier.customers');
-    Route::get('/cashier/customers/export', [CashierCustomerController::class, 'export'])->name('cashier.customers.export');
-    Route::put('/cashier/customers/{id}', [CashierCustomerController::class, 'update']);
-    Route::get('/cashier/customers/{id}', [CashierCustomerController::class, 'show'])->name('cashier.customers.show');
+    Route::get('/customers/search', [CashierCustomerController::class, 'search']);
+    Route::post('/customers', [CashierCustomerController::class, 'store']);
+    Route::get('/customers', [CashierCustomerController::class, 'index'])->name('cashier.customers');
+    Route::get('/customers/export', [CashierCustomerController::class, 'export'])->name('cashier.customers.export');
+    Route::put('/customers/{id}', [CashierCustomerController::class, 'update']);
+    Route::get('/customers/{id}', [CashierCustomerController::class, 'show'])->name('cashier.customers.show');
 
-    Route::get('/cashier/products', [CashierProductController::class, 'index'])->name('cashier.products');
-    Route::post('/cashier/stock-loss', [CashierProductController::class, 'reportLoss']);
-    Route::post('/cashier/stock-request', [StockActivityController::class, 'store']);
-    Route::post('/cashier/stock-request/bulk', [StockActivityController::class, 'bulkProductRequest']);
+    Route::get('/products', [CashierProductController::class, 'index'])->name('cashier.products');
+    Route::post('/stock-loss', [CashierProductController::class, 'reportLoss']);
+    Route::post('/stock-request', [StockActivityController::class, 'store']);
+    Route::post('/stock-request/bulk', [StockActivityController::class, 'bulkProductRequest']);
 
-    Route::get('/cashier/orders/export', [OrderController::class, 'export'])->name('cashier.orders.export');
-    Route::get('/cashier/orders', [OrderController::class, 'index'])->name('cashier.orders');
-    Route::get('/cashier/orders/{id}', [OrderController::class, 'show'])->name('cashier.orders.show');
-    Route::post('/cashier/orders/{id}/refund', [OrderController::class, 'refund']);
+    Route::get('/orders/export', [OrderController::class, 'export'])->name('cashier.orders.export');
+    Route::get('/orders', [OrderController::class, 'index'])->name('cashier.orders');
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('cashier.orders.show');
+    Route::post('/orders/{id}/refund', [OrderController::class, 'refund']);
 });
 
 // Auth routes (already there)

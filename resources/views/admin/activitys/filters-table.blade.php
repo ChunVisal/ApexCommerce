@@ -1,7 +1,7 @@
 {{-- Filters --}}
 <div class="flex flex-wrap gap-3 mb-4">
     {{-- Search --}}
-    <x-search-input placeholder="Search activities..."/>
+    <x-search-input placeholder="Search activities..." />
 
     <div class="relative" class="">
         <select x-model="filterUser"
@@ -51,12 +51,20 @@
         <div
             class="border-b border-gray-200/80 dark:border-zinc-700 overflow-hidden flex items-start gap-2 py-5 px-2 dark:border-zinc-900/80 hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
             <!-- Avatar -->
-            <div class="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0"
-                :style="`background: ${activity.user && activity.user.role === 'admin' ? '#8B5CF6' : '#0F6E8C'}`">
-                <template x-if="activity.user_name">
-                    <span x-text="activity.user_name.charAt(0).toUpperCase()"></span>
+            <div
+                class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 ring-2 ring-white dark:ring-zinc-800 overflow-hidden bg-white">
+                <template x-if="activity.user && activity.user.avatar">
+                    <img :src="activity.user.avatar" alt="" class="w-full h-full object-cover" />
+                </template>
+                <template x-if="!(activity.user && activity.user.avatar)">
+                    <span
+                        class="bg-gradient-to-tr from-indigo-500 to-cyan-700 w-full h-full flex items-center justify-center text-white text-sm font-semibold"
+                        :style="`background: ${activity.user && activity.user.role === 'admin' ? '#8B5CF6' : '#0F6E8C'}`">
+                        <span x-text="activity.user_name ? activity.user_name.charAt(0).toUpperCase() : '?'"></span>
+                    </span>
                 </template>
             </div>
+
 
             <div class="flex-1 min-w-0">
                 <p class="text-sm text-gray-800 dark:text-zinc-200">

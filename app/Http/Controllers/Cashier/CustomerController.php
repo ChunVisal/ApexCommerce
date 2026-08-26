@@ -37,20 +37,68 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['name' => 'required', 'phone' => 'required|unique:customers']);
-        $customer = Customer::create($request->all());
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|unique:customers,phone',
+            'email' => 'nullable|email',
+        ]);
 
-        return response()->json(['customer' => $customer]);
+        $lastCustomer = Customer::whereNotNull('code')->orderByDesc('code')->first();
+        $nextNumber = $lastCustomer
+            ? intval(substr($lastCustomer->code, 5)) + 1
+            : 1;
+        $customerCode = 'CUST-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+
+        $customer = Customer::create([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'segment' => 'new',
+            'code' => $customerCode,
+        ]);
+
+        ActivityService::log(
+            'customer_created',
+            Auth::user()->name . ' added customer: ' . $customer->name,
+            'Customers',
+            'info'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => $customer->name . ' added successfully',
+            'customer' => $customer,
+        ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $customer = Customer::findOrFail($id);
 
-        $request->validate(['name' => 'required', 'phone' => 'required|unique:customers']);
-        $customer->update($request->all(['name', 'phone', 'emial']));
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|unique:customers,phone,' . $customer->id,
+            'email' => 'nullable|email',
+        ]);
 
-        return response()->json(['customer' => $customer]);
+        $customer->update([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'email' => $request->email,
+        ]);
+
+        ActivityService::log(
+            'customer_updated',
+            Auth::user()->name . ' updated customer: ' . $customer->name,
+            'Customers',
+            'info'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => $customer->name . ' updated successfully',
+            'customer' => $customer,
+        ]);
     }
 
     public function show(int $id)

@@ -76,10 +76,11 @@ class DashboardService
         ];
     }
 
-    public static function getSalesChart($start = null, $end = null)
+    public static function getSalesChart($start, $end)
     {
-        $start = $start ? Carbon::parse($start) : now()->subDays(13);
-        $end = $end ? Carbon::parse($end) : now();
+        $start = Carbon::parse($start);
+        $end = Carbon::parse($end);
+
         $totalRevenue = Order::where('status', '!=', 'refunded')
             ->whereBetween('created_at', [$start, $end])
             ->sum('total');
@@ -103,17 +104,26 @@ class DashboardService
         ];
     }
 
-    public static function getPaymentBreakdown()
+    public static function getPaymentBreakdown($start, $end)
     {
-        $cash = Payment::where('method', 'cash')->count();
-        $card = Payment::where('method', 'card')->count();
-        $khqr = Payment::where('method', 'khqr')->count();
-        $total = $cash + $card + $khqr ?: 1;
+        $start = Carbon::parse($start);
+        $end = Carbon::parse($end);
+
+        $cash = Payment::where('method', 'cash')
+            ->whereBetween('created_at', [$start, $end])
+            ->count();
+        $card = Payment::where('method', 'card')
+            ->whereBetween('created_at', [$start, $end])
+            ->count();
+        $khqr = Payment::where('method', 'khqr')
+            ->whereBetween('created_at', [$start, $end])
+            ->count();
+        $total = ($cash + $card + $khqr) ?: 1;
 
         return [
-            'cash' => round(($cash / $total) * 100),
-            'card' => round(($card / $total) * 100),
-            'khqr' => round(($khqr / $total) * 100),
+            'cash' => $cash,
+            'card' => $card,
+            'khqr' => $khqr,
         ];
     }
 

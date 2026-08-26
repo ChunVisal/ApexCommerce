@@ -4,7 +4,17 @@
         <h1 class="text-xl font-bold text-gray-800 dark:text-zinc-100">Customers</h1>
         <p class="text-xs text-gray-500 dark:text-zinc-400">Manage your customer relationships and loyalty</p>
     </div>
-    <x-export-button :route="$exportRoute" />
+    <div class="flex gap-2">
+        @if (auth()->user()->role === 'cashier')
+            <button
+                @click="editMode = false; customerForm = { id: null, name: '', phone: '', email: '' }; customerPanelOpen = true"
+                class="px-3 py-1.5 text-sm font-medium rounded-md bg-p text-gray-100 flex items-center gap-2">
+                <x-heroicon-o-plus class="w-4 h-4" />
+                Add Customer
+            </button>
+        @endif
+        <x-export-button :route="$exportRoute" />
+    </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">

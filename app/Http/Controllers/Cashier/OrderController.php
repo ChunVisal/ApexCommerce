@@ -56,6 +56,7 @@ class OrderController extends Controller
             'reason' => 'required|string',
             'items' => 'required|array|min:1',
             'items.*.order_item_id' => 'required|exists:order_items,id',
+            'items.*.quantity' => 'required|integer|min:1',
             'items.*.restock' => 'required|boolean',
         ]);
 
@@ -71,8 +72,11 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Invalid item for this order'], 400);
             }
 
-            if ($item->is_refunded) {
-                return response()->json(['message' => $item->name . ' has already been refunded'], 400);
+            $alreadyRefunded = $item->refunded_quantity ?? 0;
+            $remainingRefundable = $item->quantity - $alreadyRefunded;
+
+            if ($refundItem['quantity'] > $remainingRefundable) {
+                return response()->json(['success' => false, 'message' => $item->name . ' only has ' . $remainingRefundable . ' unit(s) left to refund'], 400);
             }
         }
 
@@ -85,6 +89,7 @@ class OrderController extends Controller
                 // then restock items to specfic cashier_id allocation
                 $item = $order->items->firstWhere('id', $refundItem['order_item_id']);
                 $restock = $refundItem['restock'];   // THIS item's own restock choice
+                $refundQty = $refundItem['quantity'];
 
                 $cashierStock = CashierStock::where('cashier_id', $order->cashier_id)
                     ->where('product_id', $item->product_id)
@@ -92,7 +97,7 @@ class OrderController extends Controller
 
                 if ($cashierStock) {
                     // if restock increase stock qty
-                    $cashierStock->decrement('sold_quantity', $item->quantity);
+                    $cashierStock->decrement('sold_quantity', $refundQty);
 
                     // prevent maybe someone edits the database by hand, some new feature bug
                     if (!$restock) {
@@ -112,7 +117,7 @@ class OrderController extends Controller
                 StockMovement::create([
                     'product_id' => $item->product_id,
                     'type' => $movementType,
-                    'quantity' => $item->quantity,
+                    'quantity' => $refundQty,
                     'balance' => $cashierStock
                         ? $cashierStock->allocated_quantity - $cashierStock->sold_quantity - $cashierStock->lost_quantity
                         : 0,
@@ -121,9 +126,13 @@ class OrderController extends Controller
                     'user_id' => Auth::id(),
                 ]);
 
+
+                // Track the NEW total refunded quantity for this item
+                $newRefundedTotal = ($item->refunded_quantity ?? 0) + $refundQty;
                 // NEW — mark THIS specific item as refunded, so it can't be refunded again later
                 $item->update([
-                    'is_refunded' => true,
+                    'refunded_quantity' => $newRefundedTotal,
+                    'is_refunded' => $newRefundedTotal >= $item->quantity,
                     'refund_type' => $restock ? 'restock' : 'broken',
                 ]);
 
@@ -132,7 +141,7 @@ class OrderController extends Controller
                     StockActivity::create([
                         'cashier_id' => $order->cashier_id,
                         'product_id' => $item->product_id,
-                        'quantity_requested' => $item->quantity,
+                        'quantity_requested' => $refundQty,
                         'quantity_approved' => $item->quantity,
                         'status' => 'refunded',
                         'cashier_notes' => 'Order ' . $order->order_number . ' refunded: ' . $request->reason,
@@ -154,7 +163,11 @@ class OrderController extends Controller
             $refundedItems = $order->items()->where('is_refunded', true)->count();
 
             // Recalculate remaining totals based on what's LEFT (non-refunded items only)
-            $remainingSubtotal = $order->items()->where('is_refunded', false)->sum('total');
+            $remainingSubtotal = $order->items->sum(function ($item) {
+                $unrefundedQty = $item->quantity - $item->refunded_quantity;
+                $unitPrice = $item->price;
+                return $unrefundedQty * $unitPrice;
+            });
 
             $taxRate = \App\Models\Setting::get('tax_rate', 10) / 100;
             $remainingDiscount = $order->subtotal > 0 ? ($order->discount / $order->subtotal) * $remainingSubtotal : 0;

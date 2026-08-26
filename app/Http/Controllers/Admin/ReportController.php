@@ -20,6 +20,7 @@ class ReportController extends Controller
         $dailySales = ReportService::getDailySales($start, $end);
         $topCashiers = ReportService::getTopCashiers($start, $end);
         $paymentBreakdown = ReportService::getPaymentBreakdown($start, $end);
+        $paymentSummary = ReportService::getPaymentSummaryCards($start, $end);
         $orders = ReportService::getOrders($start, $end);
 
         return view('admin.reports.index', compact(
@@ -28,6 +29,7 @@ class ReportController extends Controller
             'orders',
             'topCashiers',
             'paymentBreakdown',
+            'paymentSummary',
             'start',
             'end'
         ));

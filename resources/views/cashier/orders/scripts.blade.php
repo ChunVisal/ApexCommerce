@@ -28,7 +28,8 @@
                 this.refundOrderItems.forEach(item => {
                     this.refundSelection[item.id] = {
                         selected: false,
-                        broken: false
+                        broken: false,
+                        quantity: 0,
                     };
                 });
 
@@ -41,10 +42,13 @@
                 this.refundOpen = true;
             },
 
-            toggleRefundItem(itemId) {
+            toggleRefundItem(itemId, maxQty) {
                 this.refundSelection[itemId].selected = !this.refundSelection[itemId].selected;
-                if (!this.refundSelection[itemId].selected) {
+                if (this.refundSelection[itemId].selected) {
+                    this.refundSelection[itemId].quantity = maxQty; // default to refunding ALL remaining units
+                } else {
                     this.refundSelection[itemId].broken = false;
+                    this.refundSelection[itemId].quantity = 0;
                 }
             },
 
@@ -57,9 +61,9 @@
                     .filter(([id, val]) => val.selected)
                     .map(([id, val]) => ({
                         order_item_id: parseInt(id),
+                        quantity: val.quantity,
                         restock: !val.broken,
                     }));
-
                 if (items.length === 0) {
                     this.$dispatch('toast', {
                         message: 'Please select at least one item to refund',
@@ -132,6 +136,7 @@
                                 qty: i.quantity,
                                 base_unit: i.base_unit || '',
                                 is_refunded: i.is_refunded || false,
+                                refunded_quantity: i.refunded_quantity || 0,
                             })),
                             subtotal: parseFloat(order.subtotal) || 0,
                             tax: parseFloat(order.tax) || 0,

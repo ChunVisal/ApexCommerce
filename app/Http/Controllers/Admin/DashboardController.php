@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\Admin\DashboardService;
+use App\Services\Admin\ReportService;
 use App\Services\Admin\ActivityService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,11 +14,14 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        $start = $request->start_date ?? now()->subDays(13);
+        $end = $request->end_date ?? now();
+
         $summaryCards = DashboardService::getSummaryCards();
         $topProducts = DashboardService::getTopProducts();
         $topCategories = DashboardService::getTopCategories();
-        $salesChart = DashboardService::getSalesChart($request->start_date, $request->end_date);
-        $paymentBreakdown = DashboardService::getPaymentBreakdown();
+        $salesChart = DashboardService::getSalesChart($start, $end);
+        $paymentBreakdown = DashboardService::getPaymentBreakdown($start, $end);
 
         return view('admin.dashboard.index', compact(
             'summaryCards',
