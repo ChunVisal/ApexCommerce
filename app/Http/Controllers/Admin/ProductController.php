@@ -252,6 +252,7 @@ class ProductController extends Controller
                 'cost_price' => 0,
                 'selling_price' => $request->price,
                 'stock_quantity' => $request->stock ?? 0,
+                'low_stock_threshold' => $request->low_stock_threshold ?? 5, 
                 'status' => $request->status ?? 'active',
                 'has_uom' => true,
                 'base_unit_name' => $request->base_unit_name,
@@ -292,7 +293,7 @@ class ProductController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Store UOM error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 

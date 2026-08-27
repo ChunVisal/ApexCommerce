@@ -44,6 +44,7 @@
         </main>
     </div>
     @stack('scripts')
+    @include('layouts.scripts')
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

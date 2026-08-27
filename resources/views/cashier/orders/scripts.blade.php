@@ -6,6 +6,14 @@
             receiptData: {},
             lastOrder: {},
 
+            searchQuery: '',
+            dateFilter: 'all',
+            paymentFilter: 'all',
+            orders: @json($orders),
+
+            currentPage: 1,
+            perPage: 15,
+
             // refound 
             refundOpen: false,
             refundOrderId: null,
@@ -16,6 +24,76 @@
             refundOrderItems: [], // NEW
             refundSelection: {},
             restockItems: true,
+
+            get filteredOrders() {
+                let result = [...this.orders];
+
+                // Search filter
+                if (this.searchQuery) {
+                    const q = this.searchQuery.toLowerCase();
+                    result = result.filter(o =>
+                        (o.order_number || '').toLowerCase().includes(q) ||
+                        (o.customer?.name || '').toLowerCase().includes(q)
+                    );
+                }
+
+                // Payment filter
+                if (this.paymentFilter !== 'all') {
+                    result = result.filter(o => o.payment?.method === this.paymentFilter);
+                }
+                return result;
+            },
+
+            get totalPages() {
+                return Math.ceil(this.filteredOrders.length / this.perPage);
+            },
+
+            get showingText() {
+                const start = (this.currentPage - 1) * this.perPage + 1;
+                const end = Math.min(this.currentPage * this.perPage, this.filteredOrders.length);
+                return `Showing ${start}-${end} of ${this.filteredOrders.length} entries`;
+            },
+            get pageNumbers() {
+                const pages = [];
+                for (let i = 1; i <= this.totalPages; i++) {
+                    if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage +
+                            2)) pages.push(i);
+                    else if (pages[pages.length - 1] !== '...') pages.push('...');
+                }
+                return pages;
+            },
+            prevPage() {
+                if (this.currentPage > 1) this.currentPage--;
+            },
+            nextPage() {
+                if (this.currentPage < this.totalPages) this.currentPage++;
+            },
+            goToPage(page) {
+                if (typeof page === 'number') this.currentPage = page;
+                this.$nextTick(() => {
+                    const el = this.$refs.tableBody;
+                    if (el) el.scrollTop = 0;
+                });
+            },
+
+            searchOrders() {
+                fetch(
+                        `/cashier/orders?search=${encodeURIComponent(this.searchQuery)}&payment=${this.paymentFilter}&ajax=1`
+                    )
+                    .then(res => res.json())
+                    .then(data => {
+                        this.orders = data.orders;
+                    });
+            },
+
+            filterPayment(method) {
+                this.paymentFilter = method;
+                fetch(`/cashier/orders?payment=${method}&search=${encodeURIComponent(this.searchQuery)}&ajax=1`)
+                    .then(res => res.json())
+                    .then(data => {
+                        this.orders = data.orders;
+                    });
+            },
 
             refundOrder(id) {
                 const order = this.orders.find(o => o.id === id);
@@ -104,13 +182,24 @@
                             type: 'success'
                         });
 
+                        // Update refundOrderItems — what the slideover itself displays
                         items.forEach(refundItem => {
                             const item = this.refundOrderItems.find(i => i.id === refundItem.order_item_id);
                             if (item) {
-                                item.is_refunded = true;
+                                item.refunded_quantity = (item.refunded_quantity || 0) + refundItem
+                                    .quantity;
+                                item.is_refunded = item.refunded_quantity >= item.quantity;
                                 item.refund_type = refundItem.restock ? 'restock' : 'broken';
                             }
                         });
+
+                        const order = this.orders.find(o => o.id === this.refundOrderId);
+                        if (order) {
+                            const allFullyRefunded = this.refundOrderItems.every(i => i.is_refunded);
+                            order.total = data.total;
+                            order.status = allFullyRefunded ? 'refunded' : 'partially_refunded';
+                            order.refunded_at = data.refunded_at;
+                        }
 
                         this.refundOpen = false;
                     })

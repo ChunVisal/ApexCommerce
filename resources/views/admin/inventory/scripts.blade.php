@@ -110,8 +110,10 @@
             },
 
             getCashierStock() {
-                const stock = this.cashierStocks.find(s => s.product_id === this.dropForm.product_id && s.cashier_id ===
-                    this.dropForm.cashier_id);
+                const stock = this.cashierStocks.find(s =>
+                    s.product_id === this.dropForm.product_id &&
+                    String(s.cashier_id) === String(this.dropForm.cashier_id)
+                );
                 return stock ? stock.allocated_quantity - stock.sold_quantity : 0;
             },
 
@@ -149,7 +151,7 @@
                     }) => {
 
                         this.dropSubmitting = false;
-                        
+
                         if (!ok) {
                             this.$dispatch('toast', {
                                 message: data.message || 'Something went wrong',
@@ -164,6 +166,28 @@
                         });
 
                         this.stockDropOpen = false;
+
+                        // update warehouse product row
+                        const product = this.products.find(p => p.id === this.dropForm.product_id);
+                        if (product) product.stock_quantity = data.new_stock;
+
+                        this.stockMap[product?.code] = data.new_stock;
+
+                        // update cashier stock in real time
+                        const cashierStockEntry = this.cashierStocks.find(s =>
+                            s.product_id === this.dropForm.product_id &&
+                            String(s.cashier_id) === String(this.dropForm.cashier_id)
+                        );
+                        if (cashierStockEntry) {
+                            cashierStockEntry.allocated_quantity = data.cashier_allocated;
+                        } else {
+                            this.cashierStocks.push({
+                                cashier_id: this.dropForm.cashier_id,
+                                product_id: this.dropForm.product_id,
+                                allocated_quantity: data.cashier_allocated,
+                                sold_quantity: 0
+                            });
+                        }
 
                         if (this.dropForm.request_id) {
                             fetch('/admin/notifications/' + this.dropForm.request_id + '/approve', {
@@ -236,11 +260,16 @@
 
                         // find the matching product and update its stock directly
                         const product = this.products.find(p => p.code === this.form.product_code);
+
                         if (product) {
                             product.stock_quantity = data.new_stock;
                             product.low_stock_threshold = data.low_stock_threshold;
                             product.status = data.status;
                         }
+
+                        // these were only set once from PHP — must update manually now
+                        this.stockMap[this.form.product_code] = data.new_stock;
+                        this.thresholdMap[this.form.product_code] = data.low_stock_threshold;
 
                         this.open = false;
                     })

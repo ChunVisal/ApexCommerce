@@ -149,41 +149,42 @@
                         <div class="flex-1 min-w-0 space-y-0.5">
                             <p class="text-xs text-gray-800 dark:text-zinc-200 leading-snug break-words">
                                 @if ($isAdmin)
-                                    <span class="font-bold">{{ $notif->cashier->name }}</span>
+                                    <span class="font-bold whitespace-nowrap">{{ $notif->cashier->name }}</span>
                                     @if ($notif->status === 'loss_reported')
-                                        <span class="text-red-500 dark:text-red-400">reported loss of</span>
+                                        <span class="text-red-500 dark:text-red-400 whitespace-nowrap">reported loss of</span>
                                     @elseif ($notif->status === 'refunded')
                                         <span class="text-red-500 dark:text-red-400 whitespace-nowrap">refunded</span>
                                     @else
-                                        <span class="text-amber-600 dark:text-amber-400">requested</span>
+                                        <span class="text-amber-600 dark:text-amber-400 whitespace-nowrap">requested</span>
                                     @endif
                                     <span
                                         class="font-bold text-[#0F6E8C] dark:text-[#1389af] whitespace-nowrap">{{ $notif->quantity_requested }}x</span>
                                 @else
                                     @if ($notif->quantity_approved)
-                                        <span class="font-extrabold">({{ $notif->quantity_approved }} sent)</span>
-                                        <span class="font-medium">{{ $notif->quantity_requested }}x</span>
+                                        <span class="font-extrabold whitespace-nowrap">({{ $notif->quantity_approved }} sent)</span>
+                                        <span class="font-medium whitespace-nowrap">{{ $notif->quantity_requested }}x</span>
                                     @else
-                                        <span class="font-bold">{{ $notif->quantity_requested }}x</span>
+                                        <span class="font-bold whitespace-nowrap">{{ $notif->quantity_requested }}x</span>
                                     @endif
                                 @endif
-                                <span
-                                    class="font-medium">{{ $notif->product->name ?? ($notif->product_name ?? 'Unknown') }}
+                                <span class="font-medium whitespace-nowrap">
+                                    {{ $notif->product->name ?? ($notif->product_name ?? 'Unknown') }}
                                     @if ($notif->product && $notif->product->base_unit_name)
-                                        <span class="text-gray-700 dark:text-zinc-400">
+                                        <span class="text-gray-700 dark:text-zinc-400 whitespace-nowrap">
                                             ({{ $notif->product->base_unit_name }})
                                         </span>
                                     @endif
                                 </span>
-                            <div class="flex gap-1">
+                            <div class="flex gap-1 whitespace-nowrap">
                                 <p
-                                    class="text-xs font-normal tracking-normal text-{{ $style['color'] }}-600 dark:text-{{ $style['color'] }}-400">
+                                    class="text-xs font-normal tracking-normal text-{{ $style['color'] }}-600 dark:text-{{ $style['color'] }}-400 whitespace-nowrap">
                                     {{ $style['label'] }}
                                 </p>
-                                <p class="text-[11px] text-gray-400 dark:text-zinc-500 font-medium">
+                                <p class="text-[11px] text-gray-400 dark:text-zinc-500 font-medium whitespace-nowrap">
                                     {{ $notif->updated_at->diffForHumans() }}
                                 </p>
                             </div>
+                       
                         </div>
 
                         <button

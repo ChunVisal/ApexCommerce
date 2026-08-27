@@ -56,8 +56,8 @@
                     <th class="py-3 px-2 font-medium text-center">Lost</th>
                     <th class="py-3 px-2 font-medium text-right">Price</th>
                     <th class="py-3 px-2 font-medium text-right">Revenue</th>
-                    <th class="py-3 px-2 font-medium text-center">Last Drop</th>
                     <th class="py-3 px-2 font-medium text-center">Status</th>
+                    <th class="py-3 px-2 font-medium text-center">Last Drop</th>
                     <th class="py-3 pr-4 pl-2 font-medium text-center">Action</th>
                 </tr>
             </thead>
@@ -71,8 +71,7 @@
                                     'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
                                     class="w-14 h-14 rounded-xs object-cover bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-800 shrink-0">
                                 <div class="min-w-0">
-                                    <p class="font-medium text-gray-800 dark:text-zinc-200 truncate max-w-[200px]"
-                                        x-text="product.name"></p>
+                                    <p class="font-medium text-gray-800 dark:text-zinc-200" x-text="product.name"></p>
                                     <p class="text-[11px] text-gray-400" x-text="product.code"></p>
                                 </div>
                             </div>
@@ -88,9 +87,7 @@
                             x-text="'$' + Number(product.selling_price).toFixed(2)"></td>
                         <td class="py-3 px-2 text-right font-semibold text-purple-600 dark:text-purple-400"
                             x-text="'$' + Number(product.revenue ?? 0).toFixed(2)"></td>
-                        <td class="py-3 px-2 text-xs text-center text-gray-500 dark:text-zinc-400"
-                            x-text="product.last_drop ? new Date(product.last_drop).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '-'">
-                        </td>
+
                         <td class="py-3 px-2 text-center">
                             <template x-if="product.remaining <= 0">
                                 <span
@@ -116,7 +113,10 @@
                                 </span>
                             </template>
                         </td>
-                   
+                        <td class="py-3 px-2 text-xs text-center text-gray-500 dark:text-zinc-400"
+                            x-text="product.last_drop ? new Date(product.last_drop).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : '-'">
+                        </td>
+
                         <td class="py-3 pr-4 pl-2 text-center">
                             <button @click="reportLoss(product.id, product.name, product.remaining)"
                                 class="text-xs font-medium text-red-500 hover:text-red-600 transition-colors shrink-0">

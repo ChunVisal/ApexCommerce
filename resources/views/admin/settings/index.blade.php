@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="w-full p-5 bg-gray-100/80 dark:bg-black transition-colors duration-300" x-data="{ activeTab: 'general', logoPreview: '{{ App\Models\Setting::get('logo') }}' }">
-
+    @include('admin.settings.scripts')
+    <div class="w-full p-5 bg-gray-100/80 dark:bg-black transition-colors duration-300" x-data="settingsPage()">
         <!-- Header -->
         <div class="mb-4 flex items-center justify-between">
             <div>
@@ -44,7 +44,7 @@
             </div>
 
             <!-- Form Body -->
-            <form action="{{ route('admin.settings.save') }}" method="POST" enctype="multipart/form-data">
+            <form @submit.prevent="submitSettings($event)" enctype="multipart/form-data">
                 @csrf
 
                 <div class="p-6 space-y-4">
@@ -147,9 +147,14 @@
                 <!-- Submit Button Footer -->
                 <div
                     class="px-6 py-3 bg-gray-50/60 dark:bg-zinc-900/60 border-t border-gray-200 dark:border-zinc-800 flex justify-end">
-                    <button type="submit"
-                        class="px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] hover:bg-[#0c5972] rounded-md transition-colors">
-                        Save Settings
+                    <button type="submit" :disabled="submitting"
+                        class="px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] hover:bg-[#0c5972] rounded-md transition-colors flex items-center gap-2">
+                        <span>
+                            <template x-if="submitting">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                            </template>
+                            Save Settings
+                        </span>
                     </button>
                 </div>
             </form>

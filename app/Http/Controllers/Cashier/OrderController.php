@@ -193,7 +193,10 @@ class OrderController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Order ' . $order_number . ' refunded successfully',
-                'order_number' => $order_number
+                'order_number' => $order_number,
+                'total' => $order->total,
+                'refunded_at' => $order->refunded_at,
+
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

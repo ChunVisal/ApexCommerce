@@ -76,6 +76,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/inventory/export', [InventoryController::class, 'export'])->name('admin.inventory.export');
     Route::post('/inventory/stock-drop', [InventoryController::class, 'stockDrop'])->name('admin.products.stock-drop');
     Route::get('/inventory/movements', [InventoryController::class, 'movements'])->name('admin.inventory.movements');
+    Route::get('/inventory/movements/count', [InventoryController::class, 'movementsCount'])->name('admin.inventory.movements.count');
     Route::get('/stockmovements/export', [InventoryController::class, 'exportMovements'])->name('admin.stockmovement.export');
 
     Route::get('/users', [UserController::class, 'index'])->name('admin.users');

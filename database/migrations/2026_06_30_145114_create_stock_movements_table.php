@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('reason');
             $table->text('notes')->nullable();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->timestamp('seen_at')->nullable();
             $table->timestamps();
         });
     }

@@ -1,5 +1,5 @@
 {{-- Search + Date Filter --}}
-<div x-data="orderSearch()">
+<div>
     <div class="flex items-center gap-3 mb-4">
         <x-search-input placeholder="Search order number or customer name..." />
 
@@ -74,7 +74,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-zinc-800/50">
                     {{-- Alpine Reactive Loop Layout --}}
-                    <template x-for="order in paginatedOrders" :key="order.id">
+                    <template x-for="order in filteredOrders" :key="order.id">
                         <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition">
                             <td class="py-3 pl-4 pr-2 font-medium text-gray-800 dark:text-zinc-200"
                                 x-text="order.order_number"></td>
@@ -124,7 +124,7 @@
                                 </button>
 
                                 <button x-show="order.status === 'partially_refunded'" @click="refundOrder(order.id)"
-                                    class="text-xs font-medium text-orange-600 dark:text-amber-500 hover:text-orange-700 ml-2">
+                                    class="text-xs font-medium text-amber-600 dark:text-amber-500 hover:text-orange-700 ml-2">
                                     Partially_refunded
                                 </button>
 
@@ -136,7 +136,7 @@
                         </tr>
                     </template>
                     {{-- Not Found - shows for any filter --}}
-                    <tr x-show="paginatedOrders.length === 0">
+                    <tr x-show="filteredOrders.length === 0">
                         <td colspan="7" class="text-center py-16">
                             <div class="flex flex-col items-center justify-center">
                                 <div
@@ -156,91 +156,3 @@
         <x-pagination />
     </div>
 </div>
-
-<script>
-    function orderSearch() {
-        return {
-            searchQuery: '',
-            dateFilter: 'all',
-            paymentFilter: 'all',
-            orders: @json($orders),
-
-            currentPage: 1,
-            perPage: 15,
-
-            get filteredOrders() {
-                let result = [...this.orders];
-
-                // Search filter
-                if (this.searchQuery) {
-                    const q = this.searchQuery.toLowerCase();
-                    result = result.filter(o =>
-                        (o.order_number || '').toLowerCase().includes(q) ||
-                        (o.customer?.name || '').toLowerCase().includes(q)
-                    );
-                }
-
-                // Payment filter
-                if (this.paymentFilter !== 'all') {
-                    result = result.filter(o => o.payment?.method === this.paymentFilter);
-                }
-                return result;
-            },
-
-
-            get totalPages() {
-                return Math.ceil(this.filteredOrders.length / this.perPage);
-            },
-            get paginatedOrders() {
-                const start = (this.currentPage - 1) * this.perPage;
-                return this.filteredOrders.slice(start, start + this.perPage);
-            },
-            get showingText() {
-                const start = (this.currentPage - 1) * this.perPage + 1;
-                const end = Math.min(this.currentPage * this.perPage, this.filteredOrders.length);
-                return `Showing ${start}-${end} of ${this.filteredOrders.length} entries`;
-            },
-            get pageNumbers() {
-                const pages = [];
-                for (let i = 1; i <= this.totalPages; i++) {
-                    if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage +
-                            2)) pages.push(i);
-                    else if (pages[pages.length - 1] !== '...') pages.push('...');
-                }
-                return pages;
-            },
-            prevPage() {
-                if (this.currentPage > 1) this.currentPage--;
-            },
-            nextPage() {
-                if (this.currentPage < this.totalPages) this.currentPage++;
-            },
-            goToPage(page) {
-                if (typeof page === 'number') this.currentPage = page;
-                this.$nextTick(() => {
-                    const el = this.$refs.tableBody;
-                    if (el) el.scrollTop = 0;
-                });
-            },
-
-            searchOrders() {
-                fetch(
-                        `/cashier/orders?search=${encodeURIComponent(this.searchQuery)}&payment=${this.paymentFilter}&ajax=1`
-                    )
-                    .then(res => res.json())
-                    .then(data => {
-                        this.orders = data.orders;
-                    });
-            },
-
-            filterPayment(method) {
-                this.paymentFilter = method;
-                fetch(`/cashier/orders?payment=${method}&search=${encodeURIComponent(this.searchQuery)}&ajax=1`)
-                    .then(res => res.json())
-                    .then(data => {
-                        this.orders = data.orders;
-                    });
-            },
-        };
-    }
-</script>

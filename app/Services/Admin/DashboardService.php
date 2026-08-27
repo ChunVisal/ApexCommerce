@@ -106,8 +106,8 @@ class DashboardService
 
     public static function getPaymentBreakdown($start, $end)
     {
-        $start = Carbon::parse($start);
-        $end = Carbon::parse($end);
+        $start = Carbon::parse($start)->startOfDay();
+        $end = Carbon::parse($end)->endOfDay();
 
         $cash = Payment::where('method', 'cash')
             ->whereBetween('created_at', [$start, $end])
@@ -118,7 +118,6 @@ class DashboardService
         $khqr = Payment::where('method', 'khqr')
             ->whereBetween('created_at', [$start, $end])
             ->count();
-        $total = ($cash + $card + $khqr) ?: 1;
 
         return [
             'cash' => $cash,

@@ -30,6 +30,8 @@ class InventoryController extends Controller
         $categories = Categories::withSum('products as total_stock', 'stock_quantity')->get();
 
         $cashiers = User::where('role', 'cashier')->get();
+        $cashierStocks = CashierStock::select(['cashier_id', 'product_id', 'allocated_quantity', 'sold_quantity'])->get();
+
         $summaryCards = InventoryService::getSummaryCards();
         $trend = InventoryService::getMovementTrend($request);
 
@@ -37,7 +39,7 @@ class InventoryController extends Controller
             return response()->json($products);
         }
 
-        return view('admin.inventory.index', compact('products', 'categories', 'summaryCards', 'trend', 'cashiers'));
+        return view('admin.inventory.index', compact('products', 'categories', 'summaryCards', 'trend', 'cashiers', 'cashierStocks'));
     }
 
     public function movements(Request $request)
@@ -54,6 +56,9 @@ class InventoryController extends Controller
             ->latest()
             ->get();
 
+        // mark all currently-unseen movements as seen
+        StockMovement::whereNull('seen_at')->update(['seen_at' => now()]);
+
         if ($request->ajax()) {
             return response()->json([
                 'movements' => $movements,
@@ -63,6 +68,13 @@ class InventoryController extends Controller
         $categories = Categories::orderBy('name')->get();
 
         return view('admin.stock-movement.index', compact('movements', 'start', 'end', 'categories'));
+    }
+
+    public function movementsCount()
+    {
+        return response()->json([
+            'count' => StockMovement::whereNull('seen_at')->count(),
+        ]);
     }
 
     /* =========================================================================
@@ -172,6 +184,7 @@ class InventoryController extends Controller
         $product->decrement('stock_quantity', $request->quantity);
 
         $cashierName = User::find($request->cashier_id)->name;
+        
         // check cashier already have some
         $cashierStock = CashierStock::firstOrCreate(
             [
@@ -218,6 +231,8 @@ class InventoryController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'transfer ' . $product->name . ' to ' . $cashierName . ' successfully',
+            'new_stock' => $product->stock_quantity,
+            'cashier_allocated' => $cashierStock->allocated_quantity,
         ]);
     }
 

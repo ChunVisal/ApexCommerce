@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
                 'role' => 'admin',
                 'status' => 'active',
                 'employee_id' => 'EMP-001',
-                'phone' => '012 345 678',
+                'phone' => '0888093342',
                 'address' => '123 Main St, Phnom Penh',
                 'shift' => 'full-morning',
                 'hire_date' => '2024-01-15',

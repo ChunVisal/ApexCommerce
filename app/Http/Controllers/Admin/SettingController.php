@@ -46,6 +46,9 @@ class SettingController extends Controller
             'info'
         );
 
-        return back()->with('success', 'Settings saved');
+        return response()->json([
+            'success' => true,
+            'message' => 'Setting saved successfully',
+        ]);
     }
 }

@@ -50,7 +50,7 @@
 <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-300 dark:border-zinc-800/60">
     <div class=" overflow-x-auto">
         <table class="w-full text-sm">
-            <thead> 
+            <thead>
                 <tr
                     class="text-left text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-200 dark:border-zinc-800">
                     <th class="pb-2 pr-4 font-medium">Product</th>
@@ -184,7 +184,7 @@
                                 </button>
                                 <button @click="deleteUom(product.id)" type="button"
                                     class="trash-btn text-red-500 hover:text-red-600" title="Delete">
-                                    <x-heroicon-m-trash class="w-5 h-5" />
+                                    <i class="fa-solid fa-trash text-[16px] mt-[4px]"></i>
                                 </button>
                             </div>
                         </td>

@@ -29,13 +29,18 @@
                     <input type="text" name="phone" value="{{ old('phone') }}"
                         class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-[#0F6E8C] text-sm"
                         placeholder="0XX XXX XXX" required autofocus>
+                    <div class="mt-2 text-xs text-gray-400">
+                        <span class="block">cashier: <span class="font-semibold text-gray-600">066777999</span></span>
+                        <span class="block">admin: <span class="font-semibold text-gray-600">0888093342</span></span>
+                    </div>
                 </div>
+
 
                 <button type="submit"
                     class="w-full bg-p hover:bg-[#0E5A93] text-white font-semibold py-2 rounded transition text-sm">
                     Send Code
                 </button>
-                
+
                 <div class="text-center mt-4">
                     <a href="{{ route('login') }}" class="text-p text-sm">Back to Login</a>
                 </div>
