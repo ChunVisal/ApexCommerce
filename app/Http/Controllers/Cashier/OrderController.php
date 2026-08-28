@@ -154,7 +154,7 @@ class OrderController extends Controller
                     'order_refunded',
                     "Order {$order_number} refunded - " . Auth::user()->name,
                     'Orders',
-                    'warning'
+                    $restock ? 'warning' : 'danger'
                 );
             }
 

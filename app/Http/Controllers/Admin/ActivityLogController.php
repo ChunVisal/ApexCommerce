@@ -44,7 +44,7 @@ class ActivityLogController extends Controller
             $msg = "All logs cleared";
         }
 
-        ActivityService::log('logs_cleared', $msg, 'Activity Log', 'warning');
+        ActivityService::log('logs_cleared', $msg, 'Activity Log', 'danger');
 
         return back()->with('success', $msg);
     }

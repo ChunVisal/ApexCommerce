@@ -105,26 +105,37 @@ class ReportService
             )
             ->groupBy('date')
             ->orderBy('date')
-            ->get();
+            ->get()
+            ->keyBy('date');
 
-        // Fill missing dates with zero
+        $itemsQty = DB::table('order_items')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.status', '!=', 'refunded')
+            ->whereDate('orders.created_at', '>=', $start)
+            ->whereDate('orders.created_at', '<=', $end)
+            ->select(
+                DB::raw('DATE(orders.created_at) as date'),
+                DB::raw('SUM(order_items.quantity) as items_qty')
+            )
+            ->groupBy(DB::raw('DATE(orders.created_at)'))
+            ->pluck('items_qty', 'date');
+
         $allDates = [];
         $current = $start->copy();
         while ($current <= $end) {
             $dateKey = $current->format('Y-m-d');
+            $sale = $dailySales->get($dateKey);
+
             $allDates[$dateKey] = (object) [
                 'date' => $dateKey,
-                'orders' => 0,
-                'revenue' => 0,
-                'discount' => 0,
-                'vip_discount' => 0,
-                'tax' => 0,
+                'orders' => $sale->orders ?? 0,
+                'revenue' => $sale->revenue ?? 0,
+                'discount' => $sale->discount ?? 0,
+                'vip_discount' => $sale->vip_discount ?? 0,
+                'tax' => $sale->tax ?? 0,
+                'items_qty' => $itemsQty->get($dateKey) ?? 0,
             ];
             $current->addDay();
-        }
-
-        foreach ($dailySales as $sale) {
-            $allDates[$sale->date] = $sale;
         }
 
         return collect(array_values($allDates));
@@ -211,7 +222,7 @@ class ReportService
             ->get();
 
         $totalVolume = $orders->sum('total');
-        $netRevenue = $orders->sum('net');
+        $netRevenue = $orders->sum('total') - $orders->sum('discount') - $orders->sum('vip_discount');
         $totalDiscount = $orders->sum('discount') + $orders->sum('vip_discount');
         $totalTax = $orders->sum('tax');
 

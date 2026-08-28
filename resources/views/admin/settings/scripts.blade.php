@@ -38,7 +38,15 @@
                             message: data.message || 'Settings saved successfully',
                             type: 'success'
                         });
+
+                        // Update shop logo everywhere
+                        if (data.logo) {
+                            document.querySelectorAll('[data-shop-logo]').forEach(el => {
+                                el.src = data.logo;
+                            });
+                        }
                     })
+
                     .catch(err => {
                         this.submitting = false;
                         this.$dispatch('toast', {

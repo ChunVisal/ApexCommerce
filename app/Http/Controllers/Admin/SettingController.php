@@ -49,6 +49,7 @@ class SettingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Setting saved successfully',
+            'logo' => Setting::get('logo'),
         ]);
     }
 }

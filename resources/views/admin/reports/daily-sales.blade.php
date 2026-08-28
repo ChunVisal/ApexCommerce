@@ -21,6 +21,7 @@
                     class="text-left text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-200 dark:border-zinc-800">
                     <th class="py-3 pl-4 font-medium">Date</th>
                     <th class="py-3 px-4 font-medium text-center">Orders</th>
+                    <th class="py-3 px-4 font-medium text-center">items</th>
                     <th class="py-3 px-4 font-medium text-right">Revenue</th>
                     <th class="py-3 px-4 font-medium text-right">Discount</th>
                     <th class="py-3 px-4 font-medium text-right">VIP Discount</th>
@@ -36,6 +37,9 @@
                         </td>
                         <td class="py-3 px-4 text-center text-gray-700 dark:text-zinc-200">
                             {{ $sale->orders }}
+                        </td>
+                        <td class="py-3 px-4 text-center text-gray-700 dark:text-zinc-200">
+                            {{ $sale->items_qty }}
                         </td>
                         <td class="py-3 px-4 text-right font-bold text-gray-800 dark:text-zinc-200">
                             ${{ number_format($sale->revenue, 2) }}

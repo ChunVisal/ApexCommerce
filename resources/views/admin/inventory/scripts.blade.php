@@ -114,7 +114,7 @@
                     s.product_id === this.dropForm.product_id &&
                     String(s.cashier_id) === String(this.dropForm.cashier_id)
                 );
-                return stock ? stock.allocated_quantity - stock.sold_quantity : 0;
+                return stock ? stock.allocated_quantity - stock.sold_quantity - stock.lost_quantity : 0;
             },
 
             openStockDropFromRequest(requestId, productId, cashierId, quantity) {

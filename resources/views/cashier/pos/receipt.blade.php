@@ -29,7 +29,8 @@
                     @php $logo = App\Models\Setting::get('logo'); @endphp
 
                     @if ($logo)
-                        <img src="{{ $logo }}" class="mx-auto h-12 w-auto mb-2 dark:brightness-150" />
+                        <img src="{{ $logo }}" data-shop-logo
+                            class="mx-auto h-12 w-auto mb-2 dark:brightness-150" />
                     @else
                         <img src="{{ asset('images/logo.png') }}" class="mx-auto h-12 w-auto mb-2 dark:hidden" />
                         <img src="{{ asset('images/logodarkmode.png') }}"
@@ -108,7 +109,11 @@
                                     :class="(item.refunded_quantity || 0) >= item.qty ?
                                         'line-through text-red-500 dark:text-red-400' : 'dark:text-zinc-200'">
                                     $<span
-                                        x-text="((item.qty - (item.refunded_quantity || 0)) * item.price).toFixed(2)"></span>
+                                        x-text="(
+                                    (item.refunded_quantity || 0) >= item.qty
+                                        ? item.qty * item.price
+                                        : (item.qty - (item.refunded_quantity || 0)) * item.price
+                                ).toFixed(2)"></span>
                                 </span>
                             </div>
                         </div>

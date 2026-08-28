@@ -7,7 +7,7 @@
         @php $logo = App\Models\Setting::get('logo'); @endphp
 
         @if ($logo)
-            <img src="{{ $logo }}"
+            <img src="{{ $logo }}" data-shop-logo
                 class="h-[45px] w-auto max-w-full object-contain shrink-0 dark:brightness-150" />
         @else
             <img src="{{ asset('images/logo.png') }}"

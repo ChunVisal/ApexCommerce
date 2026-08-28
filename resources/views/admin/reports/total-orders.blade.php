@@ -5,6 +5,10 @@
             <span class="text-gray-600 dark:text-zinc-400">{{ $orders->count() }} total</span>
             <span class="text-green-600">{{ $orders->where('status', 'completed')->count() }} completed</span>
             <span class="text-red-500">{{ $orders->where('status', 'refunded')->count() }} refunded</span>
+            <span
+                class="text-yellow-600 dark:text-yellow-500">{{ $orders->where('status', 'partially_refunded')->count() }}
+                Partially
+                refunded</span>
         </div>
     </div>
     <div class="overflow-x-auto max-h-[600px] overflow-y-auto tab-container">

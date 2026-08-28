@@ -69,7 +69,7 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
@@ -81,7 +81,6 @@ class AuthenticatedSessionController extends Controller
         Auth::user()->update(['last_login' => now()]);
 
         Cache::put('user-online-' . Auth::id(), true, now()->addMinutes(1));
-
 
         ActivityService::log('user_login', Auth::user()->name . ' logged in', 'Auth', 'info');
 

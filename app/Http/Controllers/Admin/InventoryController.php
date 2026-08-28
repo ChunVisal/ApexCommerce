@@ -30,7 +30,7 @@ class InventoryController extends Controller
         $categories = Categories::withSum('products as total_stock', 'stock_quantity')->get();
 
         $cashiers = User::where('role', 'cashier')->get();
-        $cashierStocks = CashierStock::select(['cashier_id', 'product_id', 'allocated_quantity', 'sold_quantity'])->get();
+        $cashierStocks = CashierStock::select(['cashier_id', 'product_id', 'allocated_quantity', 'sold_quantity', 'lost_quantity'])->get();
 
         $summaryCards = InventoryService::getSummaryCards();
         $trend = InventoryService::getMovementTrend($request);

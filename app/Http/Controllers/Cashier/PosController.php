@@ -105,6 +105,7 @@ class PosController extends Controller
             if ($customerId) {
                 $customer = Customer::find($customerId);
             }
+            
             // check if customer have info inlcude this 3 if not create or skip 
             if ($request->customer && $request->customer['name'] && $request->customer['phone']) {
                 // create new customer or find exist by phone number identity 
