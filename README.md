@@ -24,9 +24,9 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 - Stock request & approval workflow
 - Stock transfer to cashiers & stock adjustment
 - User management & customer sales overview
-- Reports: sales analytics, orders, top categories/products
+- Reports: daily sales analytics, orders tables, top cashier, payment overview
 - Notifications & activity logs
-- Store, tax & receipt configuration
+- Store, discount, tax & receipt configuration
 
 ### 🧾 Cashier
 - POS sales & checkout with hold-cart support
@@ -43,9 +43,9 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 - Authentication & role-based access control
 - UOM (Unit of Measurement) support
 - VIP 5% & manual discounts
-- Tax, gross & net amount calculation
+- Tax, discount, gross & net amount calculation
 - Stock tracking & movement history
-- Real-time search, filtering & date-range queries
+- Real-time search, pagination, filtering & date-range queries
 - Summary card analytics per module + chart graphs
 - Dark mode & modern UX
 - Reusable Blade components
@@ -54,7 +54,7 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 
 ---
 
-## 🏗️ Project Structure
+## 🏗️ Project MVC Structure
 
 ```text
 app/
