@@ -89,7 +89,7 @@ resources/
 | `product_uoms` | Product units, prices, stock, and UOM details |
 | `customers` | Customer information, name, email, phone_number |
 | `orders` | Sales orders, order_number, sub, net, vip_discount, tax, total, status, else.. |
-| `order_items` | Products included in each order |
+| `order_items` | Products included in each items order, total, refund, becase unit, else.. |
 | `payments` | Payment records |
 | `cashier_stocks` | Stock allocated to each cashier |
 | `stock_movements` | Stock increase, decrease, transfer, refund & loss records |
