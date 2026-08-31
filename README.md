@@ -33,7 +33,7 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 - Allocated product list & UOM view
 - Order history
 - Customer management
-- Cash & KHQR payments *(demo)*
+- Cash, Credit Card & KHQR payments *(demo)*
 - Stock requests: restock & new product
 - Loss/damage reporting
 - Full & partial refunds
