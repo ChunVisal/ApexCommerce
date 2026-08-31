@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('description');      // e.g., 'Sold INV-00125 for $750.31'
             $table->string('page');             // e.g., 'POS', 'Inventory', 'Products', 'Users'
             $table->string('status')->default('info'); // info, success, warning, danger
-            $table->text('metadata')->nullable(); // extra JSON data
             $table->timestamps();
         });
     }

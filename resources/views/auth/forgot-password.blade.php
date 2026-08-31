@@ -7,8 +7,7 @@
 
             <!-- Logo -->
             <div class="flex items-center gap-3 mb-8">
-                <img src="{{ 'images/logo.png' }}" alt="Logo" class="w-25 h-20 object-cover"
-                    onerror="this.style.display='none'">
+                <img src="/images/logo.png" alt="Logo" class="w-25 h-20 object-cover" onerror="this.style.display='none'">
             </div>
 
             <h2 class="text-lg font-semibold text-gray-800 mb-1">Forgot Password</h2>

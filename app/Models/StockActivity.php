@@ -15,8 +15,6 @@ class StockActivity extends Model
         'status',
         'approved_by',
         'dispute_reason',
-        'eta',
-        'confirmed_at',
         'cashier_notes',
         'seen_at',
     ];

@@ -107,10 +107,6 @@ class OrderController extends Controller
                 }
 
                 $movementType = $restock ? 'in' : 'out';
-                $movementReason = $restock
-                    ? 'Refund (restocked): ' . $request->reason
-                    : 'Refund (lost/broken): ' . $request->reason;
-
                 // refresh so allocated/sold/lost reflect the increment/decrement above
                 $cashierStock?->refresh();
 
@@ -122,7 +118,7 @@ class OrderController extends Controller
                         ? $cashierStock->allocated_quantity - $cashierStock->sold_quantity - $cashierStock->lost_quantity
                         : 0,
                     'reference' => 'REF-' . $order_number,
-                    'reason' => $movementReason,
+                    'reason' => $request->reason,
                     'user_id' => Auth::id(),
                 ]);
 
@@ -133,7 +129,7 @@ class OrderController extends Controller
                 $item->update([
                     'refunded_quantity' => $newRefundedTotal,
                     'is_refunded' => $newRefundedTotal >= $item->quantity,
-                    'refund_type' => $restock ? 'restock' : 'broken',
+                    'refund_type' => $request->reason,
                 ]);
 
                 // After refund StockMovement, create StockRequest to notify cashier of refund restock
@@ -141,10 +137,12 @@ class OrderController extends Controller
                     StockActivity::create([
                         'cashier_id' => $order->cashier_id,
                         'product_id' => $item->product_id,
+                        'product_name' => $item->name,
                         'quantity_requested' => $refundQty,
                         'quantity_approved' => $item->quantity,
                         'status' => 'refunded',
                         'cashier_notes' => 'Order ' . $order->order_number . ' refunded: ' . $request->reason,
+                        'dispute_reason' => $request->reason,
                         'approved_by' => Auth::id(),
                         'seen_at' => null,
                     ]);

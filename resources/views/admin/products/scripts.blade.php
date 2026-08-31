@@ -52,7 +52,7 @@
                 }
 
                 if (this.categoryFilter) {
-                    result = result.filter(p => p.category?.name === this.categoryFilter);
+                    result = result.filter(p => p.product?.category_id === this.categoryFilter);
                 }
 
                 if (this.statusFilter && this.statusFilter !== 'all') {

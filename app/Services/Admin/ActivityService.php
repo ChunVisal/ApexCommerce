@@ -2,14 +2,15 @@
 
 namespace App\Services\Admin;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\ActivityLog;
 use Carbon\Carbon;
 
 class ActivityService
 {
-    public static function log($action, $description, $page, $status = 'info', $metadata = null)
+    public static function log($action, $description, $page, $status = 'info')
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
         if (!$user) {
             return;
         }
@@ -21,10 +22,8 @@ class ActivityService
             'description' => $description,
             'page' => $page,
             'status' => $status,
-            'metadata' => $metadata,
         ]);
     }
-
     public static function getSummaryCards()
     {
         $today = ActivityLog::whereDate('created_at', Carbon::today())->count();

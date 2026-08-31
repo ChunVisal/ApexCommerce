@@ -157,7 +157,9 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({
-                            reason: this.refundReason,
+                            reason: this.refundReasonSelect === 'Other' ?
+                                this.refundReason :
+                                this.refundReasonSelect,
                             items: items,
                         })
                     })

@@ -12,7 +12,10 @@
                     {{ \Carbon\Carbon::parse($end)->format('M d, Y') }}
                 </p>
             </div>
-            <x-export-button :route="route('admin.stockmovement.export')" />
+            <div class="flex gap-2 items-center">
+                <x-date-range-picker route="admin.inventory.movements" />
+                <x-export-button :route="route('admin.stockmovement.export')" />
+            </div>
         </div>
 
         {{-- Full-Width Responsive Search + Filter Toolbar Grid (Matching Sample Styles & Size) --}}
@@ -50,35 +53,29 @@
                 </div>
             </div>
 
-            <x-date-range-picker route="admin.inventory.movements" />
-
-            {{-- Category Filter Dropdown --}}
+            {{-- Category --}}
             <div class="relative">
-                <select id="CategoryFilter" x-model="filterCategory" @change="applyFilters()"
-                    class=" bg-white dark:bg-zinc-900 appearance-none text-xs text-gray-800 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
+                <select x-model="categoryFilter"
+                    class="bg-white dark:bg-zinc-900 bg-none appearance-none text-xs text-gray-800 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] cursor-pointer">
                     <option value="">All Categories</option>
                     @foreach ($categories as $category)
-                        <option value="{{ $category->id }}"
-                            {{ request('categories_id') == $category->id ? 'selected' : '' }}>
+                        <option value="{{ $category->name }}">
                             {{ $category->name }}
                         </option>
                     @endforeach
                 </select>
                 <x-heroicon-o-chevron-down
-                    class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none" />
+                    class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none"
+                    stroke-width="2" />
             </div>
 
-            {{-- Type Filter Dropdown --}}
-            <div class="relative ">
-                <select id="typeFilter" x-model="filterType" @change="applyFilters()"
-                    class=" bg-white dark:bg-zinc-900 appearance-none text-xs text-gray-800 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 rounded-md pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
-                    <option value="">All Types</option>
-                    <option value="in" {{ request('type') == 'in' ? 'selected' : '' }}>Stock In</option>
-                    <option value="out" {{ request('type') == 'out' ? 'selected' : '' }}>Stock Out</option>
-                </select>
-                <x-heroicon-o-chevron-down
-                    class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 pointer-events-none" />
-            </div>
+            {{-- Status/Type --}}
+            <x-filter-select model="filterType">
+                <option value="">All Types</option>
+                <option value="in">Stock In</option>
+                <option value="out">Stock Out</option>
+            </x-filter-select>
+
 
         </div>
 
@@ -95,7 +92,7 @@
                             <th class="py-3 px-4 font-medium text-left">Type</th>
                             <th class="py-3 px-4 font-medium text-center">Qty</th>
                             <th class="py-3 px-4 font-medium text-right">Balance</th>
-                            <th class="py-3 font-medium text-center min-w-[150px]">Reason</th>
+                            <th class="py-3 font-medium text-center">Reason</th>
                             <th class="py-3 px-4 font-medium text-center">Reference</th>
                             <th class="py-3 px-4 font-medium text-left min-w-[140px]">User</th>
                         </tr>
@@ -148,7 +145,7 @@
                                 </td>
 
                                 {{-- Context Statement Reason Element row field --}}
-                                <td class="py-3 pl-2 text-xs text-left text-gray-600 dark:text-zinc-400 font-medium">
+                                <td class="py-3 text-xs text-center text-gray-600 dark:text-zinc-400 font-medium">
                                     <p class="max-w-[200px] break-words line-clamp-2" x-text="movement.reason || '-'">
                                     </p>
                                 </td>

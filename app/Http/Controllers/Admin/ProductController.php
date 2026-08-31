@@ -187,7 +187,7 @@ class ProductController extends Controller
             return response()->json(['category_id' => null]);
         }
 
-        // 2. Show extra products that category store in DB not for sell
+        // 2. Show extra products eixst that category store in DB not for sell
         $catalogProducts = ProductCatalog::where('category_code', $request->category_code)->get();
 
         // 3. Show products for that category (real ones already store)

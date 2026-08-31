@@ -11,6 +11,7 @@ use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Setting;
 use App\Models\Product;
+use App\Models\StockMovement;
 use App\Services\Admin\ActivityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -96,6 +97,7 @@ class PosController extends Controller
         ]);
 
         try {
+            // database transition group multiple database table operations into one unit.
             DB::beginTransaction();
 
             // 2. Handle customer - create/find only during payment
@@ -105,7 +107,7 @@ class PosController extends Controller
             if ($customerId) {
                 $customer = Customer::find($customerId);
             }
-            
+
             // check if customer have info inlcude this 3 if not create or skip 
             if ($request->customer && $request->customer['name'] && $request->customer['phone']) {
                 // create new customer or find exist by phone number identity 
@@ -235,21 +237,21 @@ class PosController extends Controller
                 // (sometimes there may not be, e.g. for a product newly added or not yet assigned to cashier)
                 if ($cashierStock) {
                     $cashierStock->increment('sold_quantity', $actualQtyNeeded);
-
-                    // Refresh model so we have the NEW values
-                    $cashierStock->refresh();
-
-                    // Calculate the new remaining stock after the sale
-                    $availableStock =
-                        $cashierStock->allocated_quantity
-                        - $cashierStock->sold_quantity
-                        - $cashierStock->lost_quantity;
-
-                    $updatedStock[] = [
-                        'product_id' => $product->id,
-                        'available_stock' => $availableStock,
-                    ];
                 }
+
+                // Refresh model so we have the NEW values
+                $cashierStock->refresh();
+
+                // Calculate the new remaining stock after the sale
+                $availableStock =
+                    $cashierStock->allocated_quantity
+                    - $cashierStock->sold_quantity
+                    - $cashierStock->lost_quantity;
+
+                $updatedStock[] = [
+                    'product_id' => $product->id,
+                    'available_stock' => $availableStock,
+                ];
 
                 // create record order items
                 OrderItem::create([
@@ -261,6 +263,16 @@ class PosController extends Controller
                     'base_unit' => $itemUnitName,
                     'total' => $itemPrice * $item['qty'],
                 ]);
+
+                StockMovement::create([
+                    'product_id' => $product->id,
+                    'type' => 'out',
+                    'quantity' => $actualQtyNeeded,
+                    'balance' => $availableStock,
+                    'reference' => $orderNumber . '-' . now()->format('ymdHi'),
+                    'reason' => 'Order Completed ✅',
+                    'user_id' => Auth::id(),
+            ]);
             }
 
             // 6. Handle payment processing and updates
@@ -318,6 +330,7 @@ class PosController extends Controller
                 'updated_stock' => $updatedStock,
             ]);
         } catch (\Exception $e) {
+            // cancel database change made during this transaction.
             DB::rollBack();
             Log::error('Checkout error: ' . $e->getMessage());
 

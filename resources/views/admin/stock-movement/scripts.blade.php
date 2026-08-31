@@ -4,8 +4,8 @@
             movements: @json($movements),
             searchQuery: '',
             filterType: '',
-            filterCategory: '',
-            
+            categoryFilter: '',
+
             currentPage: 1,
             perPage: 20,
 
@@ -17,16 +17,24 @@
 
             get filteredMovements() {
                 let result = [...this.movements];
-                if (this.filterType) result = result.filter(m => m.type === this.filterType);
-                if (this.filterCategory) result = result.filter(m => m.product?.category_id == this.filterCategory);
                 if (this.searchQuery) {
                     const q = this.searchQuery.toLowerCase();
                     result = result.filter(m =>
                         (m.product?.name || '').toLowerCase().includes(q) ||
+                        (m.product?.category?.name || '').toLowerCase().includes(q) ||
                         (m.reason || '').toLowerCase().includes(q) ||
                         (m.reference || '').toLowerCase().includes(q)
                     );
                 }
+
+                if (this.categoryFilter) {
+                    result = result.filter(
+                        m => m.product?.category?.name === this.categoryFilter
+                    );
+                }
+
+                if (this.filterType) result = result.filter(m => m.type === this.filterType);
+
                 return result;
 
             },

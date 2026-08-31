@@ -2,6 +2,7 @@
     function movementBadge() {
         return {
             count: {{ $unseenMovements }}, // starting value from page load
+            interval: null,
             init() {
                 setInterval(() => {
                     fetch('/admin/inventory/movements/count')
@@ -9,7 +10,10 @@
                         .then(data => {
                             this.count = data.count;
                         });
-                }, 2000);
+                }, 10000);
+            },
+            destroy() {
+                clearInterval(this.interval);
             }
         };
     }
