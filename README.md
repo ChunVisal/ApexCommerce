@@ -34,7 +34,7 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 - Order history
 - Customer management
 - Cash, Credit Card & KHQR payments *(demo)*
-- Stock requests: restock & new product
+- Stock Activity: restock & new product
 - Loss/damage reporting
 - Full & partial refunds
 - Receipt & invoice generation
