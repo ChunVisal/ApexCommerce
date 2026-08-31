@@ -20,41 +20,42 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 ### 🔑 Admin
 - Dashboard with sales charts & analytics
 - Product list, UOM (unit of measurement), and category management
-- Inventory tracking & stock movement history
-- Stock request & approval workflow
+- Inventory tracking graphs & stock movement history pages
+- Stock request & reject/approval workflow
 - Stock transfer to cashiers & stock adjustment
-- User management & customer sales overview
+- User management & customer sales overview and detial info
 - Reports: daily sales analytics, orders tables, top cashier, payment overview
-- Notifications & activity logs
+- Notifications from restock refuned, report cashier & activity logs all action users
 - Store, discount, tax & receipt configuration
 
 ### 🧾 Cashier
-- POS sales & checkout with hold-cart support
-- Allocated product list & UOM view
-- Order history
-- Customer management
+- POS sales & checkout with hold-cart/filters support
+- Allocated product list & UOM view from warehouse
+- Order history pages
+- Customer management information
 - Cash, Credit Card & KHQR payments *(demo)*
 - Stock Activity: restock & new product
 - Loss/damage reporting
-- Full & partial refunds
-- Receipt & invoice generation
+- Full & partial quantity refunds
+- digital Receipt & invoice generation afer complete checkout
 
 ### ⚙️ System
 - Authentication & role-based access control
+- Notification stock request, transfer, refunds, reports
 - UOM (Unit of Measurement) support
 - Config VIP % & manual discounts
 - Tax, discount, gross & net amount calculation
 - Stock tracking & movement history
 - Real-time search, pagination, filtering & date-range queries
 - Summary card analytics per module + chart graphs
-- Dark mode & modern UX
+- Dark mode & super modern UXD
 - Reusable Blade components
 - Optimized Laravel ORM queries
 - Cloudinary image upload
 
 ---
 
-## 🏗️ Project MVC Structure
+## 🏗️  MVC Project Structure
 
 ```text
 app/
@@ -84,10 +85,10 @@ resources/
 | `users` | Admin and cashier accounts |
 | `categories` | Product categories |
 | `products` | Product master data |
-| `product_catalog` | Important Product name & price reference data |
+| `product_catalog` | Important exist Product name & price reference data |
 | `product_uoms` | Product units, prices, stock, and UOM details |
-| `customers` | Customer information |
-| `orders` | Sales orders |
+| `customers` | Customer information, name, email, phone_number |
+| `orders` | Sales orders, order_number, sub, net, vip_discount, tax, total, status, else.. |
 | `order_items` | Products included in each order |
 | `payments` | Payment records |
 | `cashier_stocks` | Stock allocated to each cashier |
