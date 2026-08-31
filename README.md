@@ -42,7 +42,7 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 ### ⚙️ System
 - Authentication & role-based access control
 - UOM (Unit of Measurement) support
-- VIP 5% & manual discounts
+- Config VIP % & manual discounts
 - Tax, discount, gross & net amount calculation
 - Stock tracking & movement history
 - Real-time search, pagination, filtering & date-range queries
