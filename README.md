@@ -1,6 +1,6 @@
 # 🛒 ApexCommerce — POS & Inventory Management System
 
-A full-stack, web-based Point of Sale (POS) and inventory management platform built for retail operations — managing products, warehouse stock, cashier sales, customers, payments, refunds, reports, and stock activities, It covers the full retail workflow.
+A full-stack, web-based Point of Sale (POS) and inventory management platform built for retail operations — managing products, warehouse stock, cashier allocate stocks sales, customers, payments, refunds, reports, and stock activities, It covers the full retail workflow.
 
 <p align="left">
   <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
