@@ -86,7 +86,7 @@
 
                                 </span>
                             </template>
-                            <template x-if="product.stock_quantity >= product.low_stock_threshold">
+                            <template x-if="product.stock_quantity > product.low_stock_threshold">
                                 <span
                                     class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400">
                                     <span x-text="product.stock_quantity"></span>

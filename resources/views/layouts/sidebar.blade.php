@@ -93,7 +93,7 @@
                     <x-heroicon-o-archive-box class="w-5 h-5" />
                     <span x-show="!open && count > 0"
                         class="absolute -top-[10px] right-3 bg-red-500 text-white text-[9px] font-medium rounded-full px-1.5 py-[1px]"
-                        x-text="count">
+                        x-text="count >= 100 ? '99+' : count">
                     </span>
                 </div>
                 <span x-show="open" class="text-sm font-medium whitespace-nowrap flex-1 text-left">
@@ -119,7 +119,7 @@
                                     : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50' }}">
                             <span x-show="count > 0"
                                 class="absolute -top-1 left-1 bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5"
-                                x-text="count">
+                                x-text="count >= 100 ? '99+' : count">
                             </span>
                             Stock Movements
                         </a>
