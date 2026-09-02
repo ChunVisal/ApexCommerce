@@ -55,7 +55,6 @@ class ActivityService
                 'trendDirection' => $change >= 0 ? 'up' : 'down',
                 'trendColor' => $change >= 0 ? 'text-green-500' : 'text-red-500',
                 'subtitle' => 'vs yesterday (' . $yesterday . ')',
-
             ],
             [
                 'title' => 'Last 7 Days',
