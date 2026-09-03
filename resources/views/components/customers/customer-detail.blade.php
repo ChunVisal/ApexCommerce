@@ -23,7 +23,7 @@
     </div>
 
     {{-- Body --}}
-    <div class="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+    <div class="flex-1 overflow-y-auto tab-container px-5 py-4 space-y-5">
 
         {{-- Contact Info --}}
         <div>
@@ -83,7 +83,7 @@
                         <template x-if="order.status === 'refunded'">
                             <div class="absolute top-0 right-0 w-[90px] pointer-events-none select-none z-10">
                                 <div
-                                    class="darkbg-red-100 bg-red-200 text-red-700 text-[12px] font-semibold h-5 w-full flex items-center justify-center shadow rounded-bl-md">
+                                    class="dark:bg-red-300 bg-red-200 text-red-700 text-[12px] font-semibold h-5 w-full flex items-center justify-center shadow rounded-bl-md">
                                     Refunded
                                 </div>
                             </div>
@@ -97,8 +97,6 @@
                             <span
                                 x-text="new Date(order.created_at).toLocaleDateString() + ' ' + new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })"></span>
                             <span class="capitalize" x-text="order.payment?.method || '-'"></span>
-
-
                         </div>
 
                         {{-- Order Items --}}

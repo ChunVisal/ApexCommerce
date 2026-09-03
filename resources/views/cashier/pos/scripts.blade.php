@@ -47,7 +47,7 @@
             },
             selectedCustomer: null,
             customerSaved: false,
-            
+
             // Get VIP discount percent from settings (Blade inject for use in calculations)
             vipDiscountPercent: {{ App\Models\Setting::get('vip_discount', '5') }},
 
@@ -104,7 +104,7 @@
             get isVipCustomer() {
                 const vip = this.selectedCustomer?.segment === 'vip';
                 if (vip && this.discountValue > 0 && this.discountValue === parseFloat(this.vipDiscount.toFixed(
-                    2))) {
+                        2))) {
                     // If manual discount equals VIP discount, it was auto-set. Reset it.
                     this.discountValue = 0;
                 }
@@ -296,7 +296,7 @@
 
             processPayment() {
 
-                if (this.paymentMethod === 'cash') {
+                if (this.paymentMethod === 'walk-in' && this.requiresCustomer && !this.selectedCustomer) {
                     const received = Math.round((parseFloat(this.amountReceived) || 0) * 100) / 100;
                     const total = Math.round(this.total * 100) / 100;
 

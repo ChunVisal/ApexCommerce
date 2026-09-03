@@ -33,7 +33,7 @@
 </div>
 
 {{-- Search & Sort --}}
-<div class="flex flex-wrap items-center gap-3 mb-4">
+<div class="flex flex-wrap items-center gap-2 mb-4">
     <x-search-input placeholder="Search by name, email or phone..." />
 
     <x-filter-select model="sortBy">
@@ -41,6 +41,13 @@
         <option value="spent">Highest Spent</option>
         <option value="orders">Most Orders</option>
         <option value="code">Code Range</option>
+    </x-filter-select>
+
+    <x-filter-select model="filterSegment">
+        <option value="">All Customers</option>
+        <option value="vip">VIP Members</option>
+        <option value="regular">Regular Customers</option>
+        <option value="new">New Customers</option>
     </x-filter-select>
 </div>
 
@@ -113,7 +120,7 @@
                                     <button @click="editCustomer(customer)" type="button"
                                         class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] transition-colors"
                                         title="Edit">
-                                        <x-heroicon-m-pencil-square class="w-[21px] h-[21px] mb-0.5" />
+                                        <x-heroicon-m-pencil-square class="w-[21px] h-[21px] mb-1" />
                                     </button>
                                 @endif
                                 <button @click="openCustomerDetail(customer.id)" type="button"

@@ -15,10 +15,6 @@
                     class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-zinc-400" />
                 <input x-model="searchQuery" type="search" placeholder="Search products, categories, code..."
                     class="w-full pl-9 pr-4 py-2 border border-gray-400 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 rounded-full text-sm outline-none">
-
-                <x-heroicon-m-x-mark
-                    class="w-6 h-6 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 z-10"
-                    x-show="searchQuery" @click="searchQuery = ''" />
             </div>
 
             {{-- Held Carts Dropdown Section --}}

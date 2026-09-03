@@ -66,8 +66,9 @@ class InventoryController extends Controller
         }
 
         $categories = Categories::orderBy('name')->get();
+        $users = User::all();
 
-        return view('admin.stock-movement.index', compact('movements', 'start', 'end', 'categories'));
+        return view('admin.stock-movement.index', compact('movements', 'start', 'end', 'categories', 'users'));
     }
 
     public function movementsCount()

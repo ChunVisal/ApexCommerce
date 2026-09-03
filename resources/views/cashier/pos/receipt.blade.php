@@ -67,7 +67,7 @@
                     <div class="flex justify-between">
                         <span class="text-gray-500 dark:text-zinc-300">Customer:</span>
                         <span class="text-gray-500 dark:text-zinc-300"
-                            x-text="(receiptData.customer?.name || 'Cash') + ' - ' + (receiptData.payment_method === 'cash' ? 'Cash' : receiptData.payment_method === 'card' ? 'Card' : 'KHQR')"></span>
+                            x-text="(receiptData.customer?.name || 'Walk-in') + ' - ' + (receiptData.payment_method === 'cash' ? 'Cash' : receiptData.payment_method === 'card' ? 'Card' : 'KHQR')"></span>
                     </div>
                 </div>
 
@@ -154,7 +154,7 @@
 
                 {{-- Payment --}}
                 <span class="dark:text-zinc-300 font-semibold capitalize" x-text="receiptData.payment_method"></span>
-                <span class="dark:text-zinc-300" x-show="receiptData.payment_method === 'cash'">$<span
+                <span class="dark:text-zinc-300" x-show="receiptData.payment_method === 'walk-in'">$<span
                         x-text="parseFloat(receiptData.amount_received || 0).toFixed(2)"></span></span>
                 <span class="dark:text-zinc-300" x-show="receiptData.change > 0">Change $<span
                         x-text="receiptData.change?.toFixed(2)"></span></span>

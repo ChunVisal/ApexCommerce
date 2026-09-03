@@ -142,6 +142,7 @@
     <tr><td class="code"><code>->toArray()</code></td><td>Convert a Collection into a plain PHP array (e.g. for JSON output).</td></tr>
     <tr><td class="code"><code>->fresh()</code></td><td>Re-fetch the current model's latest data from the DB.</td></tr>
     <tr><td class="code"><code>truncate()</code></td><td>Delete every row in a table (structure stays).</td></tr>
+    <tr><td class="code"><code>DB::raw('SUM(order_items.quantity) as total_qty')</code></td><td>Write raw SQL expressions in a query.</td></tr>
   </table>
 
   <h2 id="relations">Relationships</h2>

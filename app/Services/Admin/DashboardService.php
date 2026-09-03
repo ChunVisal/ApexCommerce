@@ -137,15 +137,17 @@ class DashboardService
                 DB::raw('SUM(order_items.total) as total_revenue'),
                 // Prorate: each item's share of the order's actual discount, based on its portion of the subtotal
                 DB::raw('SUM(order_items.total - (order_items.total / NULLIF(orders.subtotal, 0)) * orders.discount) as net_revenue'),
-                DB::raw('COUNT(DISTINCT order_items.order_id) as order_count')
             )
+            // groupBy combine rows into group rows can calculate like SUM separately for each group, 
             ->groupBy('order_items.name', 'order_items.product_id')
             ->orderByDesc('net_revenue')
             ->limit($limit)
             ->get();
 
+        // find maximum revenue. if no revenue, set to 1 to avoid division by zero
         $maxRevenue = $items->max('net_revenue') ?: 1;
 
+        // map each item to a new array with additional information
         return $items->map(function ($item, $index) use ($maxRevenue) {
             $product = Product::with('category')->find($item->product_id);
 

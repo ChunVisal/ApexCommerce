@@ -76,7 +76,15 @@
                 <option value="out">Stock Out</option>
             </x-filter-select>
 
-
+            {{-- Status/Type --}}
+            <x-filter-select model="filterUser">
+                <option value="">All Users</option>
+                @foreach ($users as $user)
+                    <option value="{{ $user->name }}">
+                        {{ $user->name }}
+                    </option>
+                @endforeach
+            </x-filter-select>
         </div>
 
         {{-- Premium Scannable Table Component Container Block --}}

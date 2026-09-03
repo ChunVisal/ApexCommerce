@@ -10,6 +10,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\SchemaController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
@@ -58,6 +59,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'adminMarkAllRead']);
     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'adminMarkSingleRead']);
     Route::get('/admin/stock-requests', [StockActivityController::class, 'index'])->name('admin.stock-requests');
+
+    Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('admin.categories.store');
+    Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
 
     Route::get('/products', [AdminProductController::class, 'index'])->name('admin.products');
     Route::post('/products', [AdminProductController::class, 'store'])->name('admin.products.store');

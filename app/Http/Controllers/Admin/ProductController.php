@@ -116,7 +116,7 @@ class ProductController extends Controller
                 'image' => $imageUrl,
                 'low_stock_threshold' => $request->low_stock_threshold ?? $product->low_stock_threshold,
             ]);
-
+            
             ActivityService::log('product_updated', ' updated product: ' . $product->name, 'Products List', 'info');
 
             return response()->json([

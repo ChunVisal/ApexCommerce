@@ -7,6 +7,7 @@
             viewMode: localStorage.getItem('productViewMode') || 'table',
             search: '',
             open: false,
+            openCategory: true,
             draftList: [],
             addingToDraft: false,
             draftEditIndex: null,
@@ -15,6 +16,8 @@
             selectedCategoryId: null,
             pendingName: '',
             selectedProductName: '',
+
+            categories: @json($categories),
 
             form: {
                 id: null,
@@ -28,6 +31,11 @@
                 image_url: '',
                 image_file: null,
                 image_preview: '',
+            },
+
+            categoryForm: {
+                name: '',
+                svg: '',
             },
 
             // search query
@@ -83,6 +91,10 @@
                 this.draftList = [];
                 this.draftEditIndex = null;
                 this.open = true;
+            },
+
+            openAddCategory() {
+                this.openCategory = true;
             },
 
             openEdit(product) {
@@ -372,6 +384,66 @@
                 const newList = [...this.draftList];
                 newList.splice(index, 1);
                 this.draftList = newList;
+            },
+
+            saveCategory() {
+                if (!this.categoryForm.name || !this.categoryForm.svg) {
+                    this.$dispatch('toast', {
+                        message: 'Name and icon are required',
+                        type: 'error'
+                    });
+                    return;
+                }
+
+                this.submittingCategory = true;
+
+                const fd = new FormData();
+                fd.append('name', this.categoryForm.name);
+                fd.append('svg', this.categoryForm.svg);
+
+                fetch('/admin/categories', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: fd
+                    })
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        this.submittingCategory = false;
+
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || 'Failed to add category',
+                                type: 'error'
+                            });
+                            return;
+                        }
+
+                        this.categories.push(data.category);
+                        this.categoryForm = {
+                            name: '',
+                            svg: ''
+                        };
+                        this.openCategory = false;
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
+                    })
+                    .catch(err => {
+                        this.submittingCategory = false;
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
+                    });
             },
 
             loadProducts() {

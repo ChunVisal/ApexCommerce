@@ -13,11 +13,6 @@ class ProductService
     {
         $cashierId = Auth::id();
 
-        $stocks = CashierStock::where('cashier_id', $cashierId)
-            ->whereHas('product', fn($q) => $q->where('has_uom', false)->orWhereNull('has_uom'))
-            ->whereRaw('allocated_quantity > sold_quantity')
-            ->get();
-
         $totalAllocated = CashierStock::where('cashier_id', $cashierId)
             ->whereHas('product', fn($q) => $q->where('has_uom', false)->orWhereNull('has_uom'))
             ->sum('allocated_quantity');

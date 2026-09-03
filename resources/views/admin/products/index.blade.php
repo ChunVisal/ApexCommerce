@@ -5,5 +5,6 @@
     <div class="w-full p-5 bg-gray-100/80 dark:bg-black transition-colors duration-300" x-data="productPage()">
         @include('admin.products.filters-table')
         @include('admin.products.slide-over')
+        @include('admin.products.create-categories')
     </div>
 @endsection

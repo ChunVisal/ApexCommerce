@@ -5,6 +5,7 @@
             searchQuery: '',
             filterType: '',
             categoryFilter: '',
+            filterUser: '',
 
             currentPage: 1,
             perPage: 20,
@@ -22,6 +23,7 @@
                     result = result.filter(m =>
                         (m.product?.name || '').toLowerCase().includes(q) ||
                         (m.product?.category?.name || '').toLowerCase().includes(q) ||
+                        (m.user?.name || '').toLowerCase().includes(q) ||
                         (m.reason || '').toLowerCase().includes(q) ||
                         (m.reference || '').toLowerCase().includes(q)
                     );
@@ -31,6 +33,12 @@
                     result = result.filter(
                         m => m.product?.category?.name === this.categoryFilter
                     );
+                }
+
+                if (this.filterUser) {
+                    result = result.filter(
+                        m => m.user?.name === this.filterUser
+                    )
                 }
 
                 if (this.filterType) result = result.filter(m => m.type === this.filterType);
