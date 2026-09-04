@@ -17,21 +17,28 @@
         <div class="flex-1 overflow-y-auto tab-container px-5 py-4 space-y-4">
 
             {{-- Category --}}
-            <div>
+            <div class="mb-1">
                 <label
-                    class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">Category
+                    class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400">Category
                     *</label>
-                <select x-model="form.category_code" @change="loadProducts()" required
-                    class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
-                    <option value="">Select category</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->code }}">{{ $category->name }}</option>
-                    @endforeach
-                </select>
+                <div class="flex items-center gap-2">
+                    <select x-model="form.category_code" @change="loadProducts()" required
+                        class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
+                        <option value="">Select category</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->code }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                    <button type="button" @click="openAddCategory()"
+                        class=" flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-p rounded-md hover:bg-[#1a627a] transition whitespace-nowrap">
+                        <i class="fa-solid" :class="!editMode ? 'fa-plus' : 'fa-edit'"></i>
+                        <span x-text="!editMode ? 'Add Category' : 'Edit Category'"></span>
+                    </button>
+                </div>
             </div>
 
             {{-- Product Name --}}
-            <div>
+            <div class="mb-1">
                 <label
                     class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">
                     Product Name *
@@ -145,7 +152,8 @@
                                         'bg-white dark:bg-zinc-800'"
                                     class="w-full text-sm border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500"
                                     placeholder="0">
-                                <p x-show="editMode" class="text-[10px] text-yellow-600 dark:text-yellow-500 mt-1">Stock
+                                <p x-show="editMode" class="text-[10px] text-yellow-600 dark:text-yellow-500 mt-1">
+                                    Stock
                                     can
                                     only be adjusted in
                                     Inventory</p>
@@ -165,8 +173,8 @@
                             <div>
                                 <label class="block text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5">Price
                                     ($) *</label>
-                                <input type="number" x-model="form.price" step="0.01" placeholder="0.00" required
-                                    @input="updateUomPrices()"
+                                <input type="number" x-model="form.price" step="0.01" placeholder="0.00"
+                                    required @input="updateUomPrices()"
                                     class="w-full text-sm text-right border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500">
                             </div>
                         </div>

@@ -120,7 +120,7 @@
                         <td class="py-3 pr-4 pl-2 text-center">
                             <button @click="reportLoss(product.id, product.name, product.remaining)"
                                 class="text-xs font-medium text-red-500 hover:text-red-600 transition-colors shrink-0">
-                                Report Loss
+                                Report
                             </button>
                         </td>
                     </tr>
@@ -279,7 +279,7 @@
                         <td class="py-3.5 pr-4 pl-3 text-center whitespace-nowrap">
                             <button @click="reportLoss(product.id, product.name, product.remaining)"
                                 class="text-xs font-medium text-rose-600 hover:text-rose-700 transition-colors shrink-0">
-                                Report Loss
+                                Report
                             </button>
                         </td>
                     </tr>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Cashier;
 
 use App\Http\Controllers\Controller;
 use App\Services\Cashier\ProductService;
+use App\Services\Admin\ActivityService;
 use App\Models\Categories;
 use App\Models\StockMovement;
 use App\Models\Product;
@@ -36,6 +37,12 @@ class ProductController extends Controller
 
     public function reportLoss(Request $request)
     {
+        $product = Product::find($request->product_id);
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found.'], 404);
+        }
+
         // return one items only not a list
         $cashierStock = CashierStock::where('cashier_id', Auth::id())
             ->where('product_id', $request->product_id)
@@ -48,6 +55,7 @@ class ProductController extends Controller
 
         // Only use cashier's own allocated stock for loss
         $remaining = $cashierStock->allocated_quantity - $cashierStock->sold_quantity - $cashierStock->lost_quantity;
+
         if ($request->quantity > $remaining) {
             return response()->json(['success' => false, 'message' => 'Cannot report more than available in your allocated stock'], 422);
         }
@@ -78,6 +86,63 @@ class ProductController extends Controller
             'seen_at' => null,
         ]);
 
+        ActivityService::log(   
+            'loss_reported',
+            'reported a loss of ' . $request->quantity . ' units for product' . $product->name . ' with reason: ' . $request->reason,
+            'Product',
+            'danger'
+        );
+
         return response()->json(['success' => true, 'message' => 'Loss reported']);
+    }
+
+    public function returnToWarehouse(Request $request)
+    {       
+        $product = Product::find($request->product_id);
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found.'], 404);
+        }
+
+        $cashierStock = CashierStock::where('cashier_id', Auth::id())
+            ->where('product_id', $request->product_id)
+            ->first();
+
+        if (!$cashierStock) {
+        return response()->json(['message' => 'No cashier stock found for this product.'], 422);
+        }
+
+        $remaining = $cashierStock->allocated_quantity - $cashierStock->sold_quantity - $cashierStock->lost_quantity;
+
+        if ($request->quantity > $remaining) {
+            return response()->json(['success' => false, "message" => 'Cannot return more than available in your allocated stock'], 422);
+        }
+
+        // Decrease allocated_quantity and increase returned_quantity
+        $cashierStock->decrement('allocated_quantity', $request->quantity);
+        // increase 'stock_quantity', in Product table, because returned to warehouse
+        $product = Product::find($request->product_id);
+        $product->increment('stock_quantity', $request->quantity);
+
+        $newRemaining = $remaining - $request->quantity;
+
+        StockMovement::create([
+            'product_id' => $request->product_id,
+            'type' => 'in',
+            'quantity' => $request->quantity,
+            'balance' => $newRemaining,
+            'reason' => $request->reason . ' - ' . Auth::user()->name,
+            'reference' => 'RETURN-' . str_pad(StockMovement::where('type', 'in')->where('reason', 'like', 'Return:%')->count() + 1, 5, '0', STR_PAD_LEFT) . '-' . now()->format('ymdHi'),
+            'user_id' => Auth::id(),
+        ]);
+
+        ActivityService::log(
+            'item_returned',
+            'returned ' . $request->quantity . ' units of product: ' . $product->name . ' to the warehouse.',
+            'Product',
+            'info'
+        );
+
+        return response()->json(['success' => true, 'message' => 'Item returned to warehouse']);
     }
 }

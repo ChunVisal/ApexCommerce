@@ -12,8 +12,6 @@
                 <div>
                     <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-100"
                         x-text="editMode ? 'Edit Category' : 'Add Category'"></h2>
-                    <p x-show="!editMode && draftList.length > 0" class="text-xs text-[#0F6E8C] mt-0.5"
-                        x-text="draftList.length + ' product(s) in draft'"></p>
                 </div>
                 <button @click="openCategory = false" type="button"
                     class="text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300">
@@ -31,12 +29,18 @@
                             class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
                     </div>
 
+                    <span x-show="editMode" class="italic text-xs text-yellow-600 dark:text-yellow-400">Warning:
+                        Changing the category name will
+                        affect all products in this category.</span>
+
                     {{-- display svg up here --}}
                     <div x-show="categoryForm.svg" class="flex items-center gap-2"></div>
-                    <div class="w-6 h-6 flex items-center justify-center">
+                    <div class="w-[70px] h-[70px] flex items-center justify-center bg-gray-100">
                         <span x-html="categoryForm.svg"></span>
                     </div>
-                    <span class="text-xs text-gray-500 dark:text-zinc-400">Preview</span>
+                    {{-- message svg set with and height must 70px --}}
+                    <span class="italic text-xs text-gray-500 dark:text-zinc-400">Preview: Icon must be 70px by
+                        70px</span>
                     <div>
                         <label
                             class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">

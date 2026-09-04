@@ -7,12 +7,14 @@
             viewMode: localStorage.getItem('productViewMode') || 'table',
             search: '',
             open: false,
-            openCategory: true,
+            openCategory: false,
             draftList: [],
             addingToDraft: false,
             draftEditIndex: null,
             editMode: false,
             submitting: false,
+            submittingCategory: false,
+            editCategoryMode: false,
             selectedCategoryId: null,
             pendingName: '',
             selectedProductName: '',
@@ -34,8 +36,10 @@
             },
 
             categoryForm: {
+                code: '',
                 name: '',
                 svg: '',
+                sort_order: 0,
             },
 
             // search query
@@ -94,6 +98,23 @@
             },
 
             openAddCategory() {
+                if (this.editMode && this.form.category_code) {
+                    const cat = this.categories.find(c => c.code === this.form.category_code);
+                    if (!cat) return;
+                    this.editCategoryMode = true;
+                    this.categoryForm = {
+                        id: cat.id,
+                        name: cat.name,
+                        svg: cat.svg
+                    };
+                } else {
+                    this.editCategoryMode = false;
+                    this.categoryForm = {
+                        id: null,
+                        name: '',
+                        svg: '',
+                    };
+                }
                 this.openCategory = true;
             },
 
@@ -387,9 +408,9 @@
             },
 
             saveCategory() {
-                if (!this.categoryForm.name || !this.categoryForm.svg) {
+                if (!this.categoryForm.name) {
                     this.$dispatch('toast', {
-                        message: 'Name and icon are required',
+                        message: 'Name is required',
                         type: 'error'
                     });
                     return;
@@ -397,12 +418,18 @@
 
                 this.submittingCategory = true;
 
+                const url = this.editCategoryMode ? `/admin/categories/${this.categoryForm.id}` : `/admin/categories`;
+
                 const fd = new FormData();
                 fd.append('name', this.categoryForm.name);
                 fd.append('svg', this.categoryForm.svg);
 
-                fetch('/admin/categories', {
-                        method: 'POST',
+                if (!this.editCategoryMode) {
+                    fd.append('code', this.categoryForm.code);
+                }
+
+                fetch(url, {
+                        method: this.editCategoryMode ? 'PUT' : 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
@@ -426,10 +453,18 @@
                             return;
                         }
 
-                        this.categories.push(data.category);
+                        if (this.editCategoryMode) {
+                            const index = this.categories.findIndex(c => c.id === data.category.id);
+                            if (index !== -1) {
+                                this.categories[index] = data.category;
+                            }
+                        }
+
                         this.categoryForm = {
+                            code: '',
                             name: '',
-                            svg: ''
+                            svg: '',
+                            sort_order: 0
                         };
                         this.openCategory = false;
                         this.$dispatch('toast', {

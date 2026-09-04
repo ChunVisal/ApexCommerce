@@ -29,6 +29,7 @@
 
             returnOpen: false,
             returnForm: {
+                isReturnToWarehouse: false,
                 request_id: null,
                 product_id: null,
                 product_name: '',
@@ -180,6 +181,7 @@
 
             reportLoss(productId, productName, maxQty) {
                 this.returnForm = {
+                    isReturnToWarehouse: false,
                     request_id: null,
                     product_id: productId,
                     product_name: productName,
@@ -199,7 +201,10 @@
                     return;
                 }
 
-                fetch('/cashier/stock-loss', {
+                const isReturn = this.returnForm.isReturnToWarehouse;
+                const url = isReturn ? '/cashier/stock-return' : '/cashier/stock-loss';
+
+                fetch(url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -231,7 +236,11 @@
 
                         const product = this.products.find(p => p.id === this.returnForm.product_id);
                         if (product) {
-                            product.lost = (product.lost || 0) + this.returnForm.quantity;
+                            if (isReturn) {
+                                product.allocated_quantity = (product.allocated_quantity || 0) - this.returnForm.quantity;
+                            } else {
+                                product.lost = (product.lost || 0) + this.returnForm.quantity;
+                            }
                             product.remaining = product.allocated - product.sold - product.lost;
                         }
 

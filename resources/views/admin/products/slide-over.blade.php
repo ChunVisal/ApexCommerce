@@ -31,8 +31,8 @@
                     </select>
                     <button type="button" @click="openAddCategory()"
                         class=" flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-p rounded-md hover:bg-[#1a627a] transition whitespace-nowrap">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Add Category</span>
+                        <i class="fa-solid" :class="!editMode ? 'fa-plus' : 'fa-edit'"></i>
+                        <span x-text="!editMode ? 'Add Category' : 'Edit Category'"></span>
                     </button>
                 </div>
             </div>

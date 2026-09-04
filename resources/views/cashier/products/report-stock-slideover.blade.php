@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-zinc-800/80">
         <div>
             <h3 class="text-md font-bold text-gray-900 dark:text-zinc-100">Report
-                Broken Stock</h3>
+                Stock</h3>
             <p class="text-[12px] text-gray-500 dark:text-zinc-500 mt-0.5">Submit product issues or defect
                 details to operations</p>
         </div>
@@ -31,12 +31,20 @@
         <div>
             <label
                 class="block text-[12px] font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-1.5">Quantity
-                Lost</label>
+            </label>
             <input type="number" x-model="returnForm.quantity" min="1" :max="returnForm.maxQuantity"
                 class="w-full text-xs font-semibold border border-gray-250 dark:border-zinc-800/80 rounded-md px-3 py-2 bg-white dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 focus:outline-none focus:border-red-500 dark:focus:border-red-500/80 transition-colors">
             <p class="text-[11px] text-gray-400 mt-1">
                 Available: <span x-text="returnForm.maxQuantity"></span> units
             </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <input type="checkbox" x-model="returnForm.isReturnToWarehouse" id="returnCheckbox"
+                class="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500">
+            <label for="returnCheckbox" class="text-xs font-semibold text-gray-700 dark:text-zinc-300">
+                Return to Warehouse (instead of reporting loss)
+            </label>
         </div>
 
         {{-- Reason select field --}}
@@ -48,11 +56,13 @@
                 <select x-model="returnForm.reason"
                     class="w-full text-xs font-semibold border border-gray-250 dark:border-zinc-800/80 rounded-md pl-3 pr-8 py-2 bg-white dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 focus:outline-none focus:border-red-500 dark:focus:border-red-500/80 appearance-none transition-colors">
                     <option value="">Select reason</option>
+                    <option value="Return to Warehouse">Return to Warehouse</option>
                     <option value="Damaged">Damaged / Broken on arrival</option>
                     <option value="Defective">Defective / Not working</option>
                     <option value="Missing">Missing items</option>
                     <option value="Theft">Stolen / Theft</option>
                     <option value="Accident">Accident (dropped, spilled)</option>
+                    <option value="Expired">Expired / Outdated</option>
                     <option value="Other">Other</option>
                 </select>
                 <x-heroicon-o-chevron-down
@@ -70,7 +80,7 @@
         </button>
         <button @click="submitReturn()" :disabled="!returnForm.reason || !returnForm.quantity"
             class="flex-[2] py-2 text-xs  text-white bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 rounded-md transition-colors disabled:opacity-50 disabled:pointer-events-none shadow-sm shadow-red-500/10">
-            Confirm Report Loss
+            Confirm Report
         </button>
     </div>
 </x-slide-over>

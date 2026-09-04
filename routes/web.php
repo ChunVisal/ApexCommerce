@@ -127,6 +127,7 @@ Route::middleware(['auth', 'role:cashier'])->prefix('cashier')->group(function (
 
     Route::get('/products', [CashierProductController::class, 'index'])->name('cashier.products');
     Route::post('/stock-loss', [CashierProductController::class, 'reportLoss']);
+    Route::post('/stock-return', [CashierProductController::class, 'returnToWarehouse']);
     Route::post('/stock-request', [StockActivityController::class, 'store']);
     Route::post('/stock-request/bulk', [StockActivityController::class, 'bulkProductRequest']);
 

@@ -2,8 +2,19 @@
     function productUomPage() {
         return {
             // Product uoms state
-            products: @json($products),
             categories: @json($categories),
+            openCategory: false,
+            editCategoryMode: false,
+            submittingCategory: false,
+            categoryForm: {
+                id: null,
+                code: '',
+                name: '',
+                svg: '',
+                sort_order: 0
+            },
+
+            products: @json($products),
             searchQuery: '',
             uomFilter: '',
             statusFilter: '',
@@ -208,6 +219,103 @@
 
                 this.open = true;
             },
+
+            openAddCategory() {
+                if (this.editMode && this.form.category_code) {
+                    const cat = this.categories.find(c => c.code === this.form.category_code);
+                    if (!cat) return;
+                    this.editCategoryMode = true;
+                    this.categoryForm = {
+                        id: cat.id,
+                        name: cat.name,
+                        svg: cat.svg
+                    };
+                } else {
+                    this.editCategoryMode = false;
+                    this.categoryForm = {
+                        id: null,
+                        name: '',
+                        svg: '',
+                    };
+                }
+                this.openCategory = true;
+            },
+
+
+            saveCategory() {
+                if (!this.categoryForm.name) {
+                    this.$dispatch('toast', {
+                        message: 'Name is required',
+                        type: 'error'
+                    });
+                    return;
+                }
+
+                this.submittingCategory = true;
+
+                const url = this.editCategoryMode ? `/admin/categories/${this.categoryForm.id}` : `/admin/categories`;
+
+                const fd = new FormData();
+                fd.append('name', this.categoryForm.name);
+                fd.append('svg', this.categoryForm.svg);
+
+                if (!this.editCategoryMode) {
+                    fd.append('code', this.categoryForm.code);
+                }
+
+                fetch(url, {
+                        method: this.editCategoryMode ? 'PUT' : 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: fd
+                    })
+                    .then(res => res.json().then(data => ({
+                        ok: res.ok,
+                        data
+                    })))
+                    .then(({
+                        ok,
+                        data
+                    }) => {
+                        this.submittingCategory = false;
+
+                        if (!ok) {
+                            this.$dispatch('toast', {
+                                message: data.message || 'Failed to add category',
+                                type: 'error'
+                            });
+                            return;
+                        }
+
+                        if (this.editCategoryMode) {
+                            const index = this.categories.findIndex(c => c.id === data.category.id);
+                            if (index !== -1) {
+                                this.categories[index] = data.category;
+                            }
+                        }
+
+                        this.categoryForm = {
+                            code: '',
+                            name: '',
+                            svg: '',
+                            sort_order: 0
+                        };
+                        this.openCategory = false;
+                        this.$dispatch('toast', {
+                            message: data.message,
+                            type: 'success'
+                        });
+                    })
+                    .catch(err => {
+                        this.submittingCategory = false;
+                        this.$dispatch('toast', {
+                            message: 'Network error: ' + err.message,
+                            type: 'error'
+                        });
+                    });
+            },
+
 
             // Fetch products belonging to the selected category (for the "select existing name" dropdown)
             loadProducts() {
