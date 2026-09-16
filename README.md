@@ -9,7 +9,7 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
   <img src="https://img.shields.io/badge/Alpine.js-FFD600?style=for-the-badge&logo=alpinedotjs&logoColor=black" />
   <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white" />
   <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
-  <img src="https://img.shields.io/badge/Laragon-4479A1?style=for-the-badge&logo=laragon&logoColor=white" />
+  <img src="https://img.shields.io/badge/Laragon-4479A1?style=for-the-badge&logo=laragon&logoColor=blue" />
   <img src="https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white" />
   <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" />
 </p>
