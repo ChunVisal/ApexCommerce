@@ -95,7 +95,7 @@ resources/
 | `cashier_stocks` | Stock allocated to each cashier |
 | `stock_movements` | Stock increase, decrease, transfer, refund & loss records |
 | `stock_activities` | Stock request & activity workflow |
-| `notifications` | Admin and cashier notifications |
+| `notifications` | Admin and cashier notifications refund loss, reports |
 | `activity_logs` | System action history |
 | `settings` | Shop configuration |
 
