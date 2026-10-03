@@ -1,8 +1,5 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\PasswordResetController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\NotificationController;
@@ -12,6 +9,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\MovementHistoryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\ReportController;
@@ -23,28 +21,6 @@ use App\Http\Controllers\Cashier\OrderController;
 use App\Http\Controllers\Cashier\ProductController as CashierProductController;
 use App\Http\Controllers\Cashier\CustomerController as CashierCustomerController;
 use App\Http\Controllers\Cashier\StockActivityController;
-
-// Root route - check if logged in first
-Route::get('/', function () {
-    if (Auth::check()) {
-        if (Auth::user()->role === 'admin') {
-            return redirect('/admin/dashboard');
-        }
-        return redirect('/cashier/pos');
-    }
-    return redirect('/login');
-});
-Route::get('/forgot-password', [PasswordResetController::class, 'showPhoneForm'])->name('forget-password');
-Route::post('/forgot-password/send-otp', [PasswordResetController::class, 'sendOtp'])->name('password.send-otp');
-Route::get('/forgot-password/verify-otp', [PasswordResetController::class, 'showOtpForm'])->name('password.verify-otp');
-Route::post('/forgot-password/verify-otp', [PasswordResetController::class, 'verifyOtp'])->name('password.verify-otp.submit');
-
-Route::post('/cashier/pin-login', [AuthenticatedSessionController::class, 'pinLogin'])->name('cashier.pin-login');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/forgot-password/reset-or-skip', [PasswordResetController::class, 'showResetForm'])->name('password.reset-or-skip');
-    Route::post('/forgot-password/reset', [PasswordResetController::class, 'resetPassword'])->name('password.reset.submit');
-});
 
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
@@ -80,9 +56,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('/inventory/adjust', [InventoryController::class, 'adjustStock'])->name('admin.inventory.adjust');
     Route::get('/inventory/export', [InventoryController::class, 'export'])->name('admin.inventory.export');
     Route::post('/inventory/stock-drop', [InventoryController::class, 'stockDrop'])->name('admin.products.stock-drop');
-    Route::get('/inventory/movements', [InventoryController::class, 'movements'])->name('admin.inventory.movements');
-    Route::get('/inventory/movements/count', [InventoryController::class, 'movementsCount'])->name('admin.inventory.movements.count');
-    Route::get('/stockmovements/export', [InventoryController::class, 'exportMovements'])->name('admin.stockmovement.export');
+
+    Route::get('/inventory/stock-movements', [MovementHistoryController::class, 'movements'])->name('admin.inventory.stock-movements');
+    Route::get('/inventory/stock-movements/count', [MovementHistoryController::class, 'movementsCount'])->name('admin.inventory.stock-movements.count');
+    Route::get('/inventory/stock-movements/export', [MovementHistoryController::class, 'exportMovements'])->name('admin.inventory.stock-movements.export');
+    Route::get('/inventory/financial-movements', [MovementHistoryController::class, 'financialMovements'])->name('admin.inventory.financial-movements');
+    Route::get('/inventory/financial-movements/count', [MovementHistoryController::class, 'financialMovementsCount'])->name('admin.inventory.financial-movements.count');
+    Route::get('/inventory/financial-movements/export', [MovementHistoryController::class, 'exportFinancialMovements'])->name('admin.inventory.financial-movements.export');
 
     Route::get('/users', [UserController::class, 'index'])->name('admin.users');
     Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');

@@ -1,13 +1,16 @@
 <!-- Title + Actions -->
+<x-breadcrumb :breadcrumbs="[
+    '/' => 'Dashboard',
+    '/admin/inventory' => 'Inventory',
+]" />
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+
     <div>
         <h1 class="text-xl font-bold text-gray-800 dark:text-zinc-100">Inventory</h1>
         <p class="text-xs text-gray-500 dark:text-zinc-400">Track stock levels and movement across your catalog</p>
     </div>
     <div class="flex items-center gap-2 mt-3 sm:mt-0">
-
         <x-date-range-picker route="admin.inventory" />
-        
         <x-export-button :route="route('admin.inventory.export')" />
     </div>
 </div>
@@ -29,9 +32,13 @@
                     In</span>
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span>Stock
                     Out</span>
-                <a href="{{ route('admin.inventory.movements', ['start_date' => request('start_date', now()->subDays(14)->format('Y-m-d')), 'end_date' => request('end_date', now()->format('Y-m-d'))]) }}"
-                    class="text-[11px] text-[#0F6E8C] hover:underline">
-                    View All Movements →
+                <a href="{{ route('admin.inventory.stock-movements', ['start_date' => request('start_date', now()->subDays(14)->format('Y-m-d')), 'end_date' => request('end_date', now()->format('Y-m-d'))]) }}"
+                    class="text-[11px] text-[#0F6E8C] underline">
+                    View Stock
+                </a>
+                <a href="{{ route('admin.inventory.financial-movements', ['start_date' => request('start_date', now()->subDays(14)->format('Y-m-d')), 'end_date' => request('end_date', now()->format('Y-m-d'))]) }}"
+                    class="text-[11px] text-[#0F6E8C] underline">
+                    View Financial
                 </a>
             </div>
         </div>

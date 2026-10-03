@@ -41,43 +41,7 @@ class InventoryController extends Controller
 
         return view('admin.inventory.index', compact('products', 'categories', 'summaryCards', 'trend', 'cashiers', 'cashierStocks'));
     }
-
-    public function movements(Request $request)
-    {
-        $start = $request->start_date
-            ? Carbon::parse($request->start_date)
-            : now()->subDays(14);
-        $end = $request->end_date
-            ? Carbon::parse($request->end_date)
-            : now();
-
-        $movements = StockMovement::with(['product.category', 'user'])
-            ->whereBetween('created_at', [$start->startOfDay(), $end->endOfDay()])
-            ->latest()
-            ->get();
-
-        // mark all currently-unseen movements as seen
-        StockMovement::whereNull('seen_at')->update(['seen_at' => now()]);
-
-        if ($request->ajax()) {
-            return response()->json([
-                'movements' => $movements,
-            ]);
-        }
-
-        $categories = Categories::orderBy('name')->get();
-        $users = User::all();
-
-        return view('admin.stock-movement.index', compact('movements', 'start', 'end', 'categories', 'users'));
-    }
-
-    public function movementsCount()
-    {
-        return response()->json([
-            'count' => StockMovement::whereNull('seen_at')->count(),
-        ]);
-    }
-
+    
     /* =========================================================================
      | 2. INVENTORY STOCK OPERATIONS
      | ========================================================================= */

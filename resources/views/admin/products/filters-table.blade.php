@@ -1,16 +1,21 @@
 {{-- Title Row --}}
+
+<x-breadcrumb :breadcrumbs="[
+    '/' => 'Dashboard',
+    '/admin/products' => 'Products',
+]" />
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
     <div>
         <h1 class="text-xl font-bold text-gray-800 dark:text-zinc-100">Products</h1>
         <p class="text-xs text-gray-500 dark:text-zinc-400">Manage your PC component catalog and stock</p>
-        <div class="flex gap-4 mt-1">
+        {{-- <div class="flex gap-4 mt-1">
             <span class="text-xs text-gray-600 dark:text-zinc-300">
                 Total Products: <strong>{{ $products->count() }}</strong>
             </span>
             <span class="text-xs text-gray-600 dark:text-zinc-300">
                 Total Stock: <strong>{{ $products->sum('stock_quantity') }}</strong>
             </span>
-        </div>
+        </div> --}}
     </div>
     <div class="items-center flex gap-4">
         <button @click="openAdd()"

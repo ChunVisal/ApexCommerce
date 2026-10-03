@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use App\Models\StockMovement;
+use App\Models\FinancialMovement;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,7 +23,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer(['layouts.sidebar', 'layouts.scripts'], function ($view) {
-            $view->with('unseenMovements', \App\Models\StockMovement::whereNull('seen_at')->count());
+            $view->with('unseenStockMovements', StockMovement::whereNull('seen_at')->count());
+            $view->with('unseenFinancialMovements', FinancialMovement::whereNull('seen_at')->count());
         });
     }
 }

@@ -11,10 +11,15 @@ return new class extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('stock_activities')) {
+            return;
+        }
+
         Schema::create('stock_activities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cashier_id')->constrained('users');
-            $table->foreignId('product_id')->constrained('products');
+            $table->foreignId('product_id')->nullable()->constrained('products');
+            $table->string('product_name')->nullable(); // request new products
             $table->integer('quantity_requested');
             $table->integer('quantity_approved')->nullable();
             $table->string('status')->default('pending');
@@ -24,17 +29,15 @@ return new class extends Migration
             $table->string('eta')->nullable();
             $table->text('cashier_notes')->nullable();
             $table->timestamp('confirmed_at')->nullable();
-            $table->timestamp('seen_at')->nullable()->default(null);
+            $table->timestamp('seen_at')->nullable();
             $table->timestamps();
-
-            // request new products
-            $table->string('product_name')->nullable()->after('product_id');
-            $table->foreignId('product_id')->nullable()->change();
         });
     }
-
     /**
      * Reverse the migrations.
      */
-    public function down(): void {}
+    public function down(): void
+    {
+        Schema::dropIfExists('stock_activities');
+    }
 };

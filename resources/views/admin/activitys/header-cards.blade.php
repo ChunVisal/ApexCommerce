@@ -1,3 +1,7 @@
+<x-breadcrumb :breadcrumbs="[
+    '/' => 'Dashboard',
+    '/admin/activitys' => 'Activity Logs',
+]" />
 <div>
     <!-- Title + Actions -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
@@ -10,7 +14,7 @@
         <div class="flex items-center gap-2 mt-3 sm:mt-0">
 
             <x-date-range-picker route="admin.activitylog" />
-            
+
             <x-export-button :route="route('admin.activitylog.export', request()->all())" />
             <button onclick="clearLogs()"
                 class="bg-red-50 dark:bg-red-900/20 inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-md hover:bg-red-100 dark:hover:bg-red-900/30 transition">

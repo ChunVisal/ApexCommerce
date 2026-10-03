@@ -1,4 +1,10 @@
 <!-- Title + Actions -->
+
+<x-breadcrumb :breadcrumbs="[
+    '/' => 'Dashboard',
+    '/admin/users' => 'Users',
+]" />
+
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
     <div>
         <h1 class="text-xl font-bold text-gray-800 dark:text-zinc-100">Users</h1>

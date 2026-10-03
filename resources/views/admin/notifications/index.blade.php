@@ -2,7 +2,10 @@
 
 @section('content')
     <div class="p-6 mx-auto space-y-6" x-data="notificationPage()">
-
+        <x-breadcrumb :breadcrumbs="[
+            '/' => 'Dashboard',
+            '/admin/notifications' => 'Notifications',
+        ]" />
         {{-- Header Segment --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>

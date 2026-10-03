@@ -91,9 +91,9 @@
                 :class="open ? '' : 'justify-center'">
                 <div class="relative shrink-0">
                     <x-heroicon-o-archive-box class="w-5 h-5" />
-                    <span x-show="!open && count > 0"
-                        class="absolute -top-[10px] right-3 bg-red-500 text-white text-[9px] font-medium rounded-full px-1.5 py-[1px]"
-                        x-text="count >= 100 ? '99+' : count">
+                    <span x-show="(stockCount + financialCount) > 0"
+                        class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5"
+                        x-text="(stockCount + financialCount) >= 100 ? '99+' : (stockCount + financialCount)">
                     </span>
                 </div>
                 <span x-show="open" class="text-sm font-medium whitespace-nowrap flex-1 text-left">
@@ -112,17 +112,30 @@
                                 : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50' }}">
                             Stock Overview
                         </a>
-                        <a href="{{ route('admin.inventory.movements') }}"
+                        <a href="{{ route('admin.inventory.stock-movements') }}"
                             class="relative block px-3 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-colors
-                                {{ request()->routeIs('admin.inventory.movements')
+                                {{ request()->routeIs('admin.inventory.stock-movements')
                                     ? 'bg-blue-50 dark:bg-zinc-800/70 text-p dark:text-zinc-100'
                                     : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50' }}">
-                            <span x-show="count > 0"
+                            <span x-show="stockCount > 0"
                                 class="absolute -top-1 left-1 bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5"
-                                x-text="count >= 100 ? '99+' : count">
+                                x-text="stockCount >= 100 ? '99+' : stockCount">
                             </span>
                             Stock Movements
                         </a>
+
+                        <a href="{{ route('admin.inventory.financial-movements') }}"
+                            class="relative block px-3 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-colors
+                            {{ request()->routeIs('admin.inventory.financial-movements')
+                                ? 'bg-blue-50 dark:bg-zinc-800/70 text-p dark:text-zinc-100'
+                                : 'text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50' }}">
+                            <span x-show="financialCount > 0"
+                                class="absolute -top-1 left-1 bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5"
+                                x-text="financialCount >= 100 ? '99+' : financialCount">
+                            </span>
+                            Financial Movements
+                        </a>
+
                     </div>
                 </template>
             </div>

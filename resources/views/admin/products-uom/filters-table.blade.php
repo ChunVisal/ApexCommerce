@@ -1,4 +1,10 @@
 {{-- Header --}}
+
+<x-breadcrumb :breadcrumbs="[
+    '/' => 'Dashboard',
+    '/admin/products' => 'Products',
+    '/admin/products-uom' => 'UOM Products',
+]" />
 <div class="mb-4 flex flex-row items-center justify-between">
     <div>
         <h2 class="text-lg font-bold tracking-tight text-gray-900 dark:text-zinc-100">UOM Product List</h2>

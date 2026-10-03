@@ -176,6 +176,7 @@ class PosController extends Controller
             $net = $subtotal - $totalDiscount;
             $tax = $net * $taxRate;
             $total = $net + $tax;
+            $netAmount = $net - $tax;
 
             if ($total <= 0) {
                 throw new \Exception('Order total must be greater than zero.');
@@ -272,7 +273,7 @@ class PosController extends Controller
                     'reference' => $orderNumber . '-' . now()->format('ymdHi'),
                     'reason' => 'Order Completed ✅',
                     'user_id' => Auth::id(),
-            ]);
+                ]);
             }
 
             // 6. Handle payment processing and updates
@@ -282,13 +283,23 @@ class PosController extends Controller
             $change = $request->payment_method === 'cash' ? max(0, $amountReceived - $total) : 0;
             // max(0, never let this go below zero, default is 0
 
-            Payment::create([
+            $payment = Payment::create([
                 'order_id' => $order->id,
                 'method' => $request->payment_method,
                 'amount' => $total,
                 'amount_received' => $amountReceived,
                 'change' => $change,
                 'status' => 'completed',
+            ]);
+
+            $payment->financialMovements()->create([
+                'type' => 'in',
+                'net_amount' => $netAmount,
+                'amount' => $payment->amount,
+                'category' => 'sale',
+                'reference' => $orderNumber,
+                'notes' => 'Sale of ' . $product->name . ' (Qty: ' . $item['qty'] . ')',
+                'user_id' => Auth::id(),
             ]);
 
             // Update customer stats
@@ -305,16 +316,16 @@ class PosController extends Controller
                 }
             }
 
-            // 7. Commit transaction and return response
-            // if everything in this draft is correct — save it all permanently it all here from DB:begin
-            DB::commit();
-
             ActivityService::log(
                 'order_completed',
                 "Sale {$orderNumber} completed - \${$total} - " . count($request->items) . " items",
                 'POS',
                 'success'
             );
+
+            // 7. Commit transaction and return response
+            // if everything in this draft is correct — save it all permanently it all here from DB:begin
+            DB::commit();
 
             return response()->json([
                 'success' => true,

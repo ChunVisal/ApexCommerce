@@ -41,6 +41,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         try {
+            DB::beginTransaction();
 
             $category = Categories::find($request->category_id);
 
@@ -88,12 +89,15 @@ class ProductController extends Controller
 
             ActivityService::log('product_created', ' created product: ' . $product->name, 'Products List', 'info');
 
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => $product->name . ' created successfully',
                 'product' => $product->load('category'),
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Store error: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }

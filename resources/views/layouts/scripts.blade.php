@@ -1,14 +1,20 @@
 <script>
     function movementBadge() {
         return {
-            count: {{ $unseenMovements }}, // starting value from page load
+            stockCount: {{ $unseenStockMovements }}, // starting value from page load
+            financialCount: {{ $unseenFinancialMovements }}, // starting value from page load
             interval: null,
             init() {
                 setInterval(() => {
-                    fetch('/admin/inventory/movements/count')
+                    fetch('/admin/inventory/stock-movements/count')
                         .then(res => res.json())
                         .then(data => {
-                            this.count = data.count;
+                            this.stockCount = data.count;
+                        });
+                    fetch('/admin/inventory/financial-movements/count')
+                        .then(res => res.json())
+                        .then(data => {
+                            this.financialCount = data.count;
                         });
                 }, 10000);
             },

@@ -3,6 +3,11 @@
 @section('content')
     @include('admin.stock-movement.scripts')
     <div class="p-5" x-data="movementPage()">
+        <x-breadcrumb :breadcrumbs="[
+            '/' => 'Dashboard',
+            '/admin/inventory' => 'Inventory',
+            '/admin/inventory/stock-movements' => 'Stock Movements',
+        ]" />
         {{-- Header Action Row Configuration --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
             <div>
@@ -13,8 +18,8 @@
                 </p>
             </div>
             <div class="flex gap-2 items-center">
-                <x-date-range-picker route="admin.inventory.movements" />
-                <x-export-button :route="route('admin.stockmovement.export')" />
+                <x-date-range-picker route="admin.inventory.stock-movements" />
+                <x-export-button :route="route('admin.inventory.stock-movements.export')" />
             </div>
         </div>
 
@@ -106,11 +111,11 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-zinc-800/50">
-                        <template x-for="movement in paginatedMovements" :key="movement.id">
+                        <template x-for="stockmovement in paginatedMovements" :key="stockmovement.id">
                             <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition-colors">
                                 {{-- Date Column Field Element --}}
                                 <td class="py-3 px-4 text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
-                                    x-text="new Date(movement.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' ' + new Date(movement.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })">
+                                    x-text="new Date(stockmovement.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' ' + new Date(stockmovement.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })">
                                 </td>
 
 
@@ -118,10 +123,10 @@
                                 <td class="py-3 px-4">
                                     <div class="min-w-[100px]">
                                         <p class="font-medium text-gray-800 dark:text-zinc-200 text-sm leading-tight"
-                                            x-text="movement.product?.name || '-'">
+                                            x-text="stockmovement.product?.name || '-'">
                                         </p>
                                         <p class="text-xs text-gray-400 dark:text-zinc-500 mt-0.5"
-                                            x-text="movement.product?.category?.name || '-'">
+                                            x-text="stockmovement.product?.category?.name || '-'">
                                         </p>
                                     </div>
                                 </td>
@@ -130,48 +135,50 @@
                                 <td class="py-3 px-4 text-left whitespace-nowrap">
                                     <span
                                         class="px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider inline-block"
-                                        :class="movement.type === 'in' ?
+                                        :class="stockmovement.type === 'in' ?
                                             'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400' :
                                             'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'"
-                                        x-text="movement.type === 'in' ? 'IN' : 'OUT'">
+                                        x-text="stockmovement.type === 'in' ? 'IN' : 'OUT'">
                                     </span>
                                 </td>
 
                                 {{-- Quantities Numeric Text Element --}}
                                 <td
                                     class="py-3 px-4 text-center font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
-                                    <span x-text="movement.dynamic_quantity_rendered ?? movement.quantity"></span><span
+                                    <span
+                                        x-text="stockmovement.dynamic_quantity_rendered ?? stockmovement.quantity"></span><span
                                         class="text-xs font-bold text-gray-800 dark:text-zinc-200 whitespace-nowrap lowercase"
-                                        x-show="movement.product?.has_uom" x-text="movement.product?.base_unit_name">
+                                        x-show="stockmovement.product?.has_uom"
+                                        x-text="stockmovement.product?.base_unit_name">
                                     </span>
                                 </td>
 
                                 {{-- Balance Numeric Text Element --}}
                                 <td
                                     class="py-3 px-4 text-center font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
-                                    <span x-text="movement.balance ?? 0"></span>
+                                    <span x-text="stockmovement.balance ?? 0"></span>
                                 </td>
 
                                 {{-- Context Statement Reason Element row field --}}
                                 <td class="py-3 text-xs text-center text-gray-600 dark:text-zinc-400 font-medium">
-                                    <p class="max-w-[200px] break-words line-clamp-2" x-text="movement.reason || '-'">
+                                    <p class="max-w-[200px] break-words line-clamp-2" x-text="stockmovement.reason || '-'">
                                     </p>
                                 </td>
 
                                 {{-- Reference Numeric Text Element --}}
                                 <td
                                     class="text-[12px] py-3 pl-2 text-center font-medium text-gray-800 dark:text-zinc-300 whitespace-nowrap">
-                                    <span x-text="movement.reference || '-'"></span>
+                                    <span x-text="stockmovement.reference || '-'"></span>
                                 </td>
 
                                 {{-- Authorized User Metadata Structure Layout --}}
                                 <td class="py-3 px-4 text-xs text-left">
                                     <div class="min-w-[140px]">
                                         <p class="font-medium text-gray-800 dark:text-zinc-300"
-                                            x-text="movement.user?.name || '-'">
+                                            x-text="stockmovement.user?.name || '-'">
                                         </p>
                                         <p class="text-gray-400 dark:text-zinc-500 scale-95 origin-left mt-0.5"
-                                            x-text="movement.user?.email || '-'">
+                                            x-text="stockmovement.user?.email || '-'">
                                         </p>
                                     </div>
                                 </td>

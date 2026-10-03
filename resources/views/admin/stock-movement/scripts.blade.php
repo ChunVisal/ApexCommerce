@@ -1,7 +1,7 @@
 <script>
     function movementPage() {
         return {
-            movements: @json($movements),
+            stockmovements: @json($stockmovements),
             searchQuery: '',
             filterType: '',
             categoryFilter: '',
@@ -17,7 +17,7 @@
             ],
 
             get filteredMovements() {
-                let result = [...this.movements];
+                let result = [...this.stockmovements];
                 if (this.searchQuery) {
                     const q = this.searchQuery.toLowerCase();
                     result = result.filter(m =>
@@ -47,11 +47,11 @@
 
             },
 
-            // Inside movementPage(), add:
-            toggleClearButton() {
-                const btn = document.getElementById('clearSearch');
-                if (btn) btn.style.display = this.searchQuery.length > 0 ? 'block' : 'none';
-            },
+            // // Inside movementPage(), add:
+            // toggleClearButton() {
+            //     const btn = document.getElementById('clearSearch');
+            //     if (btn) btn.style.display = this.searchQuery.length > 0 ? 'block' : 'none';
+            // },
 
             get totalPages() {
                 return Math.ceil(this.filteredMovements.length / this.perPage);
