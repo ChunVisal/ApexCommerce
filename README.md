@@ -9,6 +9,7 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
   <img src="https://img.shields.io/badge/Alpine.js-FFD600?style=for-the-badge&logo=alpinedotjs&logoColor=black" />
   <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white" />
   <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
+  <img src="https://img.shields.io/badge/Laragon-4479A1?style=for-the-badge&logo=laragon&logoColor=0f64db" />
   <img src="https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white" />
   <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" />
 </p>
@@ -35,7 +36,7 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 - Customer management information
 - Cash, Credit Card & KHQR payments *(demo)*
 - Stock Activity: restock & new product
-- Loss/damage reporting
+- Loss/damage & return to warehouse reporting
 - Full & partial quantity refunds
 - digital Receipt & invoice generation afer complete checkout
 
@@ -94,7 +95,7 @@ resources/
 | `cashier_stocks` | Stock allocated to each cashier |
 | `stock_movements` | Stock increase, decrease, transfer, refund & loss records |
 | `stock_activities` | Stock request & activity workflow |
-| `notifications` | Admin and cashier notifications |
+| `notifications` | Admin and cashier notifications refund loss, reports |
 | `activity_logs` | System action history |
 | `settings` | Shop configuration |
 
