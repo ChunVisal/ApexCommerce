@@ -27,8 +27,9 @@
                 name: '',
                 category_code: '',
                 barcode: '',
-                price: null,
-                stock: null,
+                cost_price: null,
+                selling_price: null,
+                stock_quantity: null,
                 status: 'active',
                 image_url: '',
                 image_file: null,
@@ -130,8 +131,9 @@
                     name: product.name ?? '',
                     category_code: product.category?.code ?? '',
                     barcode: product.barcode ?? '',
-                    price: product.selling_price ?? null,
-                    stock: product.stock_quantity ?? null,
+                    cost_price: product.cost_price ?? null,
+                    selling_price: product.selling_price ?? null,
+                    stock_quantity: product.stock_quantity ?? null,
                     status: product.status ?? 'active',
                     image_url: product.image ?? '',
                     image_file: null,
@@ -225,8 +227,9 @@
                     selectedProductName: '',
                     category_code: '',
                     barcode: '',
-                    price: null,
-                    stock: null,
+                    cost_price: null,
+                    selling_price: null,
+                    stock_quantity: null,
                     status: 'active',
                     image_url: '',
                     image_file: null,
@@ -350,8 +353,9 @@
                     name: this.form.name,
                     category_code: this.form.category_code,
                     category_id: this.selectedCategoryId,
-                    price: this.form.price,
-                    stock: this.form.stock ?? 0,
+                    cost_price: this.form.cost_price,
+                    selling_price: this.form.selling_price,
+                    stock_quantity: this.form.stock_quantity ?? 0,
                     status: this.form.status,
                     image_url: this.form.image_url,
                     image_file: this.form.image_file,
@@ -382,8 +386,9 @@
                 const item = this.draftList[index];
                 this.draftEditIndex = index;
                 this.form.category_code = item.category_code;
-                this.form.price = item.price;
-                this.form.stock = item.stock;
+                this.form.cost_price = item.cost_price;
+                this.form.selling_price = item.selling_price;
+                this.form.stock_quantity = item.stock_quantity;
                 this.form.status = item.status;
 
                 this.form.image_url = item.image_url ?? ''; // ← ADD
@@ -515,8 +520,9 @@
                     const fd = new FormData();
                     fd.append('name', item.name);
                     fd.append('category_id', item.category_id);
-                    fd.append('selling_price', item.price);
-                    fd.append('stock_quantity', item.stock);
+                    fd.append('cost_price', item.cost_price);
+                    fd.append('selling_price', item.selling_price);
+                    fd.append('stock_quantity', item.stock_quantity);
                     fd.append('status', item.status);
                     if (item.image_file) fd.append('image_file', item.image_file);
                     else if (item.image_url) fd.append('image_url', item.image_url);
@@ -568,8 +574,9 @@
                 const fd = new FormData();
                 fd.append('name', this.form.name);
                 fd.append('category_id', this.selectedCategoryId);
-                fd.append('selling_price', this.form.price);
-                fd.append('stock_quantity', this.form.stock);
+                fd.append('cost_price', this.form.cost_price);
+                fd.append('selling_price', this.form.selling_price);
+                fd.append('stock_quantity', this.form.stock_quantity ?? 0);
                 fd.append('status', this.form.status);
 
                 if (this.form.image_file) {

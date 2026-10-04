@@ -3,12 +3,9 @@
 @section('content')
     @include('admin.settings.scripts')
 
-    <div class="w-full p-5 bg-gray-100/80 dark:bg-black transition-colors duration-300" x-data="settingsPage()">
+    <div class="w-full  bg-gray-100/80 dark:bg-black transition-colors duration-300" x-data="settingsPage()">
 
-        <x-breadcrumb :breadcrumbs="[
-            '/' => 'Dashboard',
-            '/admin/settings' => 'Settings',
-        ]" />
+
         <!-- Header -->
         <div class="mb-4 flex items-center justify-between">
             <div>

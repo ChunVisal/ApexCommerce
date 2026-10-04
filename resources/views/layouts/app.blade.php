@@ -39,7 +39,8 @@
         @include('layouts.sidebar')
 
         <main
-            class="tab-container bg-gray-100 dark:bg-black transition-colors duration-300 flex-1 min-w-0  min-h-screen">
+            class="tab-container p-5 bg-gray-100 dark:bg-black transition-colors duration-300 flex-1 min-w-0  min-h-screen">
+            <x-layouts::auto-breadcrumb />
             @yield('content')
         </main>
     </div>

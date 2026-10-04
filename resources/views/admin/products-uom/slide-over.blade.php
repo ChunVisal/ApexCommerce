@@ -64,7 +64,7 @@
                 {{-- Manual input --}}
                 <input type="text" :disabled="!form.category_code" x-model="form.name"
                     placeholder="Type new product name..." @input="selectedProductName = ''"
-                    class=" disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-gray-100  w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
+                    class=" disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-gray-800 dark:placeholder:text-gray-100  w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
             </div>
 
             {{-- Image --}}
@@ -146,8 +146,8 @@
                             <div>
                                 <label class="text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5 block">Stock
                                     Qty</label>
-                                <input type="number" min="0" x-model="form.stock" min="1"
-                                    :max="form.stock || 1" :disabled="editMode" :readonly="editMode"
+                                <input type="number" min="0" x-model="form.stock_quantity" min="1"
+                                    :max="form.stock_quantity || 1" :disabled="editMode" :readonly="editMode"
                                     :class="editMode ? 'bg-gray-100 dark:bg-zinc-800 cursor-not-allowed' :
                                         'bg-white dark:bg-zinc-800'"
                                     class="w-full text-sm border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500"
@@ -171,151 +171,166 @@
                                     class="w-full text-sm border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5">Price
+                                <label
+                                    class="block text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5">Selling
+                                    Price
                                     ($) *</label>
-                                <input type="number" x-model="form.price" step="0.01" placeholder="0.00"
+                                <input type="number" x-model="form.selling_price" step="0.01" placeholder="0.00"
                                     required @input="updateUomPrices()"
                                     class="w-full text-sm text-right border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500">
                             </div>
                         </div>
 
-                        <p class="text-xs text-gray-500 dark:text-zinc-400 italic">
-                            1 <span class="font-semibold text-p" x-text="form.base_unit_name || 'unit'"></span> =
-                            1 stock. This cannot be changed.
-                        </p>
-                    </div>
+                        <div>
+                            <label
+                                class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">Cost
+                                Price ($)</label>
+                            <input type="number" step="0.01" x-model.number="form.cost_price" placeholder="0.00"
+                                class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
+                        </div>
 
-                    <template x-if="uomFormList.length === 0">
-                        <p class="text-xs text-gray-400 dark:text-zinc-500 italic py-2">
-                            No additional units yet. Click "<button type="button"
-                                @click="uomFormList.push({ uom_id: '', name: '', code: '', quantity_per_unit: 1, price: 0, is_default: false })"
-                                class="text-p italic underline">
-                                <span>Add Unit</span>
-                            </button>" to add one.
-                        </p>
-                    </template>
+                        <div class="">
+                            <p class="text-xs text-gray-500 dark:text-zinc-400 italic">
+                                1 <span class="font-semibold text-p" x-text="form.base_unit_name || 'unit'"></span> =
+                                1 stock. This cannot be changed.
+                            </p>
+                        </div>
+
+                        <template x-if="uomFormList.length === 0">
+                            <p class="text-xs text-gray-400 dark:text-zinc-500 italic py-2">
+                                No additional units yet. Click "<button type="button"
+                                    @click="uomFormList.push({ uom_id: '', name: '', code: '', quantity_per_unit: 1, price: 0, is_default: false })"
+                                    class="text-p italic underline">
+                                    <span>Add Unit</span>
+                                </button>" to add one.
+                            </p>
+                        </template>
 
 
-                    {{-- ADDITIONAL UNITS LIST --}}
-                    <template x-for="(uom, index) in uomFormList" :key="index">
-                        <div
-                            class="space-y-4 pb-4 border-b border-gray-200 dark:border-zinc-800 last:border-0 last:pb-0">
+                        {{-- ADDITIONAL UNITS LIST --}}
+                        <template x-for="(uom, index) in uomFormList" :key="index">
+                            <div
+                                class="space-y-4 pb-4 border-b border-gray-200 dark:border-zinc-800 last:border-0 last:pb-0">
 
-                            {{-- Header Actions --}}
-                            <div class="flex items-center justify-between">
-                                <span
-                                    class="text-xs font-bold text-p dark:text-zinc-300 uppercase tracking-wide">Additional
-                                    UOM</span>
-                                <button type="button" @click="uomFormList.splice(index, 1)"
-                                    class="text-red-500 hover:text-red-400 transition" title="Delete Unit">
-                                    <x-heroicon-m-trash class="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            {{-- Row 1: 1 Input (Selling Unit Select) --}}
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5">Unit
-                                    Name</label>
-                                <select x-model="uom.name"
-                                    class="w-full text-sm border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500">
-                                    <option value="">Select selling unit</option>
-                                    <option value="Tube">Tube</option>
-                                    <option value="Box">Box</option>
-                                    <option value="Pack">Pack</option>
-                                    <option value="Carton">Carton</option>
-                                    <option value="Roll">Roll</option>
-                                    <option value="Bundle">Bundle</option>
-                                </select>
-                            </div>
-
-                            {{-- Row 2: 2 Inputs (Contains Qty & Calculated Price Input) --}}
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5 block">
-                                        Contains (in <span class="text-p"
-                                            x-text="form.base_unit_name || 'units'"></span>)
-                                    </label>
-                                    <input type="number" x-model="uom.quantity_per_unit" min="1"
-                                        placeholder="Qty base"
-                                        @input="uom.price = (uom.quantity_per_unit * form.price).toFixed(2)"
-                                        class="w-full text-sm border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500">
-
-                                    <p x-show="Number(uom.quantity_per_unit) > Number(form.stock || 0)"
-                                        class="text-[11px] text-red-500 mt-1 whitespace-nowrap">
-                                        <x-heroicon-m-exclamation-triangle class="inline w-4 h-4 text-yellow-500" />
-                                        cannot greater than current stock (max:
-                                        <span x-text="form.stock"></span>)
-                                    </p>
+                                {{-- Header Actions --}}
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="text-xs font-bold text-p dark:text-zinc-300 uppercase tracking-wide">Additional
+                                        UOM</span>
+                                    <button type="button" @click="uomFormList.splice(index, 1)"
+                                        class="text-red-500 hover:text-red-400 transition" title="Delete Unit">
+                                        <x-heroicon-m-trash class="w-5 h-5" />
+                                    </button>
                                 </div>
 
+                                {{-- Row 1: 1 Input (Selling Unit Select) --}}
                                 <div>
                                     <label
-                                        class="block text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5">Auto
-                                        Price
-                                        ($)</label>
-                                    <input type="number" x-model="uom.price" step="0.01" placeholder="0.00"
-                                        class="w-full text-sm text-right border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 font-bold placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500">
+                                        class="block text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5">Unit
+                                        Name</label>
+                                    <select x-model="uom.name"
+                                        class="w-full text-sm border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500">
+                                        <option value="">Select selling unit</option>
+                                        <option value="Tube">Tube</option>
+                                        <option value="Box">Box</option>
+                                        <option value="Pack">Pack</option>
+                                        <option value="Carton">Carton</option>
+                                        <option value="Roll">Roll</option>
+                                        <option value="Bundle">Bundle</option>
+                                    </select>
                                 </div>
 
-                                <p class="text-xs text-gray-500 dark:text-zinc-400 italic">1 <span
-                                        class="text-gray-800 dark:text-zinc-200" x-text="uom.name || 'unit'"></span> =
-                                    <strong class="text-p" x-text="uom.quantity_per_unit || 1">.</strong>
-                                    <span class="text-gray-800 dark:text-zinc-200"
-                                        x-text="form.base_unit_name"></span>
-                                </p>
+                                {{-- Row 2: 2 Inputs (Contains Qty & Calculated Price Input) --}}
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label
+                                            class="text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5 block">
+                                            Contains (in <span class="text-p"
+                                                x-text="form.base_unit_name || 'units'"></span>)
+                                        </label>
+                                        <input type="number" x-model="uom.quantity_per_unit" min="1"
+                                            placeholder="Qty base"
+                                            @input="uom.price = (uom.quantity_per_unit * form.selling_price).toFixed(2)"
+                                            class="w-full text-sm border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500">
 
+                                        <p x-show="Number(uom.quantity_per_unit) > Number(form.stock_quantity || 0)"
+                                            class="text-[11px] text-red-500 mt-1 whitespace-nowrap">
+                                            <x-heroicon-m-exclamation-triangle
+                                                class="inline w-4 h-4 text-yellow-500" />
+                                            cannot greater than current stock (max:
+                                            <span x-text="form.stock_quantity"></span>)
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="block text-xs font-medium text-gray-600 dark:text-zinc-400 mb-1.5">Auto
+                                            Price
+                                            ($)</label>
+                                        <input type="number" x-model="uom.price" step="0.01" placeholder="0.00"
+                                            class="w-full text-sm text-right border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 font-bold placeholder-gray-400 dark:placeholder-zinc-500 focus:outline-none focus:border-gray-500 dark:focus:border-zinc-500">
+                                    </div>
+
+                                    <p class="text-xs text-gray-500 dark:text-zinc-400 italic">1 <span
+                                            class="text-gray-800 dark:text-zinc-200"
+                                            x-text="uom.name || 'unit'"></span> =
+                                        <strong class="text-p" x-text="uom.quantity_per_unit || 1">.</strong>
+                                        <span class="text-gray-800 dark:text-zinc-200"
+                                            x-text="form.base_unit_name"></span>
+                                    </p>
+
+                                </div>
+
+                                {{-- Description --}}
+                                <div>
+                                    <label
+                                        class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">
+                                        Description
+                                    </label>
+                                    <textarea x-model="uom.description" placeholder="Additional details or notes" rows="2"
+                                        class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] resize-none"></textarea>
+                                </div>
                             </div>
+                        </template>
 
-                            {{-- Description --}}
-                            <div>
-                                <label
-                                    class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">
-                                    Description
-                                </label>
-                                <textarea x-model="uom.description" placeholder="Additional details or notes" rows="2"
-                                    class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C] resize-none"></textarea>
-                            </div>
-                        </div>
-                    </template>
-
+                    </div>
                 </div>
+
+                {{-- Status --}}
+                <div class="flex items-center justify-between">
+                    <label
+                        class="text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400">Status</label>
+                    <div class="flex gap-1">
+                        <button type="button" @click="form.status = 'active'"
+                            class="px-3 py-1 text-[11px] font-medium rounded-l-md transition"
+                            :class="form.status === 'active' ? 'bg-green-500 text-white' :
+                                'bg-gray-300 dark:bg-zinc-700 text-gray-500 dark:text-zinc-400'">
+                            Active
+                        </button>
+                        <button type="button" @click="form.status = 'inactive'"
+                            class="px-3 py-1 text-[11px] font-medium rounded-r-md transition"
+                            :class="form.status === 'inactive' ? 'bg-red-500 text-white' :
+                                'bg-gray-300 dark:bg-zinc-700 text-gray-500 dark:text-zinc-400'">
+                            Inactive
+                        </button>
+                    </div>
+                </div>
+
             </div>
 
-            {{-- Status --}}
-            <div class="flex items-center justify-between">
-                <label
-                    class="text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400">Status</label>
-                <div class="flex gap-1">
-                    <button type="button" @click="form.status = 'active'"
-                        class="px-3 py-1 text-[11px] font-medium rounded-l-md transition"
-                        :class="form.status === 'active' ? 'bg-green-500 text-white' :
-                            'bg-gray-300 dark:bg-zinc-700 text-gray-500 dark:text-zinc-400'">
-                        Active
-                    </button>
-                    <button type="button" @click="form.status = 'inactive'"
-                        class="px-3 py-1 text-[11px] font-medium rounded-r-md transition"
-                        :class="form.status === 'inactive' ? 'bg-red-500 text-white' :
-                            'bg-gray-300 dark:bg-zinc-700 text-gray-500 dark:text-zinc-400'">
-                        Inactive
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-        {{-- Footer --}}
-        <div class="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-300 dark:border-zinc-800">
-            <button @click="open = false" type="button"
-                class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-700 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-800">
-                Cancel
-            </button>
-            <button type="submit" :disabled="submitting"
-                class="px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md
+            {{-- Footer --}}
+            <div class="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-300 dark:border-zinc-800">
+                <button @click="open = false" type="button"
+                    class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-zinc-300 border border-gray-300 dark:border-zinc-700 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-800">
+                    Cancel
+                </button>
+                <button type="submit" :disabled="submitting"
+                    class="px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md
                          hover:bg-[#0c5972] disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1">
-                <i x-show="submitting" class="fa-solid fa-spinner fa-spin"></i>
-                <span
-                    x-text="submitting ? (editMode ? 'Saving...' : 'Adding...') : (editMode ? 'Save Changes' : 'Add UOM Product')"></span>
-            </button>
-        </div>
+                    <i x-show="submitting" class="fa-solid fa-spinner fa-spin"></i>
+                    <span
+                        x-text="submitting ? (editMode ? 'Saving...' : 'Adding...') : (editMode ? 'Save Changes' : 'Add UOM Product')"></span>
+                </button>
+            </div>
     </form>
 </x-slide-over>

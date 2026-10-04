@@ -9,6 +9,7 @@ use App\Models\StockMovement;
 use App\Models\CashierStock;
 use App\Models\Product;
 use App\Models\StockActivity;
+use App\Models\FinancialMovement;
 use App\Services\Admin\ActivityService;
 use App\Services\Cashier\OrderService;
 use Illuminate\Http\Request;
@@ -63,6 +64,7 @@ class OrderController extends Controller
         // find items order for only belong to cashier or fail message
         $order = Order::with('items')->where('cashier_id', Auth::id())->findOrFail($id);
         $order_number = $order->order_number; // get the order_number invoice here
+        $recoveredValue = 00.00; // recovered value of refunded items, used for financial movement if restock is false (broken/lost items)
 
         // Prevent refunding items that are already refunded, or don't belong to this order
         foreach ($request->items as $refundItem) {
@@ -90,6 +92,10 @@ class OrderController extends Controller
                 $item = $order->items->firstWhere('id', $refundItem['order_item_id']);
                 $restock = $refundItem['restock'];   // THIS item's own restock choice
                 $refundQty = $refundItem['quantity'];
+
+                if ($restock) {
+                    $recoveredValue += $item->price * $refundQty;
+                }
 
                 $cashierStock = CashierStock::where('cashier_id', $order->cashier_id)
                     ->where('product_id', $item->product_id)
@@ -161,11 +167,12 @@ class OrderController extends Controller
             $refundedItems = $order->items()->where('is_refunded', true)->count();
 
             // Recalculate remaining totals based on what's LEFT (non-refunded items only)
-            $remainingSubtotal = $order->items->sum(function ($item) {
+            $remainingSubtotal = 0;
+            foreach ($order->items as $item) {
                 $unrefundedQty = $item->quantity - $item->refunded_quantity;
                 $unitPrice = $item->price;
-                return $unrefundedQty * $unitPrice;
-            });
+                $remainingSubtotal += $unrefundedQty * $unitPrice;
+            }
 
             $taxRate = \App\Models\Setting::get('tax_rate', 10) / 100;
             $remainingDiscount = $order->subtotal > 0 ? ($order->discount / $order->subtotal) * $remainingSubtotal : 0;
@@ -173,6 +180,21 @@ class OrderController extends Controller
             $remainingNet = $remainingSubtotal - $remainingDiscount - $remainingVipDiscount;
             $remainingTax = $remainingNet * $taxRate;
             $remainingTotal = $remainingNet + $remainingTax;
+
+            // netamount and amount for financial movement is show much money is refunded
+            $remainingTotal = round($remainingNet + $remainingTax, 2);
+            $refundAmount = round($order->total - $remainingTotal, 2);
+
+            $payment = Payment::where('order_id', $order->id)->first();
+            $payment->financialMovements()->create([
+                'type'      => 'out',
+                'net_amount' => round($recoveredValue, 2), // if restock is false, this is the recovered value of broken/lost items
+                'amount'    => $refundAmount,
+                'category'  => 'refund',
+                'reference' => $order_number,
+                'notes'     => 'Refund for order ' . $order_number . ' - ' . $request->reason,
+                'user_id'   => Auth::id(),
+            ]);
 
             $order->update([
                 'status' => $refundedItems >= $totalItems ? 'refunded' : 'partially_refunded',
@@ -185,7 +207,6 @@ class OrderController extends Controller
                 'tax' => $remainingTax,
                 'total' => $remainingTotal,
             ]);
-
             DB::commit();
 
             return response()->json([

@@ -1,5 +1,5 @@
 {{-- resources/views/admin/partials/dashboard/top-tables.blade.php --}}
-<div class="mt-4 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-5 border border-gray-200 dark:border-zinc-800/60"
+<div class="p-4 mt-4 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm  border border-gray-200 dark:border-zinc-800/60"
     x-data="{ tab: 'products' }">
     {{-- Tab Header --}}
     <div class="flex flex-wrap items-center justify-between pb-3 border-b border-gray-200 dark:border-zinc-800">

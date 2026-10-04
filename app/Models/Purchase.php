@@ -9,7 +9,7 @@ use App\Models\FinancialMovement;
 class Purchase extends Model
 {
     protected $fillable = ['purchase_number', 'vendor_name', 'total', 'notes', 'user_id'];
-
+    
     public function financialMovements()
     {
         return $this->morphMany(FinancialMovement::class, 'source');

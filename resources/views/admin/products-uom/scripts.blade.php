@@ -116,8 +116,9 @@
                         image_file: null,
                         base_unit_name: '',
                         base_unit_code: '',
-                        price: 0,
-                        stock: 0,
+                        cost_price: 0,
+                        selling_price: 0,
+                        stock_quantity: 0,
                         description: '',
                         status: 'active',
                     };
@@ -135,8 +136,9 @@
                         image_file: null,
                         base_unit_name: product.base_unit_name || '',
                         base_unit_code: product.base_unit_code || '',
-                        price: product.selling_price || 0,
-                        stock: product.stock_quantity || 0,
+                        selling_price: product.selling_price || 0,
+                        stock_quantity: product.stock_quantity || 0,
+                        cost_price: product.cost_price || 0,
                         description: product.description || '',
                         status: product.status || 'active',
                     };
@@ -202,7 +204,9 @@
                     image_file: null,
                     base_unit_name: '',
                     base_unit_code: '',
-                    price: 0,
+                    selling_price: 0,
+                    stock_quantity: 0,
+                    cost_price: 0,
                     description: '',
                     status: 'active',
                 };
@@ -212,7 +216,8 @@
                     name: '',
                     code: '',
                     quantity_per_unit: 1,
-                    price: 0,
+                    selling_price: 0,
+                    cost_price: 0,
                     description: '',
                     is_default: true
                 }];
@@ -370,8 +375,9 @@
                 payload.append('name', this.form.name);
                 payload.append('base_unit_name', this.form.base_unit_name);
                 payload.append('base_unit_code', this.form.base_unit_code);
-                payload.append('stock', this.form.stock);
-                payload.append('price', this.form.price);
+                payload.append('stock_quantity', this.form.stock_quantity);
+                payload.append('selling_price', this.form.selling_price);
+                payload.append('cost_price', this.form.cost_price);
                 payload.append('description', this.form.description);
                 payload.append('status', this.form.status);
                 payload.append('has_uom', 1);

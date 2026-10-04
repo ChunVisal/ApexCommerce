@@ -3,7 +3,7 @@
 
 @section('content')
     @include('admin.reports.scripts')
-    <div x-data="reportsPage()" class="w-full p-5 bg-gray-100/80 dark:bg-black transition-colors duration-300">
+    <div x-data="reportsPage()" class="w-full  bg-gray-100/80 dark:bg-black transition-colors duration-300">
         {{-- <x-skeleton.reports> --}}
         @include('admin.reports.header-cards')
         {{-- Tabs --}}

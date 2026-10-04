@@ -6,10 +6,10 @@
 
     {{-- ── Sales Overview (line chart) ── --}}
     <div
-        class="w-2/3 min-w-0 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-5 overflow-hidden border border-gray-200 dark:border-zinc-800/50">
+        class="w-2/3 min-w-0 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm  overflow-hidden border border-gray-200 dark:border-zinc-800/50">
 
-        <div class="flex items-center justify-between mb-3">
-            <div>
+        <div class="p-4 flex items-center justify-between mb-3">
+            <div >
                 <h3 class="text-[15px] font-semibold text-gray-800 dark:text-zinc-100">Sales Overview</h3>
                 <p class="text-xs text-gray-500 dark:text-zinc-400 mt-0.5">
                     Total: <span
@@ -23,14 +23,14 @@
 
         </div>
 
-        <div class="relative min-w-0" style="height: 200px;">
+        <div class="p-4 relative min-w-0" style="height: 200px;">
             <canvas id="salesOverviewChart"></canvas>
         </div>
     </div>
 
     {{-- ── Payment Breakdown (donut chart) ── --}}
     <div
-        class="w-1/3 min-w-0 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm p-5 overflow-hidden border border-gray-200 dark:border-zinc-800/50">
+        class="p-4 w-1/3 min-w-0 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm  overflow-hidden border border-gray-200 dark:border-zinc-800/50">
 
         <div class="flex items-center justify-between mb-2">
             <h3 class="text-[15px] font-semibold text-gray-800 dark:text-zinc-100">Payment</h3>

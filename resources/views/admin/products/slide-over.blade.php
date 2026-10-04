@@ -121,21 +121,30 @@
                     <input type="file" accept="image/*" class="hidden" @change.one="handleImageFile($event)">
                 </label>
             </div>
-            {{-- Price + Stock --}}
+            {{-- Costing Price + Selling Price + Stock --}}
+            <div class="">
+                <div>
+                    <label
+                        class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">Cost
+                        Price ($)</label>
+                    <input type="number" step="0.01" x-model.number="form.cost_price" placeholder="0.00"
+                        class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
+                </div>
+            </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label
                         class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">Price
                         ($)
                         *</label>
-                    <input type="number" step="0.01" x-model.number="form.price" placeholder="0.00"
+                    <input type="number" step="0.01" x-model.number="form.selling_price" placeholder="0.00"
                         class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">
                 </div>
                 <div>
                     <label
                         class="block text-[12px] font-bold tracking-wider uppercase text-gray-600 dark:text-zinc-400 mb-1">Stock
                         *</label>
-                    <input type="number" x-model.number="form.stock" placeholder="0" :disabled="editMode"
+                    <input type="number" x-model.number="form.stock_quantity" placeholder="0" :disabled="editMode"
                         :readonly="editMode"
                         :class="editMode ? 'bg-gray-100 dark:bg-zinc-800 cursor-not-allowed' : 'bg-white dark:bg-zinc-800'"
                         class="w-full text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-300 dark:border-zinc-700 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#0F6E8C]">

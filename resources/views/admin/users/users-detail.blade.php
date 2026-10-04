@@ -38,7 +38,7 @@
         </div>
 
         {{-- Body - 2 Columns --}}
-        <div class="p-6 grid grid-cols-2 gap-5">
+        <div class="p-6 grid grid-cols-2 ga">
             {{-- Left Column --}}
             <div class="space-y-4" x-show="form.role === 'cashier'">
 

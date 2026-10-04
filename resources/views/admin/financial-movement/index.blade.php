@@ -1,13 +1,8 @@
 @extends('layouts.app')
-
 @section('content')
     @include('admin.financial-movement.scripts')
-    <div class="p-5" x-data="financialPage()">
-        <x-breadcrumb :breadcrumbs="[
-            '/' => 'Dashboard',
-            '/admin/inventory' => 'Inventory',
-            '/admin/inventory/financial-movements' => 'Financial Movements',
-        ]" />
+    <div class="" x-data="financialPage()">
+
         {{-- Header --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
             <div>
@@ -63,6 +58,7 @@
                             <th class="py-3 px-4 font-medium">Amount</th>
                             <th class="py-3 px-4 font-medium">Reference</th>
                             <th class="py-3 px-4 font-medium">User</th>
+                            <th class="py-3 font-medium">Note</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-zinc-800/50">
@@ -91,7 +87,7 @@
                                     x-text="m.reference || '-'"></td>
                                 {{-- Authorized User Metadata Structure Layout --}}
                                 <td class="py-3 px-4 text-xs text-left">
-                                    <div class="min-w-[140px]">
+                                    <div class="">
                                         <p class="font-medium text-gray-800 dark:text-zinc-300"
                                             x-text="m.user?.name || '-'">
                                         </p>
@@ -99,6 +95,10 @@
                                             x-text="m.user?.email || '-'">
                                         </p>
                                     </div>
+                                </td>
+                                <td class="py-3 text-xs text-gray-800 dark:text-zinc-300">
+                                    <p class="max-w-[400px] line-clamp-2" :title="m.notes" x-text="m.notes || '-'">
+                                    </p>
                                 </td>
                             </tr>
                         </template>

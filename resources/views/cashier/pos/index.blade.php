@@ -4,7 +4,7 @@
     @include('cashier.pos.scripts')
     <div class="flex gap-4" x-data="posPage()">
         {{-- LEFT: Products 75% --}}
-        <div class="flex-1 min-w-0 py-5 pl-5 pr-3 ">
+        <div class="flex-1 min-w-0  ">
             @include('cashier.pos.product-grid')
         </div>
 

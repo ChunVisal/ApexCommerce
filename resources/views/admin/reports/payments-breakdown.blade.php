@@ -1,5 +1,5 @@
 <div
-    class="bg-white dark:bg-zinc-900 rounded-lg shadow-sm p-5 overflow-hidden border border-gray-200 dark:border-zinc-800/50">
+    class="bg-white dark:bg-zinc-900 rounded-lg shadow-sm  overflow-hidden border border-gray-200 dark:border-zinc-800/50">
 
     <div class="flex flex-col lg:flex-row gap-4">
 

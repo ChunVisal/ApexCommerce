@@ -2,12 +2,8 @@
 
 @section('content')
     @include('admin.stock-movement.scripts')
-    <div class="p-5" x-data="movementPage()">
-        <x-breadcrumb :breadcrumbs="[
-            '/' => 'Dashboard',
-            '/admin/inventory' => 'Inventory',
-            '/admin/inventory/stock-movements' => 'Stock Movements',
-        ]" />
+    <div class="" x-data="movementPage()">
+
         {{-- Header Action Row Configuration --}}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
             <div>

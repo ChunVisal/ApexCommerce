@@ -1,7 +1,3 @@
-<x-breadcrumb :breadcrumbs="[
-    '/' => 'Dashboard',
-    '/admin/activitys' => 'Activity Logs',
-]" />
 <div>
     <!-- Title + Actions -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">

@@ -1,8 +1,5 @@
 <!-- Title + Actions -->
-<x-breadcrumb :breadcrumbs="[
-    '/' => 'Dashboard',
-    '/admin/inventory' => 'Inventory',
-]" />
+
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
 
     <div>

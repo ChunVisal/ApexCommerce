@@ -30,7 +30,7 @@ class Product extends Model
 
     public function uoms()
     {
-    return $this->hasMany(ProductUom::class);
+        return $this->hasMany(ProductUom::class);
     }
 
     public function category()
@@ -51,5 +51,10 @@ class Product extends Model
     public function stockMovements()
     {
         return $this->hasMany(StockMovement::class);
+    }
+
+    public function financialMovements()
+    {
+        return $this->morphMany(FinancialMovement::class, 'source');
     }
 }

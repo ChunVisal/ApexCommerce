@@ -87,8 +87,20 @@ class ProductController extends Controller
                 ]);
             }
 
-            ActivityService::log('product_created', ' created product: ' . $product->name, 'Products List', 'info');
+            // Log initial stock as financial movement if cost_price is set
+            if ($product->cost_price > 0) {
+                $product->financialMovements()->create([
+                    'type'      => 'out',
+                    'net_amount' => 00.00, // Initial stock doesn't have a net amount yet
+                    'amount'    => round($product->stock_quantity * $product->cost_price, 2),
+                    'category'  => 'purchase',
+                    'reference' => 'INITIAL-' . str_pad($product->id, 3, '0', STR_PAD_LEFT),
+                    'notes'     => 'Initial stock purchase: ' . $product->name . ' - Quantity: ' . $product->stock_quantity,
+                    'user_id'   => Auth::id(),
+                ]);
+            }
 
+            ActivityService::log('product_created', ' created product: ' . $product->name, 'Products List', 'info');
             DB::commit();
 
             return response()->json([
@@ -120,7 +132,18 @@ class ProductController extends Controller
                 'image' => $imageUrl,
                 'low_stock_threshold' => $request->low_stock_threshold ?? $product->low_stock_threshold,
             ]);
-            
+
+            if ($product->cost_price > 0) {
+                $product->financialMovements()->create([
+                    'type'      => 'out',
+                    'amount'    => round($product->stock_quantity * $product->cost_price, 2),
+                    'category'  => 'purchase',
+                    'reference' => 'INITIAL-' . str_pad($product->id, 3, '0', STR_PAD_LEFT),
+                    'notes'     => 'Initial stock purchase: ' . $product->name,
+                    'user_id'   => Auth::id(),
+                ]);
+            }
+
             ActivityService::log('product_updated', ' updated product: ' . $product->name, 'Products List', 'info');
 
             return response()->json([
@@ -240,6 +263,8 @@ class ProductController extends Controller
     {
         try {
 
+            DB::beginTransaction();
+
             $category = Categories::where('code', $request->category_code)->first();
 
             if (! $category) {
@@ -253,10 +278,10 @@ class ProductController extends Controller
             $product = Product::create([
                 'name' => $request->name,
                 'category_id' => $category->id,
-                'cost_price' => 0,
-                'selling_price' => $request->price,
-                'stock_quantity' => $request->stock ?? 0,
-                'low_stock_threshold' => $request->low_stock_threshold ?? 5, 
+                'cost_price' => $request->cost_price ?? 0,
+                'selling_price' => $request->selling_price ?? 0,
+                'stock_quantity' => $request->stock_quantity ?? 0,
+                'low_stock_threshold' => $request->low_stock_threshold ?? 5,
                 'status' => $request->status ?? 'active',
                 'has_uom' => true,
                 'base_unit_name' => $request->base_unit_name,
@@ -275,8 +300,6 @@ class ProductController extends Controller
                 }
             }
 
-            ActivityService::log('uom_product_created', ' created UOM product: ' . $product->name, 'Products UOMs', 'info');
-
             if ($product->stock_quantity > 0) {
                 StockMovement::create([
                     'product_id' => $product->id,
@@ -285,10 +308,25 @@ class ProductController extends Controller
                     'quantity' => $product->stock_quantity,
                     'balance' => $product->stock_quantity,
                     'reason' => 'Initial stock',
-                    'notes' => 'Product created with initial stock of ' . $product->stock_quantity . ' ' . ($product->base_unit_code ?: $product->base_unit_name ?: 'unit'),
+                    'notes' => 'Product created with initial stock of ' . $product->stock_quantity . ' ' . ($product->base_unit_name ?: 'unit'),
                     'user_id' => Auth::id(),
                 ]);
             }
+
+            if ($product->cost_price > 0) {
+                $product->financialMovements()->create([
+                    'type'      => 'out',
+                    'net_amount' => 00.00, // Initial stock doesn't have a net amount yet
+                    'amount'    => round($product->stock_quantity * $product->cost_price, 2),
+                    'category'  => 'purchase',
+                    'reference' => 'INITIAL-' . str_pad($product->id, 3, '0', STR_PAD_LEFT),
+                    'notes'     => 'Initial stock purchase: ' . $product->name . ' - Quantity: ' . $product->stock_quantity . ($product->base_unit_name ?: 'unit'),
+                    'user_id'   => Auth::id(),
+                ]);
+            }
+
+            ActivityService::log('uom_product_created', ' created UOM product: ' . $product->name, 'Products UOMs', 'info');
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -296,6 +334,7 @@ class ProductController extends Controller
                 'product' => $product->load(['category', 'uoms']),
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Store UOM error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
