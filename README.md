@@ -21,7 +21,8 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 ### 🔑 Admin
 - Dashboard with sales charts & analytics
 - Product list, UOM (unit of measurement), and category management
-- Inventory tracking graphs & stock movement history pages
+- Inventory tracking graphs
+- stock & financial movement history pages
 - Stock request & reject/approval workflow
 - Stock transfer to cashiers & stock adjustment
 - User management & customer sales overview and detial info
@@ -50,6 +51,7 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 - Real-time search, pagination, filtering & date-range queries
 - Summary card analytics per module + chart graphs
 - Dark mode & super modern UXD
+- Smart breadcrumb catch prev link page
 - Reusable Blade components
 - Optimized Laravel ORM queries
 - Cloudinary image upload
@@ -94,6 +96,7 @@ resources/
 | `payments` | Payment records |
 | `cashier_stocks` | Stock allocated to each cashier |
 | `stock_movements` | Stock increase, decrease, transfer, refund & loss records |
+| `financial_movements` | Value money in, out, transfer, refund & sale or purchase |
 | `stock_activities` | Stock request & activity workflow |
 | `notifications` | Admin and cashier notifications refund loss, reports |
 | `activity_logs` | System action history |
