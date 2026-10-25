@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Customer;
+use App\Models\FinancialMovement;
 use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -261,6 +262,14 @@ class ReportService
     {
         return Order::with(['cashier', 'customer', 'payment', 'items'])
             ->whereBetween('orders.created_at', [$start, $end])
+            ->latest()
+            ->get();
+    }
+
+    public static function getFinancials($start, $end)
+    {
+        return FinancialMovement::with('user')
+            ->whereBetween('created_at', [$start, $end])
             ->latest()
             ->get();
     }

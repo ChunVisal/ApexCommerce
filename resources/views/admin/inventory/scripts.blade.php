@@ -19,8 +19,9 @@
                 quantity: 1
             },
 
+            headers: @json($header),
             products: @json($products),
-            cashierStocks: @json($cashierStocks ?? []),
+            cashierStocks: @json($cashierStocks),
             searchQuery: '',
             categoryFilter: '',
             statusFilter: 'all',

@@ -2,6 +2,7 @@
     function movementPage() {
         return {
             stockmovements: @json($stockmovements),
+            headers: @json($header),
             searchQuery: '',
             filterType: '',
             categoryFilter: '',

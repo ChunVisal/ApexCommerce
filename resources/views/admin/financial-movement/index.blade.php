@@ -44,94 +44,85 @@
         </div>
 
         {{-- Table --}}
-        <div
-            class="bg-white dark:bg-zinc-900 pb-4 px-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
+        <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
             <div class="scroll-smooth table-scroll overflow-auto max-h-[600px]" x-ref="tableBody">
-                <table class="w-full text-sm text-left">
-                    <thead class="sticky top-0 z-10 bg-white dark:bg-zinc-900">
-                        <tr
-                            class="text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-200 dark:border-zinc-800/80">
-                            <th class="py-3 px-4 font-medium whitespace-nowrap">Date</th>
-                            <th class="py-3 px-4 font-medium">Type</th>
-                            <th class="py-3 px-4 font-medium">Category</th>
-                            <th class="py-3 px-4 font-medium">Net Amount</th>
-                            <th class="py-3 px-4 font-medium">Amount</th>
-                            <th class="py-3 px-4 font-medium">Reference</th>
-                            <th class="py-3 px-4 font-medium">User</th>
-                            <th class="py-3 font-medium">Note</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-zinc-800/50">
-                        <template x-for="m in paginatedMovements" :key="m.id">
-                            <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition-colors">
-                                <td class="py-3 px-4 text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
-                                    x-text="new Date(m.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })">
-                                </td>
-                                <td class="py-3 px-4">
-                                    <span
-                                        class="px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider inline-block"
-                                        :class="m.type === 'in' ?
-                                            'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400' :
-                                            'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'"
-                                        x-text="m.type === 'in' ? 'IN' : 'OUT'"></span>
-                                </td>
-                                <td class="py-3 px-4 text-xs capitalize text-gray-700 dark:text-zinc-300"
-                                    x-text="m.category"></td>
-                                <td class="py-3 px-4 text-gray-700 dark:text-zinc-300 font-semibold whitespace-nowrap"
-                                    x-text="m.net_amount != null ? '$' + m.net_amount : '-'"></td>
-                                <td class="py-3 px-4  font-semibold whitespace-nowrap"
-                                    :class="m.type === 'in' ? 'text-green-600 dark:text-green-400' :
-                                        'text-red-600 dark:text-red-400'"
-                                    x-text="(m.type === 'in' ? '+$' : '-$') + m.amount"></td>
-                                <td class="py-3 px-4 text-xs text-gray-800 dark:text-zinc-300 whitespace-nowrap"
-                                    x-text="m.reference || '-'"></td>
-                                {{-- Authorized User Metadata Structure Layout --}}
-                                <td class="py-3 px-4 text-xs text-left">
-                                    <div class="">
-                                        <p class="font-medium text-gray-800 dark:text-zinc-300"
-                                            x-text="m.user?.name || '-'">
-                                        </p>
-                                        <p class="text-gray-400 dark:text-zinc-500 scale-95 origin-left mt-0.5"
-                                            x-text="m.user?.email || '-'">
-                                        </p>
-                                    </div>
-                                </td>
-                                <td class="py-3 text-xs text-gray-800 dark:text-zinc-300">
-                                    <p class="max-w-[400px] line-clamp-2" :title="m.notes" x-text="m.notes || '-'">
-                                    </p>
-                                </td>
-                            </tr>
-                        </template>
+                <x-table rows="paginatedMovements" as="m">
+                    <td class="text-left text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
+                        x-text="new Date(m.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })">
+                    </td>
+                    <td class="text-center ">
+                        <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider inline-block"
+                            :class="m.type === 'in' ?
+                                'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400' :
+                                'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'"
+                            x-text="m.type === 'in' ? 'IN' : 'OUT'"></span>
+                    </td>
+                    <td class="text-center text-xs capitalize text-gray-700 dark:text-zinc-300" x-text="m.category"></td>
+                    <td class="text-center text-gray-700 dark:text-zinc-300 font-semibold whitespace-nowrap"
+                        x-text="m.net_amount != null ? '$' + m.net_amount : '-'"></td>
+                    <td class="text-center  font-semibold whitespace-nowrap"
+                        :class="m.type === 'in' ? 'text-green-600 dark:text-green-400' :
+                            'text-red-600 dark:text-red-400'"
+                        x-text="(m.type === 'in' ? '+$' : '-$') + m.amount"></td>
+                    <td class="text-center text-xs text-gray-800 dark:text-zinc-300 whitespace-nowrap"
+                        x-text="m.reference || '-'"></td>
+                    {{-- Authorized User Metadata Structure Layout --}}
+                    <td class="text-center py-3 text-xs">
+                        <div class="">
+                            <p class="font-medium text-gray-800 dark:text-zinc-300" x-text="m.user?.name || '-'">
+                            </p>
+                            <p class="text-gray-400 dark:text-zinc-500 scale-95 origin-left mt-0.5"
+                                x-text="m.user?.email || '-'">
+                            </p>
+                        </div>
+                    </td>
+                    <td class="pr-2 w-[270px] max-w-[270px] text-xs text-gray-800 dark:text-zinc-300">
+                        <div class="flex justify-end">
+                            <div class="text-left">
+                                <p class="line-clamp-2 break-words" :title="m.notes" x-text="m.notes || '-'"></p>
+                            </div>
+                        </div>
+                    </td>
+                </x-table>
 
-                        {{-- Empty State Row --}}
-                        <tr x-show="filteredMovements.length === 0">
-                            <td colspan="7" class="text-center py-16 bg-white dark:bg-zinc-900">
-                                <div class="max-w-xs mx-auto flex flex-col items-center justify-center">
-                                    {{-- Circular minimalist movement path icon container --}}
-                                    <div
-                                        class="w-11 h-11 rounded-full bg-gray-50 dark:bg-zinc-800/40 border border-gray-150 dark:border-zinc-800 flex items-center justify-center mb-3">
-                                        <svg class="w-5 h-5 text-gray-400 dark:text-zinc-500" viewBox="0 0 24 24"
-                                            fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <path d="M12 2.75v18.5" />
-                                            <path
-                                                d="M15.75 6.5c0-1.65-1.73-2.75-3.75-2.75s-3.75 1.1-3.75 2.75c0 1.8 1.73 2.6 3.75 3.1s3.75 1.3 3.75 3.1c0 1.7-1.73 2.75-3.75 2.75s-3.75-1.1-3.75-2.75" />
-                                        </svg>
-                                    </div>
+                {{-- Empty state: filter/search removed everything --}}
+                <div x-show="movements.length > 0 && filteredMovements.length === 0">
+                    <div
+                        class="text-center py-16 bg-white dark:bg-zinc-900 max-w-xs mx-auto flex flex-col items-center justify-center">
+                        <div
+                            class="w-12 h-12 rounded-full bg-gray-50 dark:bg-zinc-800/40 border border-gray-150 dark:border-zinc-800 flex items-center justify-center mb-3">
+                            <x-heroicon-o-currency-dollar class="w-6 h-6 text-gray-400 dark:text-zinc-500" />
+                        </div>
+                        {{-- Typography hierarchy --}}
+                        <p class="text-xs font-bold text-gray-900 dark:text-zinc-200 uppercase tracking-wider">
+                            No Results Found
+                        </p>
+                        <p class="text-[11px] text-gray-400 dark:text-zinc-500 mt-1 max-w-[200px] leading-relaxed">
+                            There are no financial movements matching this filter.
+                        </p>
+                    </div>
+                </div>
 
-                                    {{-- Typography hierarchy --}}
-                                    <p class="text-xs font-bold text-gray-900 dark:text-zinc-200 uppercase tracking-wider">
-                                        No Financial Movements
-                                    </p>
-                                    <p
-                                        class="text-[11px] text-gray-400 dark:text-zinc-500 mt-1 max-w-[200px] leading-relaxed">
-                                        There are no registered financial transactions for this filter.
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+                {{-- Empty State Row --}}
+                <div x-show="movements.length === 0">
+                    <div
+                        class="text-center py-16 bg-white dark:bg-zinc-900 max-w-xs mx-auto flex flex-col items-center justify-center">
+                        {{-- Circular minimalist movement path icon container --}}
+                        <div
+                            class="w-12 h-12 rounded-full bg-gray-50 dark:bg-zinc-800/40 border border-gray-150 dark:border-zinc-800 flex items-center justify-center mb-3">
+                            <x-heroicon-o-currency-dollar class="w-6 h-6 text-gray-400 dark:text-zinc-500" />
+                        </div>
+
+                        {{-- Typography hierarchy --}}
+                        <p class="text-xs font-bold text-gray-900 dark:text-zinc-200 uppercase tracking-wider">
+                            No Financial Movements
+                        </p>
+                        <p class="text-[11px] text-gray-400 dark:text-zinc-500 mt-1 max-w-[200px] leading-relaxed">
+                            There are no registered financial transactions for this filter.
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <x-pagination />

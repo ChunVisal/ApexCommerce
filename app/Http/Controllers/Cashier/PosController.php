@@ -128,7 +128,7 @@ class PosController extends Controller
                     ]
                 );
                 // grab data existing or newly created and store it
-                $customerId = $customer->id;
+                $customerId = $customer->id;    
             }
 
             // 3. Generate order number and calculate financial totals

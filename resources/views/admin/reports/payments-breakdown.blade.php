@@ -1,10 +1,10 @@
 <div
-    class="bg-white dark:bg-zinc-900 rounded-lg shadow-sm  overflow-hidden border border-gray-200 dark:border-zinc-800/50">
+    class=" bg-white dark:bg-zinc-900 rounded-lg shadow-sm  overflow-hidden border border-gray-200 dark:border-zinc-800/50">
 
     <div class="flex flex-col lg:flex-row gap-4">
 
         {{-- ── Payment Breakdown (donut chart) ── --}}
-        <div class="flex-1">
+        <div class="px-4 py-3 flex-1">
             <h3 class="text-[15px] font-semibold text-gray-800 dark:text-zinc-100">Payment</h3>
 
 
@@ -27,7 +27,7 @@
         </div>
 
         {{-- Summary Cards --}}
-        <div class="flex-1">
+        <div class="flex-1 px-4 py-3">
             <div class="grid grid-cols-2 gap-4 h-full">
                 @foreach ($paymentSummary as $card)
                     <div

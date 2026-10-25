@@ -16,6 +16,8 @@ class MovementHistoryController extends Controller
     // items stock movement 
     public function movements(Request $request)
     {
+        $header = ['Date', 'Product', 'Type', 'Qty', 'Balance', 'Reason', 'Reference', 'User'];
+
         $start = $request->start_date
             ? Carbon::parse($request->start_date)
             : now()->subDays(14);
@@ -40,7 +42,7 @@ class MovementHistoryController extends Controller
         $categories = Categories::orderBy('name')->get();
         $users = User::all();
 
-        return view('admin.stock-movement.index', compact('stockmovements', 'start', 'end', 'categories', 'users'));
+        return view('admin.stock-movement.index', compact('header', 'stockmovements', 'start', 'end', 'categories', 'users'));
     }
 
     public function movementsCount()
@@ -105,6 +107,8 @@ class MovementHistoryController extends Controller
     // value financal movements
     public function financialMovements(Request $request)
     {
+        $header = ['Date', 'Type', 'Category', 'Net Amount', 'Amount', 'Reference', 'User', 'Note'];
+
         $start = $request->start_date
             ? Carbon::parse($request->start_date)
             : now()->subDays(14);
@@ -128,7 +132,7 @@ class MovementHistoryController extends Controller
 
         $users = User::all();
 
-        return view('admin.financial-movement.index', compact('financialmovements', 'start', 'end', 'users'));
+        return view('admin.financial-movement.index', compact('header', 'financialmovements', 'start', 'end', 'users'));
     }
 
     public function financialMovementsCount()

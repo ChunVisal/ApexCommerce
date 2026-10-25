@@ -23,6 +23,7 @@ class InventoryController extends Controller
 
     public function index(Request $request)
     {
+        $header = ['Product', 'Category', 'Current Stock', 'Reorder Level', 'Status', 'Last Updated', 'Actions'];
         $products = Product::query()
             ->with('category')
             ->get();
@@ -39,9 +40,9 @@ class InventoryController extends Controller
             return response()->json($products);
         }
 
-        return view('admin.inventory.index', compact('products', 'categories', 'summaryCards', 'trend', 'cashiers', 'cashierStocks'));
+        return view('admin.inventory.index', compact('header', 'products', 'categories', 'summaryCards', 'trend', 'cashiers', 'cashierStocks'));
     }
-    
+
     /* =========================================================================
      | 2. INVENTORY STOCK OPERATIONS
      | ========================================================================= */
@@ -149,7 +150,7 @@ class InventoryController extends Controller
         $product->decrement('stock_quantity', $request->quantity);
 
         $cashierName = User::find($request->cashier_id)->name;
-        
+
         // check cashier already have some
         $cashierStock = CashierStock::firstOrCreate(
             [

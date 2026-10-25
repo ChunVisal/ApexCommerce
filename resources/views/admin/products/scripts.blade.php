@@ -20,6 +20,8 @@
             selectedProductName: '',
 
             categories: @json($categories),
+            products: @json($products),
+            headers: @json($header),
 
             form: {
                 id: null,
@@ -44,7 +46,6 @@
             },
 
             // search query
-            products: @json($products ?? []),
             categoryProducts: [],
             searchQuery: '',
             categoryFilter: '',
