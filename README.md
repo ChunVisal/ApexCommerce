@@ -52,7 +52,7 @@ A full-stack, web-based Point of Sale (POS) and inventory management platform bu
 - Summary card analytics per module + chart graphs
 - Dark mode & super modern UXD
 - Smart breadcrumb catch prev link page
-- Reusable Blade components
+- Reusable Blade components | everything you see same thing is reusable component
 - Optimized Laravel ORM queries
 - Cloudinary image upload
 
@@ -115,7 +115,7 @@ cd ApexCommerce
 composer install
 npm install
 
-# Environment setup
+# Environment setup // Cloudinary - DB connection
 cp .env.example .env
 php artisan key:generate
 
