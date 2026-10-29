@@ -15,8 +15,8 @@
             },
 
             products: @json($products),
-            headers: @json($header),
-            
+            productUomHeaders: @json($productUomHeaders),
+
             searchQuery: '',
             uomFilter: '',
             statusFilter: '',

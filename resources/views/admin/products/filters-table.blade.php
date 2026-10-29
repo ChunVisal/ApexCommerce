@@ -89,136 +89,108 @@
 </div>
 
 {{-- Table --}}
-<div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-200 dark:border-zinc-800/60">
-    <div class="overflow-x-auto">
-        <div x-show="viewMode === 'table'">
-            <x-table rows="filteredProducts" as="product">
+<div x-show="viewMode === 'table'">
 
-                {{-- Product Image & Name --}}
-                <td class="text-left py-3">
-                    <div class="flex items-center gap-3">
-                        <img :src="product.image ||
-                            'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
-                            class="w-14 h-14 bg-p/10 dark:bg-p/20 rounded-xs shrink-0 object-cover" />
-                        <div>
-                            <p class="font-medium text-gray-800 dark:text-zinc-200 line-clamp-3" x-text="product.name">
-                            </p>
-                            <p class="text-xs text-gray-400 dark:text-zinc-500" x-text="product.code"></p>
-                        </div>
+    <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-200 dark:border-zinc-800/60">
+        <x-table headers="productHeaders" rows="filteredProducts" as="product">
+
+            {{-- Product Image & Name --}}
+            <td class="text-left py-3">
+                <div class="flex items-center gap-3">
+                    <img :src="product.image ||
+                        'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
+                        class="w-14 h-14 bg-p/10 dark:bg-p/20 rounded-xs shrink-0 object-cover" />
+                    <div>
+                        <p class="font-medium text-gray-800 dark:text-zinc-200 line-clamp-3" x-text="product.name">
+                        </p>
+                        <p class="text-xs text-gray-400 dark:text-zinc-500" x-text="product.code"></p>
                     </div>
-                </td>
+                </div>
+            </td>
 
-                {{-- Category --}}
-                <td class="text-center text-gray-600 dark:text-zinc-400" x-text="product.category?.name"></td>
+            {{-- Category --}}
+            <td class="text-center text-gray-600 dark:text-zinc-400" x-text="product.category?.name"></td>
 
-                {{-- Selling Price --}}
-                <td class="text-center font-medium text-gray-800 dark:text-zinc-200"
-                    x-text="'$' + Number(product.selling_price).toFixed(2)"></td>
+            {{-- Selling Price --}}
+            <td class="text-center font-medium text-gray-800 dark:text-zinc-200"
+                x-text="'$' + Number(product.selling_price).toFixed(2)"></td>
 
-                {{-- Stock Status Badge (Alpine Version) --}}
-                <td class=" text-center whitespace-nowrap">
-                    <template x-if="product.stock_quantity == 0">
-                        <span
-                            class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
-                            Out of stock
-                        </span>
-                    </template>
-                    <template
-                        x-if="product.stock_quantity > 0 && product.stock_quantity <= product.low_stock_threshold">
-                        <span
-                            class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
-                            <span x-text="product.stock_quantity"></span> Low
-                        </span>
-                    </template>
-                    <template x-if="product.stock_quantity > product.low_stock_threshold">
-                        <span
-                            class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400">
-                            <span x-text="product.stock_quantity"></span>
-                        </span>
-                    </template>
-                </td>
-
-                {{-- Barcode --}}
-                <td class="text-center text-gray-500 dark:text-zinc-500 text-xs" x-text="product.barcode">
-                </td>
-
-                {{-- Status Badge --}}
-                <td class="text-center">
-                    <span class="px-2 py-0.5 text-[12px] font-semibold rounded-full capitalize"
-                        :class="product.status === 'active' ?
-                            'bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400' :
-                            'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-500'"
-                        x-text="product.status">
+            {{-- Stock Status Badge (Alpine Version) --}}
+            <td class=" text-center whitespace-nowrap">
+                <template x-if="product.stock_quantity == 0">
+                    <span
+                        class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
+                        Out of stock
                     </span>
-                </td>
+                </template>
+                <template x-if="product.stock_quantity > 0 && product.stock_quantity <= product.low_stock_threshold">
+                    <span
+                        class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+                        <span x-text="product.stock_quantity"></span> Low
+                    </span>
+                </template>
+                <template x-if="product.stock_quantity > product.low_stock_threshold">
+                    <span
+                        class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400">
+                        <span x-text="product.stock_quantity"></span>
+                    </span>
+                </template>
+            </td>
 
-                {{-- Timestamps --}}
-                <td class="text-center text-xs whitespace-nowrap">
-                    <p class="text-gray-500 dark:text-zinc-500">Created
-                        <label class="text-gray-600 dark:text-zinc-500 font-semibold"
-                            x-text="new Date(product.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})"></label>
-                    </p>
-                    <p class="text-gray-500 dark:text-zinc-500">Updated
-                        <label class="text-gray-600 dark:text-zinc-500 font-semibold"
-                            x-text="new Date(product.updated_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})"></label>
-                    </p>
-                </td>
+            {{-- Barcode --}}
+            <td class="text-center text-gray-500 dark:text-zinc-500 text-xs" x-text="product.barcode">
+            </td>
 
-                {{-- Actions --}}
-                <td class="text-right">
-                    <div class="flex items-center justify-end gap-1">
-                        <button @click="openEdit(product)"
-                            class="text-gray-400 dark:text-zinc-500 hover:text-p dark:hover:text-p" title="Edit">
-                            <x-heroicon-m-pencil-square class="w-5 h-5" />
-                        </button>
-                        <button @click="deleteProduct(product.id, $el)"
-                            class="mt-[3px] trash-btn text-red-500 hover:text-red-600" title="Delete">
-                            <i class="fa-solid fa-trash text-[16px]"></i>
-                        </button>
-                    </div>
-                </td>
+            {{-- Status Badge --}}
+            <td class="text-center">
+                <span class="px-2 py-0.5 text-[12px] font-semibold rounded-full capitalize"
+                    :class="product.status === 'active' ?
+                        'bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400' :
+                        'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-500'"
+                    x-text="product.status">
+                </span>
+            </td>
 
-                {{-- Bulk Checkbox
+            {{-- Timestamps --}}
+            <td class="text-center text-xs whitespace-nowrap">
+                <p class="text-gray-500 dark:text-zinc-500">Created
+                    <label class="text-gray-600 dark:text-zinc-500 font-semibold"
+                        x-text="new Date(product.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})"></label>
+                </p>
+                <p class="text-gray-500 dark:text-zinc-500">Updated
+                    <label class="text-gray-600 dark:text-zinc-500 font-semibold"
+                        x-text="new Date(product.updated_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})"></label>
+                </p>
+            </td>
+
+            {{-- Actions --}}
+            <td class="text-right">
+                <div class="flex items-center justify-end gap-1">
+                    <button @click="openEdit(product)"
+                        class="text-gray-400 dark:text-zinc-500 hover:text-p dark:hover:text-p" title="Edit">
+                        <x-heroicon-m-pencil-square class="w-5 h-5" />
+                    </button>
+                    <button @click="deleteProduct(product.id, $el)"
+                        class="mt-[3px] trash-btn text-red-500 hover:text-red-600" title="Delete">
+                        <i class="fa-solid fa-trash text-[16px]"></i>
+                    </button>
+                </div>
+            </td>
+
+            {{-- Bulk Checkbox
                             <td class="pl-4">
                                 <input type="checkbox" class="bulk-checkbox rounded border-gray-300 cursor-pointer"
                                     :data-id="product.id" @change="updateBulkBar()">
                             </td> --}}
-            </x-table>
-        </div>
-        @include('admin.products.grid-view')
+            {{-- filter/search has no result --}}
+        </x-table>
 
-        {{-- Empty state for filter/searching --}}
-        <div x-show="products.length > 0 && filteredProducts.length === 0">
-            <div class=" flex flex-col items-center justify-center py-[80px]">
-                <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-                   
-                    <x-heroicon-o-cube class="w-8 h-8 text-gray-400 dark:text-zinc-500" />
-                </div>
-                <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No results
-                    Product found
-                </h3>
-                <p class="text-xs text-gray-400 dark:text-zinc-500">Get started by adding your first
-                    product.</p>
-            </div>
-        </div>
+        <x-empty-state x-show="products.length > 0 && filteredProducts.length === 0" title="No product found"
+            description="Try a different search or filter." />
 
-        {{-- Empty State if product dont exist yet --}}
-        <div x-show="products.length === 0">
-            <div class="py-[80px] flex flex-col items-center justify-center">
-                <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-                    <x-heroicon-o-cube class="w-8 h-8 text-gray-400 dark:text-zinc-500" />
-                </div>
-                <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No products
-                    eixst yet</h3>
-                <p class="text-xs text-gray-400 dark:text-zinc-500">Get started by adding your first
-                    product.</p>
-                <button @click="openAdd()"
-                    class="mt-4 inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md hover:bg-[#0c5972] transition">
-                    <i class="fa-solid fa-plus text-[10px]"></i> Add Your First Product
-                </button>
-            </div>
-        </div>
-
+        {{-- no products yet --}}
+        <x-empty-state x-show="products.length === 0" title="No products exist yet"
+            description="Get started by adding your first product." cta="Add Your First Product" action="openAdd()" />
     </div>
-
 </div>
+@include('admin.products.grid-view')

@@ -49,7 +49,7 @@
 
     <template x-for="activity in filteredActivities" :key="activity.id">
         <div
-            class="border-b border-gray-200/80 dark:border-zinc-700 overflow-hidden flex items-start gap-2 py-5 px-2 dark:border-zinc-900/80 hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
+            class="border-b border-gray-200/80 dark:border-gray-800/50 overflow-hidden flex items-start gap-2 py-5 px-2 hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
             <!-- Avatar -->
             <div
                 class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 ring-2 ring-white dark:ring-zinc-800 overflow-hidden bg-white">

@@ -54,17 +54,6 @@
                         <i class="fa-solid fa-receipt w-4 h-4"></i>
                         Orders
                     </button>
-
-                    <!-- Financial -->
-                    <button @click="setTab('financials')"
-                        :class="tab === 'financials'
-                            ?
-                            'border-[#0F6E8C] text-[#0F6E8C] dark:text-[#1898be] font-semibold' :
-                            'border-transparent text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:border-gray-300 dark:hover:border-zinc-700 font-medium'"
-                        class="inline-flex items-center gap-2 py-3 px-1 border-b-2 text-xs transition-all duration-200 ease-in-out whitespace-nowrap ">
-                        <i class="fa-solid fa-receipt w-4 h-4"></i>
-                        Financials
-                    </button>
                 </nav>
             </div>
 
@@ -81,9 +70,6 @@
                 </div>
                 <div x-show="tab === 'orders'" x-cloak x-cloak x-transition.opacity.duration.150ms>
                     @include('admin.reports.total-orders')
-                </div>
-                <div x-show="tab === 'financials'" x-cloak x-cloak x-transition.opacity.duration.150ms>
-                    @include('admin.reports.total-financial')
                 </div>
             </div>
         </div>

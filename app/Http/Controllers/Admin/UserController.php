@@ -25,6 +25,8 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+        $userHeaders = ['User', 'Phone Number', 'Role', 'Status', 'Last Login', 'Online', 'Actions'];
+
         $summaryCards = UserService::getSummaryCards();
         $users = UserService::getUsers();
 
@@ -32,7 +34,7 @@ class UserController extends Controller
             return response()->json(['users' => $users]);
         }
 
-        return view('admin.users.index', compact('users', 'summaryCards'));
+        return view('admin.users.index', compact('userHeaders', 'users', 'summaryCards'));
     }
 
     /* =========================================================================

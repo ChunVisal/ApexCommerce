@@ -91,7 +91,7 @@
         {{-- Premium Scannable Table Component Container Block --}}
         <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
             <div class="scroll-smooth table-scroll overflow-auto max-h-[600px]" x-ref="tableBody">
-                <x-table rows="paginatedMovements" as="stockmovement">
+                <x-table headers="stockHeaders" rows="paginatedMovements" as="stockmovement">
                     {{-- Date Column Field Element --}}
                     <td class=" text-left text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
                         x-text="new Date(stockmovement.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' ' + new Date(stockmovement.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })">
@@ -157,45 +157,17 @@
                 </x-table>
 
                 {{-- Empty state: filter/search removed everything --}}
-                <div x-show="stockmovements.length > 0 && filteredMovements.length === 0">
-                    <div
-                        class="text-center py-16 bg-white dark:bg-zinc-900 max-w-xs mx-auto flex flex-col items-center justify-center">
-                        <div
-                            class="w-12 h-12 rounded-full bg-gray-50 dark:bg-zinc-800/40 border border-gray-150 dark:border-zinc-800 flex items-center justify-center mb-3">
-                            <x-heroicon-o-currency-dollar class="w-6 h-6 text-gray-400 dark:text-zinc-500" />
-                        </div>
-                        {{-- Typography hierarchy --}}
-                        <p class="text-xs font-bold text-gray-900 dark:text-zinc-200 uppercase tracking-wider">
-                            No Results Found
-                        </p>
-                        <p class="text-[11px] text-gray-400 dark:text-zinc-500 mt-1 max-w-[200px] leading-relaxed">
-                            There are no stock movements matching this filter.
-                        </p>
-                    </div>
-                </div>
+                <x-empty-state icon="heroicon-o-currency-dollar"
+                    x-show="stockmovements.length > 0 && filteredMovements.length === 0" title="No results found"
+                    description="There are no stock movements matching this filter." />
 
-                {{-- Empty State Row --}}
-                <div x-show="stockmovements.length === 0">
-                    <div
-                        class="text-center py-16 bg-white dark:bg-zinc-900 max-w-xs mx-auto flex flex-col items-center justify-center">
-                        {{-- Circular minimalist movement path icon container --}}
-                        <div
-                            class="w-11 h-11 rounded-full bg-gray-50 dark:bg-zinc-800/40 border border-gray-150 dark:border-zinc-800 flex items-center justify-center mb-3">
-                            <x-heroicon-o-arrows-right-left class="w-5 h-5 text-gray-400 dark:text-zinc-500" />
-                        </div>
-                        {{-- Typography hierarchy --}}
-                        <p class="text-xs font-bold text-gray-900 dark:text-zinc-200 uppercase tracking-wider">
-                            No Stock Movements
-                        </p>
-                        <p class="text-[11px] text-gray-400 dark:text-zinc-500 mt-1 max-w-[200px] leading-relaxed">
-                            There are no registered transaction actions or inventory shifts for this filter.
-                        </p>
-                    </div>
-                </div>
+                {{-- Empty state: no stock movements yet --}}
+                <x-empty-state icon="heroicon-o-arrows-right-left" x-show="stockmovements.length === 0"
+                    title="No stock movements"
+                    description="There are no registered transactions or inventory changes yet." />
+
+                {{-- Alpine Pagination --}}
+                <x-pagination />
             </div>
-
-            {{-- Alpine Pagination --}}
-            <x-pagination />
         </div>
-    </div>
-@endsection
+    @endsection

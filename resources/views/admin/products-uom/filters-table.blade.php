@@ -51,9 +51,9 @@
 {{-- UOM Table --}}
 <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-300 dark:border-zinc-800/60">
     <div class="overflow-x-auto">
-        <x-table headers="headers" rows="filteredUomProducts" as="product">
+        <x-table headers="productUomHeaders" rows="filteredUomProducts" as="product">
             {{-- Product Info Column - Improved Layout --}}
-            <td class="py-3 pr-4 min-w-[220px]">
+            <td class="text-left py-3 min-w-[220px]">
                 <div class="flex items-center gap-4">
                     <div class="relative">
                         <img :src="product.image ||
@@ -79,7 +79,7 @@
             </td>
 
             {{-- Base Unit --}}
-            <td class="py-3 px-4 text-center whitespace-nowrap">
+            <td class="text-center whitespace-nowrap">
                 <span
                     class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400"
                     x-text="(product.base_unit_name || 'Unit')">
@@ -87,11 +87,11 @@
             </td>
 
             {{-- Price --}}
-            <td class="py-3 px-4 text-right font-medium text-gray-800 dark:text-zinc-200 text-xs"
+            <td class="text-center font-medium text-gray-800 dark:text-zinc-200 text-xs"
                 x-text="'$' + Number(product.selling_price || 0).toFixed(2)"></td>
 
             {{-- UOM unit --}}
-            <td class="py-3 px-4 text-center">
+            <td class=" text-center">
                 <div class="flex items-center justify-center gap-1 flex-wrap">
                     <template x-for="uom in product.uoms.filter(u => !u.is_default)" :key="uom.id">
                         <div class="relative group">
@@ -125,7 +125,7 @@
             </td>
 
             {{-- Stock Status Badge (Alpine Version) --}}
-            <td class="py-3 px-3 text-center whitespace-nowrap">
+            <td class=" text-center whitespace-nowrap">
                 <template x-if="product.stock_quantity == 0">
                     <span
                         class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
@@ -147,7 +147,7 @@
             </td>
 
             {{-- Timestamps --}}
-            <td class="py-3 px-4 text-xs whitespace-nowrap">
+            <td class="text-center text-xs whitespace-nowrap">
                 <p class="text-gray-500 dark:text-zinc-400">Created
                     <label class="text-gray-600 dark:text-zinc-500 font-semibold"
                         x-text="product.created_at ? new Date(product.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'"></label>
@@ -159,7 +159,7 @@
             </td>
 
             {{-- Actions --}}
-            <td class="py-3 pl-2">
+            <td class="text-right">
                 <div class="flex items-center justify-end gap-1">
                     <button @click="openUomForm(product)" type="button"
                         class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] dark:hover:text-[#0F6E8C]"
@@ -175,35 +175,11 @@
         </x-table>
     </div>
 
-
     {{-- Empty state for filter/searching --}}
-    <div x-show="!filteredUomProducts.length > 0 && filteredUomProducts.length === 0">
-        <div class=" flex flex-col items-center justify-center py-[80px]">
-            <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-                <x-heroicon-o-cube class="w-8 h-8 text-gray-400 dark:text-zinc-500" />
-            </div>
-            <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No results
-                Product UOM found
-            </h3>
-            <p class="text-xs text-gray-400 dark:text-zinc-500">Get started by adding your first
-                product.</p>
-        </div>
-    </div>
+    <x-empty-state x-show="products.length > 0 && filteredUomProducts.length === 0" title="No Product UOM found"
+        description="Try a different search or filter." />
 
-
-    {{-- Empty State --}}
-    <template x-if="products.length === 0">
-        <div class="py-[80px] text-center">
-            <div
-                class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center">
-                <x-heroicon-o-cube class="w-8 h-8 text-gray-400 dark:text-zinc-500" />
-            </div>
-            <h3 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-1">No products yet</h3>
-            <p class="text-xs text-gray-400 dark:text-zinc-500">Start by adding your first product UOM.</p>
-            <button @click="openUomForm(null)"
-                class="mt-4 inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#0F6E8C] rounded-md hover:bg-[#0c5972] transition">
-                <i class="fa-solid fa-plus text-[10px]"></i> Add Product UOM
-            </button>
-        </div>
-    </template>
+    {{-- Empty state, no products yet --}}
+    <x-empty-state x-show="products.length === 0" title="No products yet"
+        description="Start by adding your first product UOM." cta="Add Product UOM" action="openUomForm(null)" />
 </div>

@@ -4,6 +4,7 @@
         return {
             basePath: '{{ request()->is("admin/*") ? "admin" : "cashier" }}',
             
+            customerHeaders: @json($customerHeaders),
             customers: @json($customers),
             searchQuery: '',
             filterSegment: '',

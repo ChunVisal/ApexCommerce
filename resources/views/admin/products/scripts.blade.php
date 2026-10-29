@@ -21,7 +21,7 @@
 
             categories: @json($categories),
             products: @json($products),
-            headers: @json($header),
+            productHeaders: @json($productHeaders),
 
             form: {
                 id: null,

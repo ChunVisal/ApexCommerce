@@ -28,6 +28,7 @@
             },
 
             users: @json($users),
+            userHeaders: @json($userHeaders),
             searchQuery: '',
             roleFilter: 'all',
             statusFilter: 'all',

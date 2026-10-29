@@ -17,19 +17,25 @@ class ReportController extends Controller
     {
         $start = $request->start_date ? Carbon::parse($request->start_date) : now()->subDays(14);
         $end = $request->end_date ? Carbon::parse($request->end_date) : now();
+
+        $headers = [
+            'dailySales'  => ['Date', 'Orders', 'Items', 'Revenue', 'Discount', 'VIP Discount', 'Tax', 'Net Total'],
+            'topCashiers' => ['#', 'Cashier', 'Orders', 'Items Sold', 'Revenue', 'Discounts', 'Avg Order', 'Net Revenue'],
+            'orders'      => ['Order No.', 'Cashier', 'Customer', 'Items', 'Total', 'Payment', 'Date', 'Status'],
+        ];
+
         $summaryCards = ReportService::getSummaryCards($request->start_date, $request->end_date);
         $dailySales = ReportService::getDailySales($start, $end);
         $topCashiers = ReportService::getTopCashiers($start, $end);
         $paymentBreakdown = ReportService::getPaymentBreakdown($start, $end);
         $paymentSummary = ReportService::getPaymentSummaryCards($start, $end);
         $orders = ReportService::getOrders($start, $end);
-        $financials = ReportService::getFinancials($start, $end);
 
         return view('admin.reports.index', compact(
+            'headers',
             'summaryCards',
             'dailySales',
             'orders',
-            'financials',
             'topCashiers',
             'paymentBreakdown',
             'paymentSummary',
@@ -86,7 +92,7 @@ class ReportController extends Controller
             fputcsv($file, []); // blank line as a section spacer
 
             fputcsv($file, ['FINANCIAL MOVEMENT REPORT']);
-            fputcsv($file, ['Date', 'Type', 'Category', 'Net Amount', 'Amount', 'Reference', 'User', 'Source', 'Notes' ]);
+            fputcsv($file, ['Date', 'Type', 'Category', 'Net Amount', 'Amount', 'Reference', 'User', 'Source', 'Notes']);
             foreach ($financials as $financial) {
                 fputcsv($file, [
                     $financial->created_at->format('Y-m-d H:i'),

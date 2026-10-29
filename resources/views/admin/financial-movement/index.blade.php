@@ -46,7 +46,7 @@
         {{-- Table --}}
         <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
             <div class="scroll-smooth table-scroll overflow-auto max-h-[600px]" x-ref="tableBody">
-                <x-table rows="paginatedMovements" as="m">
+                <x-table headers="financialHeader" rows="paginatedMovements" as="m">
                     <td class="text-left text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
                         x-text="new Date(m.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })">
                     </td>
@@ -68,7 +68,7 @@
                         x-text="m.reference || '-'"></td>
                     {{-- Authorized User Metadata Structure Layout --}}
                     <td class="text-center py-3 text-xs">
-                        <div class="">
+                        <div class="inline-block text-left">
                             <p class="font-medium text-gray-800 dark:text-zinc-300" x-text="m.user?.name || '-'">
                             </p>
                             <p class="text-gray-400 dark:text-zinc-500 scale-95 origin-left mt-0.5"
@@ -76,6 +76,7 @@
                             </p>
                         </div>
                     </td>
+
                     <td class="pr-2 w-[270px] max-w-[270px] text-xs text-gray-800 dark:text-zinc-300">
                         <div class="flex justify-end">
                             <div class="text-left">
@@ -86,43 +87,13 @@
                 </x-table>
 
                 {{-- Empty state: filter/search removed everything --}}
-                <div x-show="movements.length > 0 && filteredMovements.length === 0">
-                    <div
-                        class="text-center py-16 bg-white dark:bg-zinc-900 max-w-xs mx-auto flex flex-col items-center justify-center">
-                        <div
-                            class="w-12 h-12 rounded-full bg-gray-50 dark:bg-zinc-800/40 border border-gray-150 dark:border-zinc-800 flex items-center justify-center mb-3">
-                            <x-heroicon-o-currency-dollar class="w-6 h-6 text-gray-400 dark:text-zinc-500" />
-                        </div>
-                        {{-- Typography hierarchy --}}
-                        <p class="text-xs font-bold text-gray-900 dark:text-zinc-200 uppercase tracking-wider">
-                            No Results Found
-                        </p>
-                        <p class="text-[11px] text-gray-400 dark:text-zinc-500 mt-1 max-w-[200px] leading-relaxed">
-                            There are no financial movements matching this filter.
-                        </p>
-                    </div>
-                </div>
+                <x-empty-state icon="heroicon-o-currency-dollar"
+                    x-show="movements.length > 0 && filteredMovements.length === 0" title="No results found"
+                    description="There are no financial movements matching this filter." />
 
-
-                {{-- Empty State Row --}}
-                <div x-show="movements.length === 0">
-                    <div
-                        class="text-center py-16 bg-white dark:bg-zinc-900 max-w-xs mx-auto flex flex-col items-center justify-center">
-                        {{-- Circular minimalist movement path icon container --}}
-                        <div
-                            class="w-12 h-12 rounded-full bg-gray-50 dark:bg-zinc-800/40 border border-gray-150 dark:border-zinc-800 flex items-center justify-center mb-3">
-                            <x-heroicon-o-currency-dollar class="w-6 h-6 text-gray-400 dark:text-zinc-500" />
-                        </div>
-
-                        {{-- Typography hierarchy --}}
-                        <p class="text-xs font-bold text-gray-900 dark:text-zinc-200 uppercase tracking-wider">
-                            No Financial Movements
-                        </p>
-                        <p class="text-[11px] text-gray-400 dark:text-zinc-500 mt-1 max-w-[200px] leading-relaxed">
-                            There are no registered financial transactions for this filter.
-                        </p>
-                    </div>
-                </div>
+                {{-- Empty state: no financial movements yet --}}
+                <x-empty-state icon="heroicon-o-currency-dollar" x-show="movements.length === 0"
+                    title="No financial movements" description="There are no registered financial transactions yet." />
             </div>
 
             <x-pagination />

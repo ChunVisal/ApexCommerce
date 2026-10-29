@@ -25,8 +25,8 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $header = ['Product', 'Category', 'Price', 'Stock', 'Barcode', 'Status', 'Date', 'Actions'];
-
+        $productHeaders = ['Product', 'Category', 'Price', 'Stock', 'Barcode', 'Status', 'Date', 'Actions'];
+    
         $categories = Categories::withSum('products as total_stock', 'stock_quantity')->get();
 
         $products = Product::with('category')
@@ -37,7 +37,7 @@ class ProductController extends Controller
             return response()->json($products);
         }
 
-        return view('admin.products.index', compact('header', 'products', 'categories'));
+        return view('admin.products.index', compact('productHeaders', 'products', 'categories'));
     }
 
     public function store(Request $request)
@@ -247,7 +247,7 @@ class ProductController extends Controller
 
     public function indexUoms()
     {
-        $header = ['Product', 'Base Unit', 'Price', 'UOMs', 'Stock', 'Date', 'Actions'];
+        $productUomHeaders = ['Product', 'Base Unit', 'Price', 'UOMs', 'Stock', 'Date', 'Actions'];
         $categories = Categories::all();
         $products = Product::with('uoms', 'category')->where('has_uom', true)->get();
 
@@ -259,7 +259,7 @@ class ProductController extends Controller
             }
         }
 
-        return view('admin.products-uom.index', compact('header', 'products', 'categories', 'uomCounts'));
+        return view('admin.products-uom.index', compact('productUomHeaders', 'products', 'categories', 'uomCounts'));
     }
 
     public function storeUom(Request $request)

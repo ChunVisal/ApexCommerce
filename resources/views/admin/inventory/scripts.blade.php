@@ -19,7 +19,7 @@
                 quantity: 1
             },
 
-            headers: @json($header),
+            productHeaders: @json($productHeaders),
             products: @json($products),
             cashierStocks: @json($cashierStocks),
             searchQuery: '',

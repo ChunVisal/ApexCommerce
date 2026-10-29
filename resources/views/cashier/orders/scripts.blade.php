@@ -9,6 +9,7 @@
             searchQuery: '',
             dateFilter: 'all',
             paymentFilter: 'all',
+            ordersHeaders: @json($ordersHeaders),
             orders: @json($orders),
 
             currentPage: 1,
@@ -158,8 +159,7 @@
                         },
                         body: JSON.stringify({
                             reason: this.refundReasonSelect === 'Other' ?
-                                this.refundReason :
-                                this.refundReasonSelect,
+                                this.refundReason : this.refundReasonSelect,
                             items: items,
                         })
                     })

@@ -1,7 +1,7 @@
  <script>
      function financialPage() {
          return {
-             headers: @json($header),
+             financialHeader: @json($financialHeader),
              movements: @json($financialmovements),
              searchQuery: '',
              filterType: '',

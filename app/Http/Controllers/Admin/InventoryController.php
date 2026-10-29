@@ -22,8 +22,8 @@ class InventoryController extends Controller
      | ========================================================================= */
 
     public function index(Request $request)
-    {
-        $header = ['Product', 'Category', 'Current Stock', 'Reorder Level', 'Status', 'Last Updated', 'Actions'];
+{
+        $productHeaders = ['Product', 'Category', 'Current Stock', 'Reorder Level', 'Status', 'Last Updated', 'Actions'];
         $products = Product::query()
             ->with('category')
             ->get();
@@ -40,7 +40,7 @@ class InventoryController extends Controller
             return response()->json($products);
         }
 
-        return view('admin.inventory.index', compact('header', 'products', 'categories', 'summaryCards', 'trend', 'cashiers', 'cashierStocks'));
+        return view('admin.inventory.index', compact('productHeaders', 'products', 'categories', 'summaryCards', 'trend', 'cashiers', 'cashierStocks'));
     }
 
     /* =========================================================================

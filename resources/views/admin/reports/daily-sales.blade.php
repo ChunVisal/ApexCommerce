@@ -14,56 +14,28 @@
     </div>
 
     {{-- Table --}}
-    <div class="overflow-x-auto tab-container max-h-[400px] overflow-y-auto">
-        <table class="w-full text-sm">
-            <thead class="sticky top-0 bg-white dark:bg-zinc-900">
-                <tr
-                    class="text-left text-xs text-gray-500 dark:text-zinc-400 border-b border-gray-200 dark:border-zinc-800">
-                    <th class="py-3 pl-4 font-medium">Date</th>
-                    <th class="py-3 px-4 font-medium text-center">Orders</th>
-                    <th class="py-3 px-4 font-medium text-center">items</th>
-                    <th class="py-3 px-4 font-medium text-right">Revenue</th>
-                    <th class="py-3 px-4 font-medium text-right">Discount</th>
-                    <th class="py-3 px-4 font-medium text-right">VIP Discount</th>
-                    <th class="py-3 px-4 font-medium text-right">Tax</th>
-                    <th class="py-3 pr-7 font-medium text-right">Net Total</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-zinc-800/50">
-                @forelse($dailySales as $sale)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-zinc-800/30 transition">
-                        <td class="py-3 pl-4 font-medium text-gray-800 dark:text-zinc-200">
-                            {{ Carbon\Carbon::parse($sale->date)->format('D, M d, Y') }}
-                        </td>
-                        <td class="py-3 px-4 text-center text-gray-700 dark:text-zinc-200">
-                            {{ $sale->orders }}
-                        </td>
-                        <td class="py-3 px-4 text-center text-gray-700 dark:text-zinc-200">
-                            {{ $sale->items_qty }}
-                        </td>
-                        <td class="py-3 px-4 text-right font-bold text-gray-800 dark:text-zinc-200">
-                            ${{ number_format($sale->revenue, 2) }}
-                        </td>
-                        <td class="py-3 px-4 text-right font-semibold text-red-500">
-                            -${{ number_format($sale->discount, 2) }}
-                        </td>
-                        <td class="py-3 px-4 text-right font-semibold text-yellow-600">
-                            -${{ number_format($sale->vip_discount, 2) }}
-                        </td>
-                        <td class="py-3 px-4 text-right text-gray-600 dark:text-zinc-300">
-                            ${{ number_format($sale->tax, 2) }}
-                        </td>
-                        <td class="py-3 pr-7 text-right font-bold text-[#0F6E8C]">
-                            ${{ number_format($sale->revenue - $sale->discount - $sale->vip_discount - $sale->tax, 2) }}
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="text-center py-8 text-gray-400 text-sm">No sales data</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="p-4 rounded-md shadow-xs border border-gray-200 dark:border-zinc-800/60">
+        
+        <x-table headers="headers.dailySales" rows="dailySales" as="sale">
+            <td class="py-3 text-left font-medium text-gray-800 dark:text-zinc-200"
+                x-text="new Date(sale.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' })">
+            </td>
+            <td class="py-3 text-center text-gray-700 dark:text-zinc-200" x-text="sale.orders"></td>
+            <td class="text-center text-gray-700 dark:text-zinc-200" x-text="sale.items_qty"></td>
+            <td class="text-center font-bold text-gray-800 dark:text-zinc-200"
+                x-text="'$' + Number(sale.revenue).toFixed(2)"></td>
+            <td class="text-center  font-semibold text-red-500" x-text="'-$' + Number(sale.discount).toFixed(2)">
+            </td>
+            <td class="text-center font-semibold text-yellow-600" x-text="'-$' + Number(sale.vip_discount).toFixed(2)">
+            </td>
+            <td class="text-center  text-gray-600 dark:text-zinc-300" x-text="'$' + Number(sale.tax).toFixed(2)">
+            </td>
+            <td class="text-right font-bold text-[#0F6E8C]"
+                x-text="'$' + (sale.revenue - sale.discount - sale.vip_discount - sale.tax).toFixed(2)"></td>
+        </x-table>
+
+        <x-empty-state icon="heroicon-o-chart-bar" x-show="dailySales.length === 0" title="No sales data"
+            description="There are no sales in the selected date range." />
     </div>
 </div>
 
@@ -94,7 +66,6 @@
                     borderWidth: 2.5,
                     backgroundColor: gradient,
                     fill: true,
-                    tension: 0.4,
                     pointBackgroundColor: '#0F6E8C',
                     pointBorderColor: '#18181B',
                     pointBorderWidth: 2,

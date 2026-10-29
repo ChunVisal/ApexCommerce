@@ -15,10 +15,11 @@ class CustomerController extends Controller
 {
     public function index()
     {
+        $customerHeaders = ['Customer', 'No.', 'Phone Number', 'Segment', 'Orders', 'Total Spent', 'Last Order', 'Actions'];
         $customers = CustomerService::getCustomersWithSegments();
         $summaryCards = CustomerService::getSummaryCards();
 
-        return view('admin.customers.index', compact('customers', 'summaryCards'));
+        return view('admin.customers.index', compact('customerHeaders', 'customers', 'summaryCards'));
     }
 
     public function show(int $id)

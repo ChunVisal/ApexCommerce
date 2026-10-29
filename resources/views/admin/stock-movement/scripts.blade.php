@@ -1,8 +1,9 @@
 <script>
     function movementPage() {
         return {
+            stockHeaders: @json($stockHeaders),
             stockmovements: @json($stockmovements),
-            headers: @json($header),
+
             searchQuery: '',
             filterType: '',
             categoryFilter: '',

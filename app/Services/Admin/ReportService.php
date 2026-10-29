@@ -127,15 +127,18 @@ class ReportService
             $dateKey = $current->format('Y-m-d');
             $sale = $dailySales->get($dateKey);
 
-            $allDates[$dateKey] = (object) [
-                'date' => $dateKey,
-                'orders' => $sale->orders ?? 0,
-                'revenue' => $sale->revenue ?? 0,
-                'discount' => $sale->discount ?? 0,
-                'vip_discount' => $sale->vip_discount ?? 0,
-                'tax' => $sale->tax ?? 0,
-                'items_qty' => $itemsQty->get($dateKey) ?? 0,
-            ];
+            if ($sale) {
+                $allDates[$dateKey] = (object) [
+                    'date' => $dateKey,
+                    'orders' => $sale->orders,
+                    'revenue' => $sale->revenue,
+                    'discount' => $sale->discount,
+                    'vip_discount' => $sale->vip_discount,
+                    'tax' => $sale->tax,
+                    'items_qty' => $itemsQty->get($dateKey) ?? 0,
+                ];
+            }
+
             $current->addDay();
         }
 
@@ -260,16 +263,9 @@ class ReportService
     }
     public static function getOrders($start, $end)
     {
-        return Order::with(['cashier', 'customer', 'payment', 'items'])
+        return Order::with(['cashier:id,name', 'customer:id,name', 'payment:id,order_id,method'])
+            ->withSum('items as items_qty', 'quantity')
             ->whereBetween('orders.created_at', [$start, $end])
-            ->latest()
-            ->get();
-    }
-
-    public static function getFinancials($start, $end)
-    {
-        return FinancialMovement::with('user')
-            ->whereBetween('created_at', [$start, $end])
             ->latest()
             ->get();
     }

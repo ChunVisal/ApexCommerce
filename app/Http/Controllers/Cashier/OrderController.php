@@ -22,6 +22,7 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
+        $ordersHeaders = ['Order', 'Customer', 'Items', 'Total', 'Payment', 'Date', 'Refunded At', 'Actions'];
         $orders = OrderService::getCashierOrders(Auth::id(), $request->payment, $request->search, $request->filter);
 
         if ($request->has('ajax')) {
@@ -39,7 +40,7 @@ class OrderController extends Controller
         ];
         $selectedFilter = $filterLabels[$request->filter ?? 'all_time'] ?? 'All Time';
 
-        return view('cashier.orders.index', compact('orders', 'summaryCards', 'selectedFilter'));
+        return view('cashier.orders.index', compact('ordersHeaders', 'orders', 'summaryCards', 'selectedFilter'));
     }
 
     public function show(int $id)
