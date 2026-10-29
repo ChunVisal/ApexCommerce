@@ -1,37 +1,6 @@
 {{-- resources/views/components/customers/filters-table.blade.php --}}
 
 {{-- Segment Filters --}}
-<div class="flex flex-wrap gap-2 mb-4">
-    <button @click="filterSegment = ''"
-        :class="filterSegment === '' ? 'bg-[#0F6E8C] text-white border-[#0F6E8C]' :
-            'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-700'"
-        class="px-3 py-1.5 text-xs font-medium rounded-full border transition">
-        All Customers
-        <span class="ml-1 opacity-70">({{ $customers->count() }})</span>
-    </button>
-    <button @click="filterSegment = 'vip'"
-        :class="filterSegment === 'vip' ? 'bg-yellow-500 text-white border-yellow-500' :
-            'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-700'"
-        class="px-3 py-1.5 text-xs font-medium rounded-full border transition">
-        VIP Members
-        <span class="ml-1 opacity-70">({{ $customers->where('segment', 'vip')->count() }})</span>
-    </button>
-    <button @click="filterSegment = 'regular'"
-        :class="filterSegment === 'regular' ? 'bg-blue-500 text-white border-blue-500' :
-            'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-700'"
-        class="px-3 py-1.5 text-xs font-medium rounded-full border transition">
-        Regular Customers
-        <span class="ml-1 opacity-70">({{ $customers->where('segment', 'regular')->count() }})</span>
-    </button>
-    <button @click="filterSegment = 'new'"
-        :class="filterSegment === 'new' ? 'bg-green-500 text-white border-green-500' :
-            'bg-white dark:bg-zinc-900 text-gray-600 dark:text-zinc-400 border-gray-300 dark:border-zinc-700'"
-        class="px-3 py-1.5 text-xs font-medium rounded-full border transition">
-        New Customers
-        <span class="ml-1 opacity-70">({{ $customers->where('segment', 'new')->count() }})</span>
-    </button>
-</div>
-
 {{-- Search & Sort --}}
 <div class="flex flex-wrap items-center gap-2 mb-4">
     <x-search-input placeholder="Search by name, email or phone..." />
@@ -54,7 +23,7 @@
 {{-- Customers Table --}}
 <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
     <x-table headers="customerHeaders" rows="filteredCustomers" as="customer">
-        <td class="py-3 text-left">
+        <td class="py-3 ">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
                     :style="'background-color: ' + ['#0F6E8C', '#1a8aa8', '#2563EB', '#7C3AED', '#059669',
@@ -69,11 +38,11 @@
             </div>
         </td>
 
-        <td class="text-center text-md font-mono text-gray-700 dark:text-zinc-300" x-text="customer.code"></td>
-        <td class="text-center text-xs text-gray-500 dark:text-zinc-400 truncate" x-text="customer.phone">
+        <td class=" text-md font-mono text-gray-700 dark:text-zinc-300" x-text="customer.code"></td>
+        <td class=" text-xs text-gray-500 dark:text-zinc-400 truncate" x-text="customer.phone">
         </td>
 
-        <td class="text-center whitespace-nowrap">
+        <td class=" whitespace-nowrap">
             <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full"
                 :class="{
                     'bg-yellow-50 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-300': customer
@@ -87,14 +56,14 @@
             </span>
         </td>
 
-        <td class="text-center font-medium text-gray-700 dark:text-zinc-300" x-text="customer.total_orders">
+        <td class=" font-medium text-gray-700 dark:text-zinc-300" x-text="customer.total_orders">
         </td>
-        <td class="text-center font-semibold text-gray-700 dark:text-zinc-300">$<span
+        <td class=" font-semibold text-gray-700 dark:text-zinc-300">$<span
                 x-text="parseFloat(customer.total_spent || 0).toFixed(2)"></span></td>
-        <td class="text-center text-xs text-gray-500 dark:text-zinc-400"
+        <td class=" text-xs text-gray-500 dark:text-zinc-400"
             x-text="customer.last_order_at ? new Date(customer.last_order_at).toLocaleDateString('en-US', {hour: 'numeric', minute: 'numeric', month:'short', day:'numeric', year:'numeric'}) : '-'">
         </td>
-        <td class="text-right">
+        <td class="">
             <div class="flex items-center justify-end gap-2">
                 @if (auth()->user()->role === 'cashier')
                     <button @click="editCustomer(customer)" type="button"

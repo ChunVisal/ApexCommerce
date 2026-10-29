@@ -57,9 +57,9 @@
     {{-- Orders Component Box Container --}}
     <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
         <x-table headers="ordersHeaders" rows="filteredOrders" as="order">
-            <td class="py-3 pl-4 pr-2 font-medium text-gray-800 dark:text-zinc-200" x-text="order.order_number"></td>
+            <td class="py-3 font-medium text-gray-800 dark:text-zinc-200" x-text="order.order_number"></td>
 
-            <td class="py-3 px-4">
+            <td class="">
                 <div class="min-w-0">
                     <p class="font-medium text-gray-800 dark:text-zinc-200 truncate"
                         x-text="order.customer?.name || 'Walk-in'"></p>
@@ -67,13 +67,13 @@
                 </div>
             </td>
 
-            <td class="py-3 px-4 text-center font-medium text-gray-700 dark:text-zinc-300"
+            <td class="  font-medium text-gray-700 dark:text-zinc-300"
                 x-text="order.items.reduce((sum, i) => sum + (i.quantity || 0), 0)"></td>
 
             <td class="font-medium text-gray-800 dark:text-zinc-300"
                 x-text="'$' + (parseFloat(order.total) || 0).toFixed(2)"></td>
 
-            <td class="py-3 px-4">
+            <td class="">
                 <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full uppercase"
                     :class="{
                         'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': order
@@ -94,7 +94,7 @@
                 x-text="order.refunded_at ? new Date(order.refunded_at).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Not Refunded'">
             </td>
 
-            <td class="py-3 pr-4 pl-2 text-right">
+            <td class="">
                 <button @click="viewOrder(order.id)" class="text-yellow-400 hover:text-yellow-500">
                     <i class="fa-solid fa-receipt text-lg"></i>
                 </button>
@@ -121,8 +121,9 @@
         {{-- no orders at all --}}
         <x-empty-state icon="heroicon-o-receipt-percent" x-show="orders.length === 0" title="No orders yet"
             description="Orders will appear here once they are placed." />
+
+        {{-- Alpine Pagination --}}
+        <x-pagination />
     </div>
 
-    {{-- Alpine Pagination --}}
-    <x-pagination />
 </div>

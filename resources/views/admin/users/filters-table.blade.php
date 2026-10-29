@@ -42,7 +42,7 @@
 
     <x-table headers="userHeaders" rows="filteredUsers" as="user">
         {{-- User Info & Avatar --}}
-        <td class="py-3 text-left">
+        <td class="py-3">
             <button class="flex items-center gap-3 cursor-pointer text-left" @click="openDetail(user.id)">
                 <div class="relative">
                     <div class="w-12 h-12 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0 overflow-hidden"
@@ -70,12 +70,12 @@
             </button>
         </td>
 
-        <td class="text-center">
+        <td class="">
             <p class="text-xs text-gray-400 dark:text-zinc-400" x-text="user.phone"></p>
         </td>
 
         {{-- Role --}}
-        <td class="text-center">
+        <td class="">
             <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full capitalize"
                 :class="user.role === 'admin' ?
                     'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' :
@@ -85,7 +85,7 @@
         </td>
 
         {{-- Account Status --}}
-        <td class="text-center">
+        <td class="">
             <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full"
                 :class="user.status === 'active' ?
                     'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400' :
@@ -95,11 +95,11 @@
         </td>
 
         {{-- Last Login --}}
-        <td class="text-center text-xs text-gray-500 dark:text-zinc-400"
+        <td class=" text-xs text-gray-500 dark:text-zinc-400"
             x-text="user.last_login ? new Date(user.last_login).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Never'">
         </td>
         {{-- Online / Offline Status Badge --}}
-        <td class="text-center">
+        <td class="">
             <template x-if="user.is_online">
                 <span
                     class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Online</span>
@@ -111,7 +111,7 @@
         </td>
 
         {{-- Actions --}}
-        <td class="text-center">
+        <td class="">
             <div class="flex items-center justify-end gap-2">
                 <button @click="openEdit(user)" type="button"
                     class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] transition-colors" title="Edit">
@@ -122,13 +122,9 @@
                     class="text-red-500 hover:text-red-600 transition-colors" title="Delete">
                     <i class="mt-[4px] fa-solid fa-trash text-[15px]"></i>
                 </button>
+                {{-- <input type="checkbox" class="bulk-checkbox rounded border-gray-300 dark:border-zinc-600 cursor-pointer"
+                    :data-id="user.id" @change="updateBulkBar()"> --}}
             </div>
-        </td>
-
-        {{-- Checkbox --}}
-        <td class="text-right">
-            <input type="checkbox" class="bulk-checkbox rounded border-gray-300 dark:border-zinc-600 cursor-pointer"
-                :data-id="user.id" @change="updateBulkBar()">
         </td>
     </x-table>
 

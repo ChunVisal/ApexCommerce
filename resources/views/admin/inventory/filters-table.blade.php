@@ -37,7 +37,7 @@
 <!-- Stock Table -->
 <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-200 dark:border-zinc-800/60 mb-4">
     <x-table headers="productHeaders" rows="filteredProducts" as="product">
-        <td class="text-left py-3">
+        <td class=" py-3">
             <div class="flex items-center gap-3">
                 <img :src="product.image ||
                     'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
@@ -48,10 +48,10 @@
                 </div>
             </div>
         </td>
-        <td class="text-center text-gray-600 dark:text-zinc-400 whitespace-nowrap"
+        <td class=" text-gray-600 dark:text-zinc-400 whitespace-nowrap"
             x-text="product.category?.name || 'Unassigned'">
         </td>
-        <td class="text-center whitespace-nowrap">
+        <td class=" whitespace-nowrap">
             <template x-if="product.stock_quantity <= 0">
                 <span
                     class="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
@@ -74,9 +74,9 @@
                 </span>
             </template>
         </td>
-        <td class="text-center text-gray-500 dark:text-zinc-400" x-text="product.low_stock_threshold">
+        <td class=" text-gray-500 dark:text-zinc-400" x-text="product.low_stock_threshold">
         </td>
-        <td class="text-center whitespace-nowrap">
+        <td class=" whitespace-nowrap">
             <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full"
                 :class="product.status === 'active' ?
                     'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
@@ -84,11 +84,11 @@
                 x-text="product.status.charAt(0).toUpperCase() + product.status.slice(1)">
             </span>
         </td>
-        <td class="text-center text-gray-500 dark:text-zinc-500 text-xs whitespace-nowrap"
+        <td class=" text-gray-500 dark:text-zinc-500 text-xs whitespace-nowrap"
             x-text="product.updated_at ? new Date(product.updated_at).toLocaleDateString('en-US', {hour: 'numeric', minute: '2-digit', month:'short', day:'numeric', year:'numeric'}) : '-'">
         </td>
 
-        <td class="text-right">
+        <td class="">
             <div class="flex items-center justify-end gap-3">
                 {{-- Stock Drop - only for active --}}
                 <template x-if="product.status === 'active'">

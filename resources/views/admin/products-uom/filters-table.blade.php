@@ -53,7 +53,7 @@
     <div class="overflow-x-auto">
         <x-table headers="productUomHeaders" rows="filteredUomProducts" as="product">
             {{-- Product Info Column - Improved Layout --}}
-            <td class="text-left py-3 min-w-[220px]">
+            <td class=" py-3 min-w-[220px]">
                 <div class="flex items-center gap-4">
                     <div class="relative">
                         <img :src="product.image ||
@@ -79,7 +79,7 @@
             </td>
 
             {{-- Base Unit --}}
-            <td class="text-center whitespace-nowrap">
+            <td class=" whitespace-nowrap">
                 <span
                     class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400"
                     x-text="(product.base_unit_name || 'Unit')">
@@ -87,11 +87,11 @@
             </td>
 
             {{-- Price --}}
-            <td class="text-center font-medium text-gray-800 dark:text-zinc-200 text-xs"
+            <td class=" font-medium text-gray-800 dark:text-zinc-200 text-xs"
                 x-text="'$' + Number(product.selling_price || 0).toFixed(2)"></td>
 
             {{-- UOM unit --}}
-            <td class=" text-center">
+            <td class=" ">
                 <div class="flex items-center justify-center gap-1 flex-wrap">
                     <template x-for="uom in product.uoms.filter(u => !u.is_default)" :key="uom.id">
                         <div class="relative group">
@@ -125,7 +125,7 @@
             </td>
 
             {{-- Stock Status Badge (Alpine Version) --}}
-            <td class=" text-center whitespace-nowrap">
+            <td class="  whitespace-nowrap">
                 <template x-if="product.stock_quantity == 0">
                     <span
                         class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
@@ -147,7 +147,7 @@
             </td>
 
             {{-- Timestamps --}}
-            <td class="text-center text-xs whitespace-nowrap">
+            <td class=" text-xs whitespace-nowrap">
                 <p class="text-gray-500 dark:text-zinc-400">Created
                     <label class="text-gray-600 dark:text-zinc-500 font-semibold"
                         x-text="product.created_at ? new Date(product.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'"></label>
@@ -159,7 +159,7 @@
             </td>
 
             {{-- Actions --}}
-            <td class="text-right">
+            <td class="">
                 <div class="flex items-center justify-end gap-1">
                     <button @click="openUomForm(product)" type="button"
                         class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] dark:hover:text-[#0F6E8C]"

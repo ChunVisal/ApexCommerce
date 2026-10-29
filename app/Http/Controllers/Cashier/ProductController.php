@@ -19,6 +19,8 @@ class ProductController extends Controller
     {
         $cashierId = Auth::id();
 
+        $productHeaders = ['Product', 'Category', 'Allocated', 'Sold', 'Remaining', 'Lost', 'Price', 'Revenue', 'Status', 'Last Drop', 'Action'];
+        $productUomHeaders = ['Product', 'Category', 'Base Unit', 'UOM Units', 'Allocated', 'Sold', 'Remaining', 'Lost', 'Base Price', 'Revenue', 'Last Drop', 'Action'];
         $products = ProductService::getCashierProducts($cashierId);
 
         if ($request->ajax()) {
@@ -32,7 +34,7 @@ class ProductController extends Controller
 
         $summaryCards = ProductService::getSummaryCards();
 
-        return view('cashier.products.index', compact('products', 'summaryCards', 'categories', 'allProducts'));
+        return view('cashier.products.index', compact('productUomHeaders', 'productHeaders', 'products', 'summaryCards', 'categories', 'allProducts'));
     }
 
     public function reportLoss(Request $request)
@@ -86,7 +88,7 @@ class ProductController extends Controller
             'seen_at' => null,
         ]);
 
-        ActivityService::log(   
+        ActivityService::log(
             'loss_reported',
             'reported a loss of ' . $request->quantity . ' units for product' . $product->name . ' with reason: ' . $request->reason,
             'Product',
@@ -97,7 +99,7 @@ class ProductController extends Controller
     }
 
     public function returnToWarehouse(Request $request)
-    {       
+    {
         $product = Product::find($request->product_id);
 
         if (!$product) {
@@ -109,7 +111,7 @@ class ProductController extends Controller
             ->first();
 
         if (!$cashierStock) {
-        return response()->json(['message' => 'No cashier stock found for this product.'], 422);
+            return response()->json(['message' => 'No cashier stock found for this product.'], 422);
         }
 
         $remaining = $cashierStock->allocated_quantity - $cashierStock->sold_quantity - $cashierStock->lost_quantity;

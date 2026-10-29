@@ -1,3 +1,9 @@
 <script>
-    // nothing yet 
+    function dashboardPage() {
+        return {
+            headers: @json($headers),
+            topProducts: @json($topProducts),
+            topCategories: @json($topCategories),
+        }
+    }
 </script>

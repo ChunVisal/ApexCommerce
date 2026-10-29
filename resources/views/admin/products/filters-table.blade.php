@@ -64,7 +64,7 @@
     </x-filter-select>
 
     {{-- Bulk Action Bar --}}
-    {{-- <div id="bulkBar" style="display:none;"
+    <div id="bulkBar" style="display:none;"
         class="flex items-center justify-between pl-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 rounded-md">
         <span class="text-xs text-red-600 dark:text-red-400 font-medium mr-4">
             <span id="bulkCount">0</span> selected
@@ -79,13 +79,11 @@
                 Cancel
             </button>
         </div>
-    </div> --}}
-
-    {{-- <th class="pb-2 pl-4 font-medium text-right">Actions</th> --}}
+    </div>
     {{-- <th class="pb-2 px-4 font-medium">
-                            <input type="checkbox" id="selectAll" onchange="toggleAllCheckboxes(this)"
-                                class="rounded border-gray-300 dark:border-zinc-600 cursor-pointer">
-                        </th> --}}
+        <input type="checkbox" id="selectAll" onchange="toggleAllCheckboxes(this)"
+            class="rounded border-gray-300 dark:border-zinc-600 cursor-pointer">
+    </th> --}}
 </div>
 
 {{-- Table --}}
@@ -95,7 +93,7 @@
         <x-table headers="productHeaders" rows="filteredProducts" as="product">
 
             {{-- Product Image & Name --}}
-            <td class="text-left py-3">
+            <td class=" py-3">
                 <div class="flex items-center gap-3">
                     <img :src="product.image ||
                         'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
@@ -109,14 +107,14 @@
             </td>
 
             {{-- Category --}}
-            <td class="text-center text-gray-600 dark:text-zinc-400" x-text="product.category?.name"></td>
+            <td class=" text-gray-600 dark:text-zinc-400" x-text="product.category?.name"></td>
 
             {{-- Selling Price --}}
-            <td class="text-center font-medium text-gray-800 dark:text-zinc-200"
+            <td class=" font-medium text-gray-800 dark:text-zinc-200"
                 x-text="'$' + Number(product.selling_price).toFixed(2)"></td>
 
             {{-- Stock Status Badge (Alpine Version) --}}
-            <td class=" text-center whitespace-nowrap">
+            <td class="  whitespace-nowrap">
                 <template x-if="product.stock_quantity == 0">
                     <span
                         class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
@@ -138,11 +136,11 @@
             </td>
 
             {{-- Barcode --}}
-            <td class="text-center text-gray-500 dark:text-zinc-500 text-xs" x-text="product.barcode">
+            <td class=" text-gray-500 dark:text-zinc-500 text-xs" x-text="product.barcode">
             </td>
 
             {{-- Status Badge --}}
-            <td class="text-center">
+            <td class="">
                 <span class="px-2 py-0.5 text-[12px] font-semibold rounded-full capitalize"
                     :class="product.status === 'active' ?
                         'bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400' :
@@ -152,7 +150,7 @@
             </td>
 
             {{-- Timestamps --}}
-            <td class="text-center text-xs whitespace-nowrap">
+            <td class=" text-xs whitespace-nowrap">
                 <p class="text-gray-500 dark:text-zinc-500">Created
                     <label class="text-gray-600 dark:text-zinc-500 font-semibold"
                         x-text="new Date(product.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})"></label>
@@ -164,7 +162,7 @@
             </td>
 
             {{-- Actions --}}
-            <td class="text-right">
+            <td class="">
                 <div class="flex items-center justify-end gap-1">
                     <button @click="openEdit(product)"
                         class="text-gray-400 dark:text-zinc-500 hover:text-p dark:hover:text-p" title="Edit">
@@ -174,15 +172,10 @@
                         class="mt-[3px] trash-btn text-red-500 hover:text-red-600" title="Delete">
                         <i class="fa-solid fa-trash text-[16px]"></i>
                     </button>
+                    <input type="checkbox" class="bulk-checkbox rounded border-gray-300 cursor-pointer"
+                        :data-id="product.id" @change="updateBulkBar()">
                 </div>
             </td>
-
-            {{-- Bulk Checkbox
-                            <td class="pl-4">
-                                <input type="checkbox" class="bulk-checkbox rounded border-gray-300 cursor-pointer"
-                                    :data-id="product.id" @change="updateBulkBar()">
-                            </td> --}}
-            {{-- filter/search has no result --}}
         </x-table>
 
         <x-empty-state x-show="products.length > 0 && filteredProducts.length === 0" title="No product found"
@@ -190,7 +183,8 @@
 
         {{-- no products yet --}}
         <x-empty-state x-show="products.length === 0" title="No products exist yet"
-            description="Get started by adding your first product." cta="Add Your First Product" action="openAdd()" />
+            description="Get started by adding your first product." cta="Add Your First Product"
+            action="openAdd()" />
     </div>
 </div>
 @include('admin.products.grid-view')

@@ -5,6 +5,8 @@
             searchQuery: '',
             filterCategory: '',
             filterStock: '',
+            productHeaders: @json($productHeaders),
+            productUomHeaders: @json($productUomHeaders),
             products: @json($products),
 
             viewMode: localStorage.getItem('viewMode') || 'list',
@@ -237,7 +239,8 @@
                         const product = this.products.find(p => p.id === this.returnForm.product_id);
                         if (product) {
                             if (isReturn) {
-                                product.allocated_quantity = (product.allocated_quantity || 0) - this.returnForm.quantity;
+                                product.allocated_quantity = (product.allocated_quantity || 0) - this.returnForm
+                                    .quantity;
                             } else {
                                 product.lost = (product.lost || 0) + this.returnForm.quantity;
                             }

@@ -16,6 +16,10 @@ class DashboardController extends Controller
     {
         $start = $request->start_date ?? now()->subDays(13);
         $end = $request->end_date ?? now();
+        $headers = [
+            'topProducts' => ['No', 'Product', 'Price', 'Average Sale', 'Sold', 'Revenue & Performance'],
+            'topCategories' => ['No', 'Category', 'Products Count', 'Sold Items', 'Average Sale', 'Avg Order Value', 'Revenue & Performance']
+        ];
 
         $summaryCards = DashboardService::getSummaryCards();
         $topProducts = DashboardService::getTopProducts();
@@ -24,6 +28,7 @@ class DashboardController extends Controller
         $paymentBreakdown = DashboardService::getPaymentBreakdown($start, $end);
 
         return view('admin.dashboard.index', compact(
+            'headers',
             'summaryCards',
             'topProducts',
             'topCategories',

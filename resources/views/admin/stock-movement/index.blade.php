@@ -93,7 +93,7 @@
             <div class="scroll-smooth table-scroll overflow-auto max-h-[600px]" x-ref="tableBody">
                 <x-table headers="stockHeaders" rows="paginatedMovements" as="stockmovement">
                     {{-- Date Column Field Element --}}
-                    <td class=" text-left text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
+                    <td class="  text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
                         x-text="new Date(stockmovement.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' ' + new Date(stockmovement.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })">
                     </td>
 
@@ -110,7 +110,7 @@
                     </td>
 
                     {{-- Status Badge dynamic Element Block Row Layout --}}
-                    <td class="text-center whitespace-nowrap">
+                    <td class=" whitespace-nowrap">
                         <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider inline-block"
                             :class="stockmovement.type === 'in' ?
                                 'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400' :
@@ -120,7 +120,7 @@
                     </td>
 
                     {{-- Quantities Numeric Text Element --}}
-                    <td class="text-center font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
+                    <td class=" font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
                         <span x-text="stockmovement.dynamic_quantity_rendered ?? stockmovement.quantity"></span><span
                             class="text-xs font-bold text-gray-800 dark:text-zinc-200 whitespace-nowrap lowercase"
                             x-show="stockmovement.product?.has_uom" x-text="stockmovement.product?.base_unit_name">
@@ -128,18 +128,18 @@
                     </td>
 
                     {{-- Balance Numeric Text Element --}}
-                    <td class="text-center font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
+                    <td class=" font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
                         <span x-text="stockmovement.balance ?? 0"></span>
                     </td>
 
                     {{-- Context Statement Reason Element row field --}}
-                    <td class="text-xs text-center text-gray-600 dark:text-zinc-400 font-medium">
+                    <td class="text-xs  text-gray-600 dark:text-zinc-400 font-medium">
                         <p class="max-w-[200px] break-words line-clamp-2" x-text="stockmovement.reason || '-'">
                         </p>
                     </td>
 
                     {{-- Reference Numeric Text Element --}}
-                    <td class="text-[12px] text-center font-medium text-gray-800 dark:text-zinc-300 whitespace-nowrap">
+                    <td class="text-[12px]  font-medium text-gray-800 dark:text-zinc-300 whitespace-nowrap">
                         <span x-text="stockmovement.reference || '-'"></span>
                     </td>
 

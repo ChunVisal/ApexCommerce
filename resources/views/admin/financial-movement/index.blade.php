@@ -47,27 +47,27 @@
         <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
             <div class="scroll-smooth table-scroll overflow-auto max-h-[600px]" x-ref="tableBody">
                 <x-table headers="financialHeader" rows="paginatedMovements" as="m">
-                    <td class="text-left text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
+                    <td class=" text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
                         x-text="new Date(m.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })">
                     </td>
-                    <td class="text-center ">
+                    <td class=" ">
                         <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider inline-block"
                             :class="m.type === 'in' ?
                                 'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400' :
                                 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'"
                             x-text="m.type === 'in' ? 'IN' : 'OUT'"></span>
                     </td>
-                    <td class="text-center text-xs capitalize text-gray-700 dark:text-zinc-300" x-text="m.category"></td>
-                    <td class="text-center text-gray-700 dark:text-zinc-300 font-semibold whitespace-nowrap"
+                    <td class=" text-xs capitalize text-gray-700 dark:text-zinc-300" x-text="m.category"></td>
+                    <td class=" text-gray-700 dark:text-zinc-300 font-semibold whitespace-nowrap"
                         x-text="m.net_amount != null ? '$' + m.net_amount : '-'"></td>
-                    <td class="text-center  font-semibold whitespace-nowrap"
+                    <td class="  font-semibold whitespace-nowrap"
                         :class="m.type === 'in' ? 'text-green-600 dark:text-green-400' :
                             'text-red-600 dark:text-red-400'"
                         x-text="(m.type === 'in' ? '+$' : '-$') + m.amount"></td>
-                    <td class="text-center text-xs text-gray-800 dark:text-zinc-300 whitespace-nowrap"
+                    <td class=" text-xs text-gray-800 dark:text-zinc-300 whitespace-nowrap"
                         x-text="m.reference || '-'"></td>
                     {{-- Authorized User Metadata Structure Layout --}}
-                    <td class="text-center py-3 text-xs">
+                    <td class=" py-3 text-xs">
                         <div class="inline-block text-left">
                             <p class="font-medium text-gray-800 dark:text-zinc-300" x-text="m.user?.name || '-'">
                             </p>
