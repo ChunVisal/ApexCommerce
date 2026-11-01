@@ -1,6 +1,6 @@
  <script>
      function financialPage() {
-         return {
+         return withPagination({
              financialHeader: @json($financialHeader),
              movements: @json($financialmovements),
              searchQuery: '',
@@ -10,7 +10,7 @@
              currentPage: 1,
              perPage: 20,
 
-             get filteredMovements() {
+             get filteredRecords() {
                  let result = [...this.movements];
                  if (this.searchQuery) {
                      const q = this.searchQuery.toLowerCase();
@@ -42,7 +42,8 @@
              get pageNumbers() {
                  const pages = [];
                  for (let i = 1; i <= this.totalPages; i++) {
-                     if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage +
+                     if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this
+                             .currentPage +
                              2)) pages.push(i);
                      else if (pages[pages.length - 1] !== '...') pages.push('...');
                  }
@@ -64,6 +65,6 @@
                      if (el) el.scrollTop = 0;
                  });
              },
-         };
+         });
      }
  </script>

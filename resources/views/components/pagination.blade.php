@@ -1,5 +1,5 @@
 {{-- resources/views/components/pagination.blade.php --}}
-<div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-zinc-800">
+<div x-show="showPagination" class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200 dark:border-zinc-800">
     <p class="text-xs text-gray-500 dark:text-zinc-400" x-text="showingText"></p>
     <div class="flex items-center gap-1">
         <button @click="prevPage()" :disabled="currentPage === 1" type="button"

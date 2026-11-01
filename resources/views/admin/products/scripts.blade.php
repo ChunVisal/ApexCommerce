@@ -3,7 +3,7 @@
 
         let _isSubmitting = false;
 
-        return {
+        return withPagination({
             viewMode: localStorage.getItem('productViewMode') || 'table',
             search: '',
             open: false,
@@ -52,7 +52,7 @@
             statusFilter: '',
             stockFilter: '',
 
-            get filteredProducts() {
+            get filteredRecords() {
                 let result = [...this.products];
 
                 if (this.searchQuery) {
@@ -181,7 +181,8 @@
                     alert('Cannot delete: This product has existing orders');
                     return;
                 }
-                if (!confirm('Are you sure you want to delete this product include stock movement initial')) return;
+                if (!confirm('Are you sure you want to delete this product include stock movement initial'))
+                    return;
 
                 fetch('/admin/products/' + id, {
                         method: 'DELETE',
@@ -296,7 +297,9 @@
 
                 for (let cb of checkedBoxes) {
                     if (cb.dataset.hasOrders === '1' || cb.dataset.hasStock === '1') {
-                        alert('Some selected products have existing orders or stock history and cannot be deleted.');
+                        alert(
+                            'Some selected products have existing orders or stock history and cannot be deleted.'
+                        );
                         return;
                     }
                 }
@@ -424,7 +427,8 @@
 
                 this.submittingCategory = true;
 
-                const url = this.editCategoryMode ? `/admin/categories/${this.categoryForm.id}` : `/admin/categories`;
+                const url = this.editCategoryMode ? `/admin/categories/${this.categoryForm.id}` :
+                    `/admin/categories`;
 
                 const fd = new FormData();
                 fd.append('name', this.categoryForm.name);
@@ -549,7 +553,8 @@
 
             submitForm() {
                 if (!this.editMode) {
-                    const existsInDB = this.categoryProducts.find(p => p.name === this.form.name && p.id !== null);
+                    const existsInDB = this.categoryProducts.find(p => p.name === this.form.name && p.id !==
+                        null);
                     if (existsInDB && this.draftEditIndex === null) {
                         alert(`"${this.form.name}" already exists in database.`);
                         this.addingToDraft = false;
@@ -639,6 +644,6 @@
                     });
             },
 
-        };
+        });
     }
 </script>

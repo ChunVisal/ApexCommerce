@@ -88,77 +88,73 @@
             </x-filter-select>
         </div>
 
-        {{-- Premium Scannable Table Component Container Block --}}
-        <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
-            <div class="scroll-smooth table-scroll overflow-auto max-h-[600px]" x-ref="tableBody">
-                <x-table headers="stockHeaders" rows="paginatedMovements" as="stockmovement">
-                    {{-- Date Column Field Element --}}
-                    <td class="  text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
-                        x-text="new Date(stockmovement.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' ' + new Date(stockmovement.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })">
-                    </td>
 
-                    {{-- Product + Category Visual Hierarchy Mapping row --}}
-                    <td class="py-3 items-center">
-                        <div class="text-left">
-                            <p class="font-medium text-gray-800 dark:text-zinc-200 text-sm leading-tight"
-                                x-text="stockmovement.product?.name || '-'">
-                            </p>
-                            <p class="text-xs text-gray-400 dark:text-zinc-500 mt-0.5"
-                                x-text="stockmovement.product?.category?.name || '-'">
-                            </p>
-                        </div>
-                    </td>
+        <x-table headers="stockHeaders">
+            {{-- Date Column Field Element --}}
+            <td class="text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
+                x-text="new Date(row.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + ' ' + new Date(row.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })">
+            </td>
 
-                    {{-- Status Badge dynamic Element Block Row Layout --}}
-                    <td class=" whitespace-nowrap">
-                        <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider inline-block"
-                            :class="stockmovement.type === 'in' ?
-                                'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400' :
-                                'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'"
-                            x-text="stockmovement.type === 'in' ? 'IN' : 'OUT'">
-                        </span>
-                    </td>
+            {{-- Product + Category Visual Hierarchy Mapping row --}}
+            <td class="py-3 items-center">
+                <div class="text-left">
+                    <p class="font-medium text-gray-800 dark:text-zinc-200 text-sm leading-tight"
+                        x-text="row.product?.name || '-'">
+                    </p>
+                    <p class="text-xs text-gray-400 dark:text-zinc-500 mt-0.5" x-text="row.product?.category?.name || '-'">
+                    </p>
+                </div>
+            </td>
 
-                    {{-- Quantities Numeric Text Element --}}
-                    <td class=" font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
-                        <span x-text="stockmovement.dynamic_quantity_rendered ?? stockmovement.quantity"></span><span
-                            class="text-xs font-bold text-gray-800 dark:text-zinc-200 whitespace-nowrap lowercase"
-                            x-show="stockmovement.product?.has_uom" x-text="stockmovement.product?.base_unit_name">
-                        </span>
-                    </td>
+            {{-- Status Badge dynamic Element Block Row Layout --}}
+            <td class=" whitespace-nowrap">
+                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider inline-block"
+                    :class="row.type === 'in' ?
+                        'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400' :
+                        'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'"
+                    x-text="row.type === 'in' ? 'IN' : 'OUT'">
+                </span>
+            </td>
 
-                    {{-- Balance Numeric Text Element --}}
-                    <td class=" font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
-                        <span x-text="stockmovement.balance ?? 0"></span>
-                    </td>
+            {{-- Quantities Numeric Text Element --}}
+            <td class=" font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
+                <span x-text="row.dynamic_quantity_rendered ?? row.quantity"></span><span
+                    class="text-xs font-bold text-gray-800 dark:text-zinc-200 whitespace-nowrap lowercase"
+                    x-show="row.product?.has_uom" x-text="row.product?.base_unit_name">
+                </span>
+            </td>
 
-                    {{-- Context Statement Reason Element row field --}}
-                    <td class="text-xs  text-gray-600 dark:text-zinc-400 font-medium">
-                        <p class="max-w-[200px] break-words line-clamp-2" x-text="stockmovement.reason || '-'">
+            {{-- Balance Numeric Text Element --}}
+            <td class=" font-semibold text-gray-800 dark:text-zinc-200 whitespace-nowrap">
+                <span x-text="row.balance ?? 0"></span>
+            </td>
+
+            {{-- Context Statement Reason Element row field --}}
+            <td class="text-xs  text-gray-600 dark:text-zinc-400 font-medium">
+                <p class="max-w-[200px] break-words line-clamp-2" x-text="row.reason || '-'">
+                </p>
+            </td>
+
+            {{-- Reference Numeric Text Element --}}
+            <td class="text-[12px]  font-medium text-gray-800 dark:text-zinc-300 whitespace-nowrap">
+                <span x-text="row.reference || '-'"></span>
+            </td>
+
+            {{-- Authorized User Metadata Structure Layout --}}
+            <td class="text-xs">
+                <div class="flex justify-end">
+                    <div class="text-left">
+                        <p class="font-medium text-gray-800 dark:text-zinc-300" x-text="row.user?.name || '-'">
                         </p>
-                    </td>
-
-                    {{-- Reference Numeric Text Element --}}
-                    <td class="text-[12px]  font-medium text-gray-800 dark:text-zinc-300 whitespace-nowrap">
-                        <span x-text="stockmovement.reference || '-'"></span>
-                    </td>
-
-                    {{-- Authorized User Metadata Structure Layout --}}
-                    <td class="text-xs">
-                        <div class="flex justify-end">
-                            <div class="text-left">
-                                <p class="font-medium text-gray-800 dark:text-zinc-300"
-                                    x-text="stockmovement.user?.name || '-'"></p>
-                                <p class="text-gray-400 dark:text-zinc-500 scale-95 origin-left mt-0.5"
-                                    x-text="stockmovement.user?.email || '-'"></p>
-                            </div>
-                        </div>
-                    </td>
-                </x-table>
-
+                        <p class="text-gray-400 dark:text-zinc-500 scale-95 origin-left mt-0.5"
+                            x-text="row.user?.email || '-'"></p>
+                    </div>
+                </div>
+            </td>
+            <x-slot:empty>
                 {{-- Empty state: filter/search removed everything --}}
                 <x-empty-state icon="heroicon-o-currency-dollar"
-                    x-show="stockmovements.length > 0 && filteredMovements.length === 0" title="No results found"
+                    x-show="stockmovements.length > 0 && filteredRecords.length === 0" title="No results found"
                     description="There are no stock movements matching this filter." />
 
                 {{-- Empty state: no stock movements yet --}}
@@ -166,8 +162,7 @@
                     title="No stock movements"
                     description="There are no registered transactions or inventory changes yet." />
 
-                {{-- Alpine Pagination --}}
-                <x-pagination />
-            </div>
-        </div>
-    @endsection
+            </x-slot:empty>
+        </x-table>
+    </div>
+@endsection

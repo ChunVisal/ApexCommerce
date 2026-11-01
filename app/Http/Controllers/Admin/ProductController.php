@@ -26,11 +26,12 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $productHeaders = ['Product', 'Category', 'Price', 'Stock', 'Barcode', 'Status', 'Date', 'Actions'];
-    
+
         $categories = Categories::withSum('products as total_stock', 'stock_quantity')->get();
 
         $products = Product::with('category')
             ->where('has_uom', false)
+            ->latest()
             ->get();
 
         if ($request->ajax()) {
@@ -225,15 +226,14 @@ class ProductController extends Controller
             ->get()->keyBy('name');
         // keyBy() look up a product by name every item searching for a match the name
 
-        $products = $catalogProducts->map(function ($item) use ($dbProducts) {
-            // Check if this product in the real database?
-            $db = $dbProducts->get($item->name);
-            return [
-                'id' => $db?->id ?? null,
+        $products = $catalogProducts
+            // reject any product that already exists in the database for that category
+            ->reject(fn($item) => $dbProducts->has($item->name))
+            ->map(fn($item) => [
+                'id' => null,
                 'name' => $item->name,
-                'selling_price' => $db?->selling_price ?? $item->default_price,
-            ];
-        })->values();
+                'selling_price' => $item->default_price,
+            ])->values();
 
         return response()->json([
             'category_id' => $category->id,
@@ -249,7 +249,10 @@ class ProductController extends Controller
     {
         $productUomHeaders = ['Product', 'Base Unit', 'Price', 'UOMs', 'Stock', 'Date', 'Actions'];
         $categories = Categories::all();
-        $products = Product::with('uoms', 'category')->where('has_uom', true)->get();
+        $products = Product::with('uoms', 'category')
+            ->where('has_uom', true)
+            ->latest()
+            ->get();
 
         $uomCounts = [];
         foreach ($products as $product) {
@@ -358,7 +361,7 @@ class ProductController extends Controller
         $product->update([
             'category_id' => $category->id,
             'name' => $request->name,
-            'selling_price' => $request->price,
+            'selling_price' => $request->selling_price ?? $product->selling_price,
             'stock_quantity' => $request->stock ?? $product->stock_quantity,
             'image' => $imageUrl,
             'base_unit_name' => $request->base_unit_name,

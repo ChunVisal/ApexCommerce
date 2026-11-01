@@ -2,7 +2,7 @@
     function inventoryPage() {
 
 
-        return {
+        return withPagination({
 
             open: false,
             submitting: false,
@@ -20,7 +20,6 @@
             },
 
             productHeaders: @json($productHeaders),
-            products: @json($products),
             cashierStocks: @json($cashierStocks),
             searchQuery: '',
             categoryFilter: '',
@@ -43,7 +42,8 @@
             selectedCashierName: '',
             cashiers: @json($cashiers ?? []),
 
-            get filteredProducts() {
+            products: @json($products),
+            get filteredRecords() {
                 let result = [...this.products];
 
                 if (this.searchQuery) {
@@ -282,6 +282,6 @@
                         });
                     });
             },
-        }
+        });
     }
 </script>

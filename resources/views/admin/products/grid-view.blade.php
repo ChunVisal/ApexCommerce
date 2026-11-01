@@ -3,7 +3,7 @@
     <div>
         {{-- Product Grid --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4">
-            <template x-for="product in filteredProducts" :key="product.id">
+            <template x-for="product in filteredRecords" :key="product.id">
                 <div :data-category="product.category?.name || ''" :data-status="product.status"
                     :data-stock="product.stock_quantity" :data-threshold="product.low_stock_threshold"
                     class="group rounded-md bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 flex flex-col shadow-xs hover:shadow-md transition-all overflow-hidden">

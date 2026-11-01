@@ -175,10 +175,6 @@
             get filteredCustomers() {
                 let result = [...this.customers];
 
-                if (this.filterSegment) {
-                    result = result.filter(c => c.segment === this.filterSegment);
-                }
-
                 if (this.searchQuery) {
                     const q = this.searchQuery.toLowerCase();
                     result = result.filter(c =>
@@ -233,6 +229,9 @@
                     else if (pages[pages.length - 1] !== '...') pages.push('...');
                 }
                 return pages;
+            },
+            applyFilters() {
+                this.currentPage = 1;
             },
             prevPage() {
                 if (this.currentPage > 1) this.currentPage--;

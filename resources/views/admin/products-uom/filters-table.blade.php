@@ -49,137 +49,133 @@
 </div>
 
 {{-- UOM Table --}}
-<div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-xs border border-gray-300 dark:border-zinc-800/60">
-    <div class="overflow-x-auto">
-        <x-table headers="productUomHeaders" rows="filteredUomProducts" as="product">
-            {{-- Product Info Column - Improved Layout --}}
-            <td class=" py-3 min-w-[220px]">
-                <div class="flex items-center gap-4">
-                    <div class="relative">
-                        <img :src="product.image ||
-                            'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
-                            class="w-14 h-14 rounded-sm object-cover border border-gray-300 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-800" />
-                        <span class="absolute -top-1 -right-1 inline-block w-3.5 h-3.5 rounded-full"
-                            :class="product.status === 'active' ?
-                                'bg-green-400 border border-white dark:border-zinc-800' :
-                                'bg-gray-400 border border-white dark:border-zinc-800'">
-                        </span>
-                    </div>
-                    <div class="flex flex-col truncate">
-                        <span class="font-semibold text-gray-900 dark:text-zinc-100 text-sm truncate"
-                            x-text="product.name"></span>
-                        <span class="text-xs text-gray-500 dark:text-zinc-400 truncate flex items-center gap-1">
 
-                            <span x-text="product.category?.name"></span>
-                        </span>
-                        <span class="text-[12px] text-gray-400 dark:text-zinc-500 font-mono tracking-wide"
-                            x-text="product.code"></span>
-                    </div>
-                </div>
-            </td>
-
-            {{-- Base Unit --}}
-            <td class=" whitespace-nowrap">
-                <span
-                    class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400"
-                    x-text="(product.base_unit_name || 'Unit')">
+<x-table headers="productUomHeaders">
+    {{-- Product Info Column - Improved Layout --}}
+    <td class=" py-3 min-w-[220px]">
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                <img :src="row.image ||
+                    'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
+                    class="w-14 h-14 rounded-sm object-cover border border-gray-300 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-800" />
+                <span class="absolute -top-1 -right-1 inline-block w-3.5 h-3.5 rounded-full"
+                    :class="row.status === 'active' ?
+                        'bg-green-400 border border-white dark:border-zinc-800' :
+                        'bg-gray-400 border border-white dark:border-zinc-800'">
                 </span>
-            </td>
+            </div>
+            <div class="flex flex-col truncate">
+                <span class="font-semibold text-gray-900 dark:text-zinc-100 text-sm truncate" x-text="row.name"></span>
+                <span class="text-xs text-gray-500 dark:text-zinc-400 truncate flex items-center gap-1">
 
-            {{-- Price --}}
-            <td class=" font-medium text-gray-800 dark:text-zinc-200 text-xs"
-                x-text="'$' + Number(product.selling_price || 0).toFixed(2)"></td>
+                    <span x-text="row.category?.name"></span>
+                </span>
+                <span class="text-[12px] text-gray-400 dark:text-zinc-500 font-mono tracking-wide"
+                    x-text="row.code"></span>
+            </div>
+        </div>
+    </td>
 
-            {{-- UOM unit --}}
-            <td class=" ">
-                <div class="flex items-center justify-center gap-1 flex-wrap">
-                    <template x-for="uom in product.uoms.filter(u => !u.is_default)" :key="uom.id">
-                        <div class="relative group">
-                            <span :title="uom.description || 'No description'"
-                                class="cursor-pointer px-2 py-0.5 text-[12px] font-medium bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
-                                <span x-text="uom.name"></span>
-                                (<span x-text="uom.quantity_per_unit"></span><span
-                                    x-text="product.base_unit_code"></span>)
-                                -
-                                $<span x-text="parseFloat(uom.price).toFixed(2)"></span>
-                            </span>
-                            {{-- Custom tooltip --}}
-                            <div
-                                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block whitespace-nowrap px-2 py-1 text-[11px] font-medium text-white bg-gray-900 dark:bg-zinc-700 rounded shadow-lg z-10">
-                                <span x-text="uom.description || 'No description'"></span>
-                                {{-- little arrow pointing down --}}
-                                <div
-                                    class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-zinc-700">
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                    {{-- Fallback: base unit only, no additional UOMs --}}
-                    <span x-show="!product.uoms || product.uoms.filter(u => !u.is_default).length === 0"
-                        class="px-2 py-0.5 text-[12px] font-medium  bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
-                        1 <span x-text="product.base_unit_code"></span>
+    {{-- Base Unit --}}
+    <td class=" whitespace-nowrap">
+        <span
+            class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400"
+            x-text="(row.base_unit_name || 'Unit')">
+        </span>
+    </td>
+
+    {{-- Price --}}
+    <td class=" font-medium text-gray-800 dark:text-zinc-200 text-xs"
+        x-text="'$' + Number(row.selling_price || 0).toFixed(2)"></td>
+
+    {{-- UOM unit --}}
+    <td class=" ">
+        <div class="flex items-center justify-center gap-1 flex-wrap">
+            <template x-for="uom in row.uoms.filter(u => !u.is_default)" :key="uom.id">
+                <div class="relative group">
+                    <span :title="uom.description || 'No description'"
+                        class="cursor-pointer px-2 py-0.5 text-[12px] font-medium bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
+                        <span x-text="uom.name"></span>
+                        (<span x-text="uom.quantity_per_unit"></span><span x-text="row.base_unit_code"></span>)
                         -
-                        $<span x-text="Number(product.selling_price || 0).toFixed(2)"></span>
+                        $<span x-text="parseFloat(uom.price).toFixed(2)"></span>
                     </span>
+                    {{-- Custom tooltip --}}
+                    <div
+                        class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block whitespace-nowrap px-2 py-1 text-[11px] font-medium text-white bg-gray-900 dark:bg-zinc-700 rounded shadow-lg z-10">
+                        <span x-text="uom.description || 'No description'"></span>
+                        {{-- little arrow pointing down --}}
+                        <div
+                            class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-zinc-700">
+                        </div>
+                    </div>
                 </div>
-            </td>
+            </template>
+            {{-- Fallback: base unit only, no additional UOMs --}}
+            <span x-show="!row.uoms || row.uoms.filter(u => !u.is_default).length === 0"
+                class="px-2 py-0.5 text-[12px] font-medium  bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
+                1 <span x-text="row.base_unit_code"></span>
+                -
+                $<span x-text="Number(row.selling_price || 0).toFixed(2)"></span>
+            </span>
+        </div>
+    </td>
 
-            {{-- Stock Status Badge (Alpine Version) --}}
-            <td class="  whitespace-nowrap">
-                <template x-if="product.stock_quantity == 0">
-                    <span
-                        class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
-                        Out of stock
-                    </span>
-                </template>
-                <template x-if="product.stock_quantity > 0 && product.stock_quantity <= product.low_stock_threshold">
-                    <span
-                        class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
-                        <span x-text="product.stock_quantity"></span> Low
-                    </span>
-                </template>
-                <template x-if="product.stock_quantity > product.low_stock_threshold">
-                    <span
-                        class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400">
-                        <span x-text="product.stock_quantity"></span>
-                    </span>
-                </template>
-            </td>
+    {{-- Stock Status Badge (Alpine Version) --}}
+    <td class="  whitespace-nowrap">
+        <template x-if="row.stock_quantity == 0">
+            <span
+                class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400">
+                Out of stock
+            </span>
+        </template>
+        <template x-if="row.stock_quantity > 0 && row.stock_quantity <= row.low_stock_threshold">
+            <span
+                class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+                <span x-text="row.stock_quantity"></span> Low
+            </span>
+        </template>
+        <template x-if="row.stock_quantity > row.low_stock_threshold">
+            <span
+                class="px-2 py-0.5 text-[12px] font-semibold rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400">
+                <span x-text="row.stock_quantity"></span>
+            </span>
+        </template>
+    </td>
 
-            {{-- Timestamps --}}
-            <td class=" text-xs whitespace-nowrap">
-                <p class="text-gray-500 dark:text-zinc-400">Created
-                    <label class="text-gray-600 dark:text-zinc-500 font-semibold"
-                        x-text="product.created_at ? new Date(product.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'"></label>
-                </p>
-                <p class="text-gray-500 dark:text-zinc-400">Updated
-                    <label class="text-gray-600 dark:text-zinc-500 font-semibold"
-                        x-text="product.updated_at ? new Date(product.updated_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'"></label>
-                </p>
-            </td>
+    {{-- Timestamps --}}
+    <td class=" text-xs whitespace-nowrap">
+        <p class="text-gray-500 dark:text-zinc-400">Created
+            <label class="text-gray-600 dark:text-zinc-500 font-semibold"
+                x-text="row.created_at ? new Date(row.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'"></label>
+        </p>
+        <p class="text-gray-500 dark:text-zinc-400">Updated
+            <label class="text-gray-600 dark:text-zinc-500 font-semibold"
+                x-text="row.updated_at ? new Date(row.updated_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'"></label>
+        </p>
+    </td>
 
-            {{-- Actions --}}
-            <td class="">
-                <div class="flex items-center justify-end gap-1">
-                    <button @click="openUomForm(product)" type="button"
-                        class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] dark:hover:text-[#0F6E8C]"
-                        title="Edit">
-                        <x-heroicon-m-pencil-square class="w-5 h-5" />
-                    </button>
-                    <button @click="deleteUom(product.id)" type="button"
-                        class="trash-btn text-red-500 hover:text-red-600" title="Delete">
-                        <i class="fa-solid fa-trash text-[16px] mt-[4px]"></i>
-                    </button>
-                </div>
-            </td>
-        </x-table>
-    </div>
+    {{-- Actions --}}
+    <td class="">
+        <div class="flex items-center justify-end gap-1">
+            <button @click="openUomForm(row)" type="button"
+                class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] dark:hover:text-[#0F6E8C]" title="Edit">
+                <x-heroicon-m-pencil-square class="w-5 h-5" />
+            </button>
+            <button @click="deleteUom(row.id)" type="button" class="trash-btn text-red-500 hover:text-red-600"
+                title="Delete">
+                <i class="fa-solid fa-trash text-[16px] mt-[4px]"></i>
+            </button>
+        </div>
+    </td>
 
-    {{-- Empty state for filter/searching --}}
-    <x-empty-state x-show="products.length > 0 && filteredUomProducts.length === 0" title="No Product UOM found"
-        description="Try a different search or filter." />
+    <x-slot:empty>
+        {{-- Empty state for filter/searching --}}
+        <x-empty-state x-show="products.length > 0 && filteredRecords.length === 0" title="No Product UOM found"
+            description="Try a different search or filter." />
 
-    {{-- Empty state, no products yet --}}
-    <x-empty-state x-show="products.length === 0" title="No products yet"
-        description="Start by adding your first product UOM." cta="Add Product UOM" action="openUomForm(null)" />
-</div>
+        {{-- Empty state, no products yet --}}
+        <x-empty-state x-show="products.length === 0" type="empty" title="No products yet"
+            description="Start by adding your first product UOM." cta="Add Product UOM" action="openUomForm(null)" />
+    </x-slot:empty>
+</x-table>

@@ -1,6 +1,6 @@
 <script>
     function productUomPage() {
-        return {
+        return withPagination({
             // Product uoms state
             categories: @json($categories),
             openCategory: false,
@@ -58,7 +58,7 @@
                 is_default: true
             }],
 
-            get filteredUomProducts() {
+            get filteredRecords() {
                 let result = this.products.filter(p => p.has_uom);
 
                 // Search
@@ -448,6 +448,6 @@
                         });
                     });
             }
-        }
+        });
     }
 </script>

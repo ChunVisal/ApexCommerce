@@ -43,60 +43,56 @@
             </x-filter-select>
         </div>
 
-        {{-- Table --}}
-        <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
-            <div class="scroll-smooth table-scroll overflow-auto max-h-[600px]" x-ref="tableBody">
-                <x-table headers="financialHeader" rows="paginatedMovements" as="m">
-                    <td class=" text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
-                        x-text="new Date(m.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })">
-                    </td>
-                    <td class=" ">
-                        <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider inline-block"
-                            :class="m.type === 'in' ?
-                                'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400' :
-                                'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'"
-                            x-text="m.type === 'in' ? 'IN' : 'OUT'"></span>
-                    </td>
-                    <td class=" text-xs capitalize text-gray-700 dark:text-zinc-300" x-text="m.category"></td>
-                    <td class=" text-gray-700 dark:text-zinc-300 font-semibold whitespace-nowrap"
-                        x-text="m.net_amount != null ? '$' + m.net_amount : '-'"></td>
-                    <td class="  font-semibold whitespace-nowrap"
-                        :class="m.type === 'in' ? 'text-green-600 dark:text-green-400' :
-                            'text-red-600 dark:text-red-400'"
-                        x-text="(m.type === 'in' ? '+$' : '-$') + m.amount"></td>
-                    <td class=" text-xs text-gray-800 dark:text-zinc-300 whitespace-nowrap"
-                        x-text="m.reference || '-'"></td>
-                    {{-- Authorized User Metadata Structure Layout --}}
-                    <td class=" py-3 text-xs">
-                        <div class="inline-block text-left">
-                            <p class="font-medium text-gray-800 dark:text-zinc-300" x-text="m.user?.name || '-'">
-                            </p>
-                            <p class="text-gray-400 dark:text-zinc-500 scale-95 origin-left mt-0.5"
-                                x-text="m.user?.email || '-'">
-                            </p>
-                        </div>
-                    </td>
+        <x-table headers="financialHeader">
+            <td class=" text-xs text-gray-600 dark:text-zinc-400 whitespace-nowrap"
+                x-text="new Date(row.created_at).toLocaleString('en-US', { month: 'short', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })">
+            </td>
+            <td class=" ">
+                <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider inline-block"
+                    :class="row.type === 'in' ?
+                        'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400' :
+                        'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'"
+                    x-text="row.type === 'in' ? 'IN' : 'OUT'"></span>
+            </td>
+            <td class=" text-xs capitalize text-gray-700 dark:text-zinc-300" x-text="row.category"></td>
+            <td class=" text-gray-700 dark:text-zinc-300 font-semibold whitespace-nowrap"
+                x-text="row.net_amount != null ? '$' + row.net_amount : '-'"></td>
+            <td class="  font-semibold whitespace-nowrap"
+                :class="row.type === 'in' ? 'text-green-600 dark:text-green-400' :
+                    'text-red-600 dark:text-red-400'"
+                x-text="(row.type === 'in' ? '+$' : '-$') + row.amount"></td>
+            <td class=" text-xs text-gray-800 dark:text-zinc-300 whitespace-nowrap" x-text="row.reference || '-'">
+            </td>
+            {{-- Authorized User Metadata Structure Layout --}}
+            <td class=" py-3 text-xs">
+                <div class="inline-block text-left">
+                    <p class="font-medium text-gray-800 dark:text-zinc-300" x-text="row.user?.name || '-'">
+                    </p>
+                    <p class="text-gray-400 dark:text-zinc-500 scale-95 origin-left mt-0.5" x-text="row.user?.email || '-'">
+                    </p>
+                </div>
+            </td>
 
-                    <td class="pr-2 w-[270px] max-w-[270px] text-xs text-gray-800 dark:text-zinc-300">
-                        <div class="flex justify-end">
-                            <div class="text-left">
-                                <p class="line-clamp-2 break-words" :title="m.notes" x-text="m.notes || '-'"></p>
-                            </div>
-                        </div>
-                    </td>
-                </x-table>
+            <td class="pr-2 w-[270px] max-w-[270px] text-xs text-gray-800 dark:text-zinc-300">
+                <div class="flex justify-end">
+                    <div class="text-left">
+                        <p class="whitespace-normal line-clamp-2 break-words" :title="row.notes"
+                            x-text="row.notes || '-'"></p>
+                    </div>
+                </div>
+            </td>
 
+            <x-slot:empty>
                 {{-- Empty state: filter/search removed everything --}}
                 <x-empty-state icon="heroicon-o-currency-dollar"
-                    x-show="movements.length > 0 && filteredMovements.length === 0" title="No results found"
+                    x-show="movements.length > 0 && filteredRecords.length === 0" title="No results found"
                     description="There are no financial movements matching this filter." />
 
                 {{-- Empty state: no financial movements yet --}}
                 <x-empty-state icon="heroicon-o-currency-dollar" x-show="movements.length === 0"
                     title="No financial movements" description="There are no registered financial transactions yet." />
-            </div>
 
-            <x-pagination />
-        </div>
+            </x-slot:empty>
+        </x-table>
     </div>
 @endsection
