@@ -55,75 +55,72 @@
     </div>
 
     {{-- Orders Component Box Container --}}
-    <div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
-        <x-table headers="ordersHeaders" rows="filteredOrders" as="order">
-            <td class="py-3 font-medium text-gray-800 dark:text-zinc-200" x-text="order.order_number"></td>
+    <x-table headers="ordersHeaders">
+        <td class="py-3 font-medium text-gray-800 dark:text-zinc-200" x-text="row.order_number"></td>
 
-            <td class="">
-                <div class="min-w-0">
-                    <p class="font-medium text-gray-800 dark:text-zinc-200 truncate"
-                        x-text="order.customer?.name || 'Walk-in'"></p>
-                    <p class="text-xs text-gray-400 truncate" x-text="order.customer?.phone || ''"></p>
-                </div>
-            </td>
+        <td class="">
+            <div class="min-w-0">
+                <p class="font-medium text-gray-800 dark:text-zinc-200 truncate"
+                    x-text="row.customer?.name || 'Walk-in'"></p>
+                <p class="text-xs text-gray-400 truncate" x-text="row.customer?.phone || ''"></p>
+            </div>
+        </td>
 
-            <td class="  font-medium text-gray-700 dark:text-zinc-300"
-                x-text="order.items.reduce((sum, i) => sum + (i.quantity || 0), 0)"></td>
+        <td class="  font-medium text-gray-700 dark:text-zinc-300"
+            x-text="row.items.reduce((sum, i) => sum + (i.quantity || 0), 0)"></td>
 
-            <td class="font-medium text-gray-800 dark:text-zinc-300"
-                x-text="'$' + (parseFloat(order.total) || 0).toFixed(2)"></td>
+        <td class="font-medium text-gray-800 dark:text-zinc-300"
+            x-text="'$' + (parseFloat(row.total) || 0).toFixed(2)"></td>
 
-            <td class="">
-                <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full uppercase"
-                    :class="{
-                        'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': order
-                            .payment?.method === 'cash',
-                        'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': order
-                            .payment?.method === 'card',
-                        'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400': order
-                            .payment?.method === 'khqr'
-                    }"
-                    x-text="order.payment?.method || 'CASH'"></span>
-            </td>
+        <td class="">
+            <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full uppercase"
+                :class="{
+                    'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': order
+                        .payment?.method === 'cash',
+                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': order
+                        .payment?.method === 'card',
+                    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400': order
+                        .payment?.method === 'khqr'
+                }"
+                x-text="row.payment?.method || 'CASH'"></span>
+        </td>
 
-            <td class="text-gray-800 dark:text-zinc-300 text-left"
-                x-text="order.created_at ? new Date(order.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '-'">
-            </td>
+        <td class="text-gray-800 dark:text-zinc-300 text-left"
+            x-text="row.created_at ? new Date(row.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '-'">
+        </td>
 
-            <td class="text-gray-800 dark:text-zinc-300 text-center"
-                x-text="order.refunded_at ? new Date(order.refunded_at).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Not Refunded'">
-            </td>
+        <td class="text-gray-800 dark:text-zinc-300 text-center"
+            x-text="row.refunded_at ? new Date(row.refunded_at).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Not Refunded'">
+        </td>
 
-            <td class="">
-                <button @click="viewOrder(order.id)" class="text-yellow-400 hover:text-yellow-500">
-                    <i class="fa-solid fa-receipt text-lg"></i>
-                </button>
-                <button x-show="order.status === 'completed'" @click="refundOrder(order.id)"
-                    class="text-xs font-medium text-red-500 hover:text-red-600 ml-2">
-                    Refund
-                </button>
+        <td class="">
+            <button @click="viewOrder(row.id)" class="text-yellow-400 hover:text-yellow-500">
+                <i class="fa-solid fa-receipt text-lg"></i>
+            </button>
+            <button x-show="row.status === 'completed'" @click="refundOrder(row.id)"
+                class="text-xs font-medium text-red-500 hover:text-red-600 ml-2">
+                Refund
+            </button>
 
-                <button x-show="order.status === 'partially_refunded'" @click="refundOrder(order.id)"
-                    class="text-xs font-medium text-amber-600 dark:text-amber-500 hover:text-orange-700 ml-2">
-                    Partially_refunded
-                </button>
+            <button x-show="row.status === 'partially_refunded'" @click="refundOrder(row.id)"
+                class="text-xs font-medium text-amber-600 dark:text-amber-500 hover:text-orange-700 ml-2">
+                Partially_refunded
+            </button>
 
-                <span x-show="order.status === 'refunded'" class="text-xs ml-1 font-medium text-green-600">
-                    Refunded
-                </span>
-            </td>
-        </x-table>
+            <span x-show="row.status === 'refunded'" class="text-xs ml-1 font-medium text-green-600">
+                Refunded
+            </span>
+        </td>
 
-        {{-- filter/search removed everything --}}
-        <x-empty-state icon="heroicon-o-magnifying-glass" x-show="orders.length > 0 && filteredOrders.length === 0"
-            title="No orders found" description="Try adjusting your filters." />
+        <x-slot:empty>
+            {{-- filter/search removed everything --}}
+            <x-empty-state icon="heroicon-o-magnifying-glass" x-show="orders.length > 0 && filteredRecords.length === 0"
+                title="No orders found" description="Try adjusting your filters." />
 
-        {{-- no orders at all --}}
-        <x-empty-state icon="heroicon-o-receipt-percent" x-show="orders.length === 0" title="No orders yet"
-            description="Orders will appear here once they are placed." />
+            {{-- no orders at all --}}
+            <x-empty-state icon="heroicon-o-receipt-percent" x-show="orders.length === 0" title="No orders yet"
+                description="Orders will appear here once they are placed." />
+        </x-slot:empty>
 
-        {{-- Alpine Pagination --}}
-        <x-pagination />
-    </div>
-
+    </x-table>
 </div>

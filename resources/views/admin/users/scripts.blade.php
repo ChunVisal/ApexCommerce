@@ -1,6 +1,6 @@
 <script>
     function userPage() {
-        return {
+        return withPagination({
             open: false,
             editMode: false,
             showProfile: false,
@@ -139,7 +139,7 @@
                     .toUpperCase();
             },
 
-            get filteredUsers() {
+            get filteredRecords() {
                 let result = [...this.users];
 
                 if (this.searchQuery) {
@@ -358,6 +358,6 @@
                         });
                     });
             },
-        }
+        });
     }
 </script>

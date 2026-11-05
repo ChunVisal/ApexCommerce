@@ -24,43 +24,43 @@
 
         {{-- Products Table --}}
         <div x-show="tab === 'products'" class="overflow-x-auto">
-            <x-table headers="headers.topProducts" rows="topProducts" as="product">
+            <x-table headers="headers.topProducts">
                 <td>
                     <span class="text-xs font-bold"
                         :class="{
-                            'text-yellow-500': product.rank == 1,
-                            'text-blue-500': product.rank == 2,
-                            'text-amber-600': product.rank == 3,
-                            'text-gray-600 dark:text-zinc-500': product.rank > 3
+                            'text-yellow-500': row.rank == 1,
+                            'text-blue-500': row.rank == 2,
+                            'text-amber-600': row.rank == 3,
+                            'text-gray-600 dark:text-zinc-500': row.rank > 3
                         }"
-                        x-text="'#' + product.rank"></span>
+                        x-text="'#' + row.rank"></span>
                 </td>
                 <td class="py-3">
                     <div class="flex items-center gap-3">
-                        <img :src="product.image ??
+                        <img :src="row.image ??
                             'https://res.cloudinary.com/dexr27qho/image/upload/v1782723706/8fc9e618-ca35-4366-a173-ae4d15ec0aef_vyjksv.png'"
                             class="w-12 h-12 rounded-sm object-cover bg-gray-100 dark:bg-zinc-800 shrink-0">
                         <div class="flex flex-col text-start">
                             <span class="font-medium text-gray-800 dark:text-zinc-200 truncate max-w-[250px]"
-                                x-text="product.name"></span>
-                            <span class="text-xs text-gray-600 dark:text-zinc-400" x-text="product.category"></span>
+                                x-text="row.name"></span>
+                            <span class="text-xs text-gray-600 dark:text-zinc-400" x-text="row.category"></span>
                         </div>
                     </div>
                 </td>
                 <td class="text-gray-700 font-medium dark:text-zinc-200"
-                    x-text="'$' + Number(product.price).toFixed(2)">
+                    x-text="'$' + Number(row.price).toFixed(2)">
                 </td>
                 <td class="font-medium text-gray-700 dark:text-zinc-200"
-                    x-text="'$' + Number(product.avg_sale_price).toFixed(2)"></td>
-                <td class="font-medium text-gray-700 dark:text-zinc-200" x-text="product.sold"></td>
+                    x-text="'$' + Number(row.avg_sale_price).toFixed(2)"></td>
+                <td class="font-medium text-gray-700 dark:text-zinc-200" x-text="row.sold"></td>
                 <td>
                     <div class="flex items-center gap-2">
                         <p class="text-gray-700 dark:text-zinc-200 font-semibold"
-                            x-text="'$' + Number(product.revenue).toFixed(2)"></p>
+                            x-text="'$' + Number(row.revenue).toFixed(2)"></p>
                         <div class="flex-1 h-2 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-[#0F6E8C] rounded-l-full" :style="`width: ${product.percent}%`"></div>
+                            <div class="h-full bg-[#0F6E8C] rounded-l-full" :style="`width: ${row.percent}%`"></div>
                         </div>
-                        <span class="text-[10px] text-gray-400 shrink-0" x-text="product.percent + '%'"></span>
+                        <span class="text-[10px] text-gray-400 shrink-0" x-text="row.percent + '%'"></span>
                     </div>
                 </td>
             </x-table>

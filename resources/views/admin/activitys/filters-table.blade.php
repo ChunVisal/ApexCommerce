@@ -65,7 +65,6 @@
                 </template>
             </div>
             
-
             <div class="flex-1 min-w-0">
                 <p class="text-sm text-gray-800 dark:text-zinc-200">
                     <strong class="text-sm font-medium text-gray-900 dark:text-zinc-100"

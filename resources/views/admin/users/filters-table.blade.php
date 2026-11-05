@@ -37,102 +37,100 @@
     </div>
 </div>
 
-<!-- Users Table -->
-<div class="bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-gray-200 dark:border-zinc-800/60">
-
-    <x-table headers="userHeaders" rows="filteredUsers" as="user">
-        {{-- User Info & Avatar --}}
-        <td class="py-3">
-            <button class="flex items-center gap-3 cursor-pointer text-left" @click="openDetail(user.id)">
-                <div class="relative">
-                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0 overflow-hidden"
-                        :style="`background-color: ${user.role === 'admin' ? '#8B5CF6' : '#0F6E8C'};`">
-                        <template x-if="user.avatar">
-                            <img :src="user.avatar" class="w-full h-full object-cover" />
-                        </template>
-                        <template x-if="!user.avatar">
-                            <span x-text="getInitials(user.name)"></span>
-                        </template>
-                    </div>
-
-                    {{-- Online Badge Indicator --}}
-                    <template x-if="user.is_online">
-                        <div
-                            class="w-3.5 h-3.5 bg-green-500 rounded-full absolute top-0 right-0 border-2 border-white dark:border-zinc-800">
-                        </div>
+<x-table headers="userHeaders">
+    {{-- User Info & Avatar --}}
+    <td class="py-3">
+        <button class="flex items-center gap-3 cursor-pointer text-left" @click="openDetail(row.id)">
+            <div class="relative">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0 overflow-hidden"
+                    :style="`background-color: ${row.role === 'admin' ? '#8B5CF6' : '#0F6E8C'};`">
+                    <template x-if="row.avatar">
+                        <img :src="row.avatar" class="w-full h-full object-cover" />
+                    </template>
+                    <template x-if="!row.avatar">
+                        <span x-text="getInitials(row.name)"></span>
                     </template>
                 </div>
 
-                <div class="flex flex-col items-start">
-                    <p class="font-medium text-gray-800 dark:text-zinc-200" x-text="user.name"></p>
-                    <p class="text-xs text-gray-400 dark:text-zinc-500" x-text="user.email"></p>
-                </div>
-            </button>
-        </td>
-
-        <td class="">
-            <p class="text-xs text-gray-400 dark:text-zinc-400" x-text="user.phone"></p>
-        </td>
-
-        {{-- Role --}}
-        <td class="">
-            <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full capitalize"
-                :class="user.role === 'admin' ?
-                    'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' :
-                    'bg-[#0F6E8C]/10 dark:bg-[#0F6E8C]/30 text-[#0F6E8C] dark:text-[#4a9eb8]'"
-                x-text="user.role">
-            </span>
-        </td>
-
-        {{-- Account Status --}}
-        <td class="">
-            <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full"
-                :class="user.status === 'active' ?
-                    'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400' :
-                    'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400'"
-                x-text="user.status === 'active' ? 'Active' : 'Inactive'">
-            </span>
-        </td>
-
-        {{-- Last Login --}}
-        <td class=" text-xs text-gray-500 dark:text-zinc-400"
-            x-text="user.last_login ? new Date(user.last_login).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Never'">
-        </td>
-        {{-- Online / Offline Status Badge --}}
-        <td class="">
-            <template x-if="user.is_online">
-                <span
-                    class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Online</span>
-            </template>
-            <template x-if="!user.is_online">
-                <span
-                    class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-500 dark:bg-zinc-800 dark:text-zinc-400">Offline</span>
-            </template>
-        </td>
-
-        {{-- Actions --}}
-        <td class="">
-            <div class="flex items-center justify-end gap-2">
-                <button @click="openEdit(user)" type="button"
-                    class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] transition-colors" title="Edit">
-                    <x-heroicon-m-pencil-square class="w-5 h-5" />
-                </button>
-
-                <button @click="deleteUser(user.id, $el)" type="button"
-                    class="text-red-500 hover:text-red-600 transition-colors" title="Delete">
-                    <i class="mt-[4px] fa-solid fa-trash text-[15px]"></i>
-                </button>
-                {{-- <input type="checkbox" class="bulk-checkbox rounded border-gray-300 dark:border-zinc-600 cursor-pointer"
-                    :data-id="user.id" @change="updateBulkBar()"> --}}
+                {{-- Online Badge Indicator --}}
+                <template x-if="row.is_online">
+                    <div
+                        class="w-3.5 h-3.5 bg-green-500 rounded-full absolute top-0 right-0 border-2 border-white dark:border-zinc-800">
+                    </div>
+                </template>
             </div>
-        </td>
-    </x-table>
 
-    {{-- Empty state for filter/searching --}}
-    <x-empty-state icon="heroicon-o-user-group" x-show="users.length > 0 && filteredUsers.length === 0"
-        title="No users found" description="Try adjusting your filters or search." />
+            <div class="flex flex-col items-start">
+                <p class="font-medium text-gray-800 dark:text-zinc-200" x-text="row.name"></p>
+                <p class="text-xs text-gray-400 dark:text-zinc-500" x-text="row.email"></p>
+            </div>
+        </button>
+    </td>
 
-    {{-- Empty state, no users yet --}}
-    <x-empty-state icon="heroicon-o-user-plus" x-show="users.length === 0" title="No users exist yet"
-        description="Get started by adding your first user." cta="Add Your First User" action="openAdd()" />
-</div>
+    <td class="">
+        <p class="text-xs text-gray-400 dark:text-zinc-400" x-text="row.phone"></p>
+    </td>
+
+    {{-- Role --}}
+    <td class="">
+        <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full capitalize"
+            :class="row.role === 'admin' ?
+                'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' :
+                'bg-[#0F6E8C]/10 dark:bg-[#0F6E8C]/30 text-[#0F6E8C] dark:text-[#4a9eb8]'"
+            x-text="row.role">
+        </span>
+    </td>
+
+    {{-- Account Status --}}
+    <td class="">
+        <span class="px-2 py-0.5 text-[11px] font-semibold rounded-full"
+            :class="row.status === 'active' ?
+                'bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400' :
+                'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400'"
+            x-text="row.status === 'active' ? 'Active' : 'Inactive'">
+        </span>
+    </td>
+
+    {{-- Last Login --}}
+    <td class=" text-xs text-gray-500 dark:text-zinc-400"
+        x-text="row.last_login ? new Date(row.last_login).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Never'">
+    </td>
+    {{-- Online / Offline Status Badge --}}
+    <td class="">
+        <template x-if="row.is_online">
+            <span
+                class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">Online</span>
+        </template>
+        <template x-if="!row.is_online">
+            <span
+                class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-500 dark:bg-zinc-800 dark:text-zinc-400">Offline</span>
+        </template>
+    </td>
+
+    {{-- Actions --}}
+    <td class="">
+        <div class="flex items-center justify-end gap-2">
+            <button @click="openEdit(user)" type="button"
+                class="text-gray-400 dark:text-zinc-500 hover:text-[#0F6E8C] transition-colors" title="Edit">
+                <x-heroicon-m-pencil-square class="w-5 h-5" />
+            </button>
+
+            <button @click="deleteUser(row.id, $el)" type="button"
+                class="text-red-500 hover:text-red-600 transition-colors" title="Delete">
+                <i class="mt-[4px] fa-solid fa-trash text-[15px]"></i>
+            </button>
+            {{-- <input type="checkbox" class="bulk-checkbox rounded border-gray-300 dark:border-zinc-600 cursor-pointer"
+                    :data-id="row.id" @change="updateBulkBar()"> --}}
+        </div>
+    </td>
+
+    <x-slot:empty>
+        {{-- Empty state for filter/searching --}}
+        <x-empty-state icon="heroicon-o-user-group" x-show="users.length > 0 && filteredRecords.length === 0"
+            title="No users found" description="Try adjusting your filters or search." />
+
+        {{-- Empty state, no users yet --}}
+        <x-empty-state icon="heroicon-o-user-plus" x-show="users.length === 0" title="No users exist yet"
+            description="Get started by adding your first row." cta="Add Your First User" action="openAdd()" />
+    </x-slot:empty>
+</x-table>

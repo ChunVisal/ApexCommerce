@@ -14,29 +14,26 @@
     </div>
 
     {{-- Table --}}
-    <div class="p-4 rounded-md shadow-xs border border-gray-200 dark:border-zinc-800/60">
-        
-        <x-table headers="headers.dailySales" rows="dailySales" as="sale">
-            <td class="py-3  font-medium text-gray-800 dark:text-zinc-200"
-                x-text="new Date(sale.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' })">
-            </td>
-            <td class="py-3  text-gray-700 dark:text-zinc-200" x-text="sale.orders"></td>
-            <td class=" text-gray-700 dark:text-zinc-200" x-text="sale.items_qty"></td>
-            <td class=" font-bold text-gray-800 dark:text-zinc-200"
-                x-text="'$' + Number(sale.revenue).toFixed(2)"></td>
-            <td class="  font-semibold text-red-500" x-text="'-$' + Number(sale.discount).toFixed(2)">
-            </td>
-            <td class=" font-semibold text-yellow-600" x-text="'-$' + Number(sale.vip_discount).toFixed(2)">
-            </td>
-            <td class="  text-gray-600 dark:text-zinc-300" x-text="'$' + Number(sale.tax).toFixed(2)">
-            </td>
-            <td class=" font-bold text-[#0F6E8C]"
-                x-text="'$' + (sale.revenue - sale.discount - sale.vip_discount - sale.tax).toFixed(2)"></td>
-        </x-table>
-
-        <x-empty-state icon="heroicon-o-chart-bar" x-show="dailySales.length === 0" title="No sales data"
-            description="There are no sales in the selected date range." />
-    </div>
+    <x-table headers="headers.dailySales" rows="paginatedDailySales">
+        <td class="py-3  font-medium text-gray-800 dark:text-zinc-200"
+            x-text="new Date(row.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric' })">
+        </td>
+        <td class="py-3  text-gray-700 dark:text-zinc-200" x-text="row.orders"></td>
+        <td class=" text-gray-700 dark:text-zinc-200" x-text="row.items_qty"></td>
+        <td class=" font-bold text-gray-800 dark:text-zinc-200" x-text="'$' + Number(row.revenue).toFixed(2)"></td>
+        <td class="  font-semibold text-red-500" x-text="'-$' + Number(row.discount).toFixed(2)">
+        </td>
+        <td class=" font-semibold text-yellow-600" x-text="'-$' + Number(row.vip_discount).toFixed(2)">
+        </td>
+        <td class="  text-gray-600 dark:text-zinc-300" x-text="'$' + Number(row.tax).toFixed(2)">
+        </td>
+        <td class=" font-bold text-[#0F6E8C]"
+            x-text="'$' + (row.revenue - row.discount - row.vip_discount - row.tax).toFixed(2)"></td>
+        <x-slot:empty>
+            <x-empty-state icon="heroicon-o-chart-bar" x-show="dailySales.length === 0" title="No sales data"
+                description="There are no sales in the selected date range." />
+        </x-slot:empty>
+    </x-table>
 </div>
 
 {{-- Chart Script --}}

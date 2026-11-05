@@ -91,7 +91,7 @@
                 {{-- Empty state: no financial movements yet --}}
                 <x-empty-state icon="heroicon-o-currency-dollar" x-show="movements.length === 0"
                     title="No financial movements" description="There are no registered financial transactions yet." />
-
+                    
             </x-slot:empty>
         </x-table>
     </div>

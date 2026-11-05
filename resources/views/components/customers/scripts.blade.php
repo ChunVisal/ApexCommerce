@@ -1,7 +1,7 @@
 {{-- resources/views/components/customers/scripts.blade.php --}}
 <script>
     function customerPage() {
-        return {
+        return withPagination({
             basePath: '{{ request()->is("admin/*") ? "admin" : "cashier" }}',
             
             customerHeaders: @json($customerHeaders),
@@ -172,7 +172,7 @@
                 };
             },
 
-            get filteredCustomers() {
+            get filteredRecords() {
                 let result = [...this.customers];
 
                 if (this.searchQuery) {
@@ -194,6 +194,10 @@
                     result.sort((a, b) => (a.code || '').localeCompare(b.code || ''));
                 }
 
+                if (this.filterSegment) {
+                    result = result.filter(c => c.segment === this.filterSegment);
+                }
+
                 return result;
             },
 
@@ -208,44 +212,6 @@
                     this.open = true;
                 });
             },
-
-            get totalPages() {
-                return Math.ceil(this.filteredCustomers.length / this.perPage);
-            },
-            get paginatedCustomers() {
-                const start = (this.currentPage - 1) * this.perPage;
-                return this.filteredCustomers.slice(start, start + this.perPage);
-            },
-            get showingText() {
-                const start = (this.currentPage - 1) * this.perPage + 1;
-                const end = Math.min(this.currentPage * this.perPage, this.filteredCustomers.length);
-                return `Showing ${start}-${end} of ${this.filteredCustomers.length} entries`;
-            },
-            get pageNumbers() {
-                const pages = [];
-                for (let i = 1; i <= this.totalPages; i++) {
-                    if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage +
-                            2)) pages.push(i);
-                    else if (pages[pages.length - 1] !== '...') pages.push('...');
-                }
-                return pages;
-            },
-            applyFilters() {
-                this.currentPage = 1;
-            },
-            prevPage() {
-                if (this.currentPage > 1) this.currentPage--;
-            },
-            nextPage() {
-                if (this.currentPage < this.totalPages) this.currentPage++;
-            },
-            goToPage(page) {
-                if (typeof page === 'number') this.currentPage = page;
-                this.$nextTick(() => {
-                    const el = this.$refs.tableBody;
-                    if (el) el.scrollTop = 0;
-                });
-            },
-        }
+        });
     }
 </script>

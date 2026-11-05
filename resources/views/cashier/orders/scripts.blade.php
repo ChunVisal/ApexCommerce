@@ -1,6 +1,6 @@
 <script>
     function orderPage() {
-        return {
+        return withPagination({
             orderDetailOpen: false,
             receiptOpen: false,
             receiptData: {},
@@ -26,7 +26,7 @@
             refundSelection: {},
             restockItems: true,
 
-            get filteredOrders() {
+            get filteredRecords() {
                 let result = [...this.orders];
 
                 // Search filter
@@ -57,7 +57,8 @@
             get pageNumbers() {
                 const pages = [];
                 for (let i = 1; i <= this.totalPages; i++) {
-                    if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage +
+                    if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this
+                            .currentPage +
                             2)) pages.push(i);
                     else if (pages[pages.length - 1] !== '...') pages.push('...');
                 }
@@ -186,7 +187,8 @@
 
                         // Update refundOrderItems — what the slideover itself displays
                         items.forEach(refundItem => {
-                            const item = this.refundOrderItems.find(i => i.id === refundItem.order_item_id);
+                            const item = this.refundOrderItems.find(i => i.id === refundItem
+                                .order_item_id);
                             if (item) {
                                 item.refunded_quantity = (item.refunded_quantity || 0) + refundItem
                                     .quantity;
@@ -239,7 +241,8 @@
                             status: order.status,
                             refund_reason: order.refund_reason,
                             payment_method: order.payment?.method,
-                            amount_received: parseFloat(order.payment?.amount_received) || parseFloat(order
+                            amount_received: parseFloat(order.payment?.amount_received) || parseFloat(
+                                order
                                 .total) || 0,
                             change: parseFloat(order.payment?.change) || 0,
                             customer: order.customer ? {
@@ -266,6 +269,6 @@
                         });
                     });
             },
-        };
+        });
     }
 </script>
