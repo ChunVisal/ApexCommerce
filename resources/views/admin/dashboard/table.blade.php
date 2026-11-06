@@ -23,8 +23,8 @@
     <div class="p-4">
 
         {{-- Products Table --}}
-        <div x-show="tab === 'products'" class="overflow-x-auto">
-            <x-table headers="headers.topProducts">
+        <div x-show="tab === 'products'">
+            <x-table headers="headers.topProducts" rows="topProducts" :paginate="false">
                 <td>
                     <span class="text-xs font-bold"
                         :class="{
@@ -47,8 +47,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="text-gray-700 font-medium dark:text-zinc-200"
-                    x-text="'$' + Number(row.price).toFixed(2)">
+                <td class="text-gray-700 font-medium dark:text-zinc-200" x-text="'$' + Number(row.price).toFixed(2)">
                 </td>
                 <td class="font-medium text-gray-700 dark:text-zinc-200"
                     x-text="'$' + Number(row.avg_sale_price).toFixed(2)"></td>
@@ -63,51 +62,62 @@
                         <span class="text-[10px] text-gray-400 shrink-0" x-text="row.percent + '%'"></span>
                     </div>
                 </td>
+
+                <x-slot:empty>
+                    <x-empty-state icon="heroicon-o-cube" x-show="topProducts.length === 0"
+                        title="No best selling products"
+                        description="Products will appear here once they have sales." />
+                </x-slot:empty>
             </x-table>
         </div>
 
         {{-- Categories Table (Redesigned) --}}
-        <div x-show="tab === 'categories'" style="display: none;" class="overflow-x-auto">
-            <x-table headers="headers.topCategories" rows="topCategories" as="category">
-                <td >
+        <div x-show="tab === 'categories'" style="display: none;" class="overflow-x-auto" :paginate="false">
+            <x-table headers="headers.topCategories" rows="topCategories">
+                <td>
                     <span class="text-xs font-bold"
                         :class="{
-                            'text-yellow-500': category.rank == 1,
-                            'text-blue-500': category.rank == 2,
-                            'text-amber-600': category.rank == 3,
-                            'text-gray-600 dark:text-zinc-500': category.rank > 3
+                            'text-yellow-500': row.rank == 1,
+                            'text-blue-500': row.rank == 2,
+                            'text-amber-600': row.rank == 3,
+                            'text-gray-600 dark:text-zinc-500': row.rank > 3
                         }"
-                        x-text="'#' + category.rank"></span>
+                        x-text="'#' + row.rank"></span>
                 </td>
                 <td class="py-4">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 rounded-sm bg-[#0F6E8C]/5 flex items-center justify-center shrink-0"
-                            x-html="category.svg"></div>
+                            x-html="row.svg"></div>
                         <div class="flex flex-col text-start">
                             <span class="font-medium text-gray-800 dark:text-zinc-200 truncate max-w-[250px]"
-                                x-text="category.name"></span>
-                            <span class="text-[12px] text-gray-600 dark:text-zinc-400" x-text="category.code"></span>
+                                x-text="row.name"></span>
+                            <span class="text-[12px] text-gray-600 dark:text-zinc-400" x-text="row.code"></span>
                         </div>
                     </div>
                 </td>
-                <td class="font-medium text-gray-700 dark:text-zinc-200"
-                    x-text="category.products_count ?? category.products"></td>
-                <td class="font-medium text-gray-700 dark:text-zinc-200" x-text="category.sold"></td>
+                <td class="font-medium text-gray-700 dark:text-zinc-200" x-text="row.products_count ?? row.products">
+                </td>
+                <td class="font-medium text-gray-700 dark:text-zinc-200" x-text="row.sold"></td>
                 <td class="text-gray-700 font-medium dark:text-zinc-200"
-                    x-text="'$' + Number(category.avg_sale_price ?? 0).toFixed(2)"></td>
+                    x-text="'$' + Number(row.avg_sale_price ?? 0).toFixed(2)"></td>
                 <td class="text-gray-700 font-medium dark:text-zinc-200"
-                    x-text="'$' + Number(category.avg_order_value ?? 0).toFixed(2)"></td>
+                    x-text="'$' + Number(row.avg_order_value ?? 0).toFixed(2)"></td>
                 <td>
                     <div class="flex items-center gap-2">
                         <p class="text-gray-700 dark:text-zinc-200 font-semibold"
-                            x-text="'$' + Number(category.revenue).toFixed(2)"></p>
+                            x-text="'$' + Number(row.revenue).toFixed(2)"></p>
                         <div class="flex-1 h-2 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-[#0F6E8C] rounded-l-full" :style="`width: ${category.percent}%`">
+                            <div class="h-full bg-[#0F6E8C] rounded-l-full" :style="`width: ${row.percent}%`">
                             </div>
                         </div>
-                        <span class="text-[10px] text-gray-400 shrink-0" x-text="category.percent + '%'"></span>
+                        <span class="text-[10px] text-gray-400 shrink-0" x-text="row.percent + '%'"></span>
                     </div>
                 </td>
+
+                <x-slot:empty>
+                    <x-empty-state icon="heroicon-o-squares-2x2" x-show="topCategories.length === 0"
+                        title="No top categories" description="Categories will appear here once they have sales." />
+                </x-slot:empty>
             </x-table>
         </div>
 
